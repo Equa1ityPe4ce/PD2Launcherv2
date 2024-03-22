@@ -1,6 +1,4 @@
 ﻿using Force.Crc32;
-using PD2Launcherv2.Interfaces;
-using PD2Launcherv2.Storage;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
@@ -14,7 +12,7 @@ namespace PD2Launcherv2.Helpers
         private readonly HttpClient _httpClient;
         private readonly string stringToFilePath;
 
-        public FileUpdateHelpers(String filePath,HttpClient httpClient)
+        public FileUpdateHelpers(String filePath, HttpClient httpClient)
         {
             _httpClient = httpClient;
             stringToFilePath = filePath;
@@ -81,7 +79,7 @@ namespace PD2Launcherv2.Helpers
     {
         [JsonPropertyName("name")]
         public string Name { get; set; }
-        
+
         [JsonPropertyName("mediaLink")]
         public string MediaLink { get; set; }
 

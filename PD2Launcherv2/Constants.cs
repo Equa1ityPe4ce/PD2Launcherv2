@@ -7,9 +7,9 @@ namespace ProjectDiablo2Launcherv2
     public static class Constants
     {
         static string clientFilesBucket = "https://storage.googleapis.com/storage/v1/b/pd2-client-files/o";
-        
+
         static string betaClientFilesBucket = "https://storage.googleapis.com/storage/v1/b/pd2-beta-client-files/o";
-        
+
         static string author = "https://raw.githubusercontent.com/Project-Diablo-2/LootFilters/main/filters.json";
 
         public static class Ddraw
@@ -56,7 +56,7 @@ namespace ProjectDiablo2Launcherv2
                             new NumberAsStringJsonConverter()
                         }
                     };
-                }         
+                }
             }
         }
 

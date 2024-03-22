@@ -132,25 +132,25 @@
     </Style>
 
     <Style x:Key="CustomListBoxItemStyle" TargetType="ListBoxItem">
-    <Setter Property="Foreground" Value="{StaticResource GoldBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource GoldBrush}" />
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Template">
-        <Setter.Value>
-            <ControlTemplate TargetType="ListBoxItem">
-                <Border Name="Border" Background="{TemplateBinding Background}"
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border Name="Border" Background="{TemplateBinding Background}"
                         Padding="2" SnapsToDevicePixels="true">
-                    <ContentPresenter />
-                </Border>
-                <ControlTemplate.Triggers>
-                    <Trigger Property="IsSelected" Value="true">
-                        <Setter TargetName="Border" Property="Background" Value="{StaticResource ShakoBrush}" />
-                        <Setter TargetName="Border" Property="BorderBrush" Value="Transparent" />
-                        <Setter Property="Foreground" Value="Black"/>
-                    </Trigger>
-                </ControlTemplate.Triggers>
-            </ControlTemplate>
-        </Setter.Value>
-    </Setter>
-</Style>
+                        <ContentPresenter />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="true">
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource ShakoBrush}" />
+                            <Setter TargetName="Border" Property="BorderBrush" Value="Transparent" />
+                            <Setter Property="Foreground" Value="Black"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
 </ResourceDictionary>

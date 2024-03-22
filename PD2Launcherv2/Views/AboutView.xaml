@@ -23,7 +23,7 @@
 
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock Text="File Update Testing" FontSize="16" FontFamily="{StaticResource BlizzHeavy}" Foreground="{StaticResource GoldBrush}"></TextBlock>
-            
+
             <Button x:Name="PRODBucket" Content="PRODBucket" Style="{StaticResource CloseButtonStyle}"
                     Width="200" Height="35" Margin="10" Background="{StaticResource ShakoBrush}"
                     Command="{Binding ProdBucket}" FontFamily="{StaticResource BlizzHeavy}">
