@@ -4,8 +4,11 @@ using PD2Launcherv2.Enums;
 using PD2Launcherv2.Helpers;
 using PD2Launcherv2.Interfaces;
 using PD2Launcherv2.Models;
+using ProjectDiablo2Launcherv2.Models;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 
@@ -135,6 +138,12 @@ namespace PD2Launcherv2.ViewModels
 
         private async void FetchDataFromAuthorUrl(string url)
         {
+            if (SelectedAuthor.Name == "Local Filter")
+            {
+                LoadLocalFilters();
+                return;
+            }
+
             // Use HttpClient to fetch data from the specified URL
             Debug.WriteLine($"Fetching data from {url}");
             _filterHelpers.FetchFilterContentsAsync(url);
@@ -152,6 +161,14 @@ namespace PD2Launcherv2.ViewModels
             Debug.WriteLine("start FetchAndStoreFilterAuthorsAsync");
             await _filterHelpers.FetchAndStoreFilterAuthorsAsync();
             LoadAuthorsFromStorage();
+            var storedData = _localStorage.LoadSection<Pd2AuthorList>(StorageKey.Pd2AuthorList);
+            if (storedData?.StorageAuthorList != null)
+            {
+                // Prepend "Local" author to the list
+                var updatedList = new List<FilterAuthor> { new FilterAuthor { Name = "Local Filter", Url = "local", Author = "Local Filter"} };
+                updatedList.AddRange(storedData.StorageAuthorList);
+                AuthorsList = updatedList;
+            }
             Debug.WriteLine("end FetchAndStoreFilterAuthorsAsync");
         }
 
@@ -159,9 +176,28 @@ namespace PD2Launcherv2.ViewModels
         {
             // Load the Pd2AuthorList which contains ETag and the actual AuthorList
             var storedData = _localStorage.LoadSection<Pd2AuthorList>(StorageKey.Pd2AuthorList);
+            // Ensure "Local" author is at the top
             if (storedData?.StorageAuthorList != null)
             {
                 AuthorsList = storedData.StorageAuthorList;
+            }
+        }
+
+        private void LoadLocalFilters()
+        {
+            // Retrieve the base path from storage
+            var fileUpdateModel = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
+            if (fileUpdateModel != null)
+            {
+                var localFiltersPath = Path.Combine(fileUpdateModel.FilePath, "filters", "local");
+                if (Directory.Exists(localFiltersPath))
+                {
+                    var filterFiles = Directory.EnumerateFiles(localFiltersPath, "*.filter")
+                                               .Select(path => new FilterFile { Name = Path.GetFileName(path), Path = path })
+                                               .ToList();
+
+                    FiltersList = filterFiles;
+                }
             }
         }
 
