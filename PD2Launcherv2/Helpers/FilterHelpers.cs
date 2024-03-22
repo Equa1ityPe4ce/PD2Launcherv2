@@ -1,7 +1,10 @@
+using Force.Crc32;
 using Newtonsoft.Json;
 using PD2Launcherv2.Interfaces;
 using PD2Launcherv2.Models;
+using ProjectDiablo2Launcherv2.Models;
 using System.Diagnostics;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 
@@ -138,6 +141,91 @@ namespace PD2Launcherv2.Helpers
                 Console.WriteLine($"Error fetching filter authors: {ex.Message}");
             }
             Debug.WriteLine("end FetchAndStoreFilterAuthorsAsync\n");
+        }
+
+        // This method handles the actual file download
+        private async Task<bool> DownloadFileAsync(string downloadUrl, string targetPath)
+        {
+            Debug.WriteLine($"DownloadFileAsync start");
+            Debug.WriteLine($"downloadUrl {downloadUrl}");
+            Debug.WriteLine($"targetPath {targetPath}");
+            try
+            {
+                var response = await _httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
+                response.EnsureSuccessStatusCode();
+                Debug.WriteLine($"response {response.Content}");
+                Debug.WriteLine($"response {response.StatusCode}");
+
+                using (var fileStream = new FileStream(targetPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    Debug.WriteLine($"fileStream {fileStream}");
+                    await response.Content.CopyToAsync(fileStream);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> ApplyLootFilterAsync(string author, string filterName, string downloadUrl)
+        {
+            try
+            {
+                var fileUpdateModel = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
+                if (fileUpdateModel == null || string.IsNullOrWhiteSpace(fileUpdateModel.FilePath))
+                {
+                    Debug.WriteLine("Base path is not set.");
+                    return false;
+                }
+
+                string basePath = fileUpdateModel.FilePath;
+                string filtersBasePath = Path.Combine(basePath, "filters");
+                string localPath = Path.Combine(filtersBasePath, "local");
+                string onlinePath = Path.Combine(filtersBasePath, "online");
+                string defaultFilterPath = Path.Combine(basePath, "loot.filter");
+
+                // Ensure necessary directories exist
+                Directory.CreateDirectory(localPath);
+                Directory.CreateDirectory(onlinePath);
+
+                string targetFilterPath;
+                if (author.Equals("local", StringComparison.OrdinalIgnoreCase))
+                {
+                    targetFilterPath = Path.Combine(localPath, filterName);
+                }
+                else
+                {
+                    targetFilterPath = Path.Combine(onlinePath, filterName);
+                    // Directly download the filter file for online sources if it does not exist
+                    if (!File.Exists(targetFilterPath))
+                    {
+                        bool downloadSuccess = await DownloadFileAsync(downloadUrl, targetFilterPath);
+                        if (!downloadSuccess)
+                        {
+                            Debug.WriteLine("Failed to download or update the filter file.");
+                            return false;
+                        }
+                    }
+                }
+
+                // Create or update the symbolic link for the loot filter
+                if (File.Exists(defaultFilterPath))
+                {
+                    File.Delete(defaultFilterPath);
+                }
+                File.CreateSymbolicLink(defaultFilterPath, targetFilterPath);
+
+                Debug.WriteLine("Filter applied successfully.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error applying loot filter: {ex.Message}");
+                return false;
+            }
         }
     }
 }

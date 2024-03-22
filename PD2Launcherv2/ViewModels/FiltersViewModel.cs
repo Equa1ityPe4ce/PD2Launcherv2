@@ -235,14 +235,25 @@ namespace PD2Launcherv2.ViewModels
             Messenger.Default.Send(new NavigationMessage { Action = NavigationAction.GoBack });
         }
 
-        private void SaveFilterExecute()
+        private async void SaveFilterExecute()
         {
             SaveFilterToStorage();
-        }
+            if (SelectedFilter != null && SelectedAuthor != null)
+            {
+                bool success = await _filterHelpers.ApplyLootFilterAsync(SelectedAuthor.Name, SelectedFilter.Name, SelectedFilter.DownloadUrl);
 
-        private void ViewReadmeExecute()
-        {
-            // Implementation for viewing readme
+                if (success)
+                {
+                    // Update storage to reflect the new or updated filter
+                    SaveFilterToStorage();
+                    Debug.WriteLine("Filter applied successfully.");
+                }
+                else
+                {
+                    Debug.WriteLine("Failed to apply filter.");
+                    // Optionally, inform the user of the failure
+                }
+            }
         }
 
         private void OpenAuthorsPageExecute()
@@ -268,6 +279,40 @@ namespace PD2Launcherv2.ViewModels
             {
                 Debug.WriteLine($"Failed to open URL: {url}. Error: {ex.Message}");
                 // Optionally, inform the user that opening the URL failed.
+            }
+        }
+
+        private void ViewReadmeExecute()
+        {
+            // Find README.md in the filter list
+            var readmeFile = FiltersList.FirstOrDefault(f => f.Name.Equals("README.md", StringComparison.OrdinalIgnoreCase));
+
+            if (readmeFile != null)
+            {
+                // If README.md exists, open it. This example uses the default system application.
+                try
+                {
+                    // If readme is a local file
+                    if (File.Exists(readmeFile.Path))
+                    {
+                        Process.Start(new ProcessStartInfo(readmeFile.Path) { UseShellExecute = true });
+                    }
+                    // If readme is a URL
+                    else if (!string.IsNullOrEmpty(readmeFile.Url))
+                    {
+                        Process.Start(new ProcessStartInfo(readmeFile.HtmlUrl) { UseShellExecute = true });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Handle errors (e.g., no application associated with .md files)
+                    Debug.WriteLine($"Error opening README.md: {ex.Message}");
+                }
+            }
+            else
+            {
+                // Handle case where README.md does not exist in the list
+                Debug.WriteLine("README.md not found in the filters list.");
             }
         }
     }
