@@ -31,7 +31,6 @@
         <Setter Property="Padding" Value="10,5" />
         <Setter Property="BorderThickness" Value="2" />
         <Setter Property="BorderBrush" Value="{StaticResource GoldBrush}" />
-        <!-- Define the default appearance of the button, including any borders, padding, etc. -->
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -43,20 +42,14 @@
                                       VerticalAlignment="Center" />
                     </Border>
                     <ControlTemplate.Triggers>
-                        <!-- Change background and foreground when the button is pressed -->
                         <Trigger Property="IsPressed" Value="True">
                             <Setter Property="Background" Value="{StaticResource ShakoBrush}" />
-                            <Setter Property="Foreground" Value="{StaticResource BlackBrush}" />
-                        </Trigger>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="Transparent" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
-
 
     <!-- Close Button -->
     <Style x:Key="CloseButtonStyle" TargetType="Button">
