@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
+using static Dropbox.Api.TeamPolicies.SmartSyncPolicy;
 
 namespace PD2Launcherv2.ViewModels
 {
@@ -165,7 +166,7 @@ namespace PD2Launcherv2.ViewModels
             if (storedData?.StorageAuthorList != null)
             {
                 // Prepend "Local" author to the list
-                var updatedList = new List<FilterAuthor> { new FilterAuthor { Name = "Local Filter", Url = "local", Author = "Local Filter"} };
+                var updatedList = new List<FilterAuthor> { new FilterAuthor { Name = "Local Filter", Url = "local", Author = "Local Filter" } };
                 updatedList.AddRange(storedData.StorageAuthorList);
                 AuthorsList = updatedList;
             }
@@ -257,6 +258,7 @@ namespace PD2Launcherv2.ViewModels
 
         private void OpenUrlInBrowser(string url)
         {
+            if (url == "local") { return; }
             try
             {
                 Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
