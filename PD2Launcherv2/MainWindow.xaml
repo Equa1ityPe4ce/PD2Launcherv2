@@ -100,7 +100,6 @@
                 HorizontalAlignment="Right"
                 Width="250"
                 Height="50"
-                Foreground="{StaticResource DarkGray}"
                 TextWrapping="Wrap"
                        Foreground="{StaticResource SoftWhite}"
                        FontFamily="{StaticResource BlizzLight}"/>

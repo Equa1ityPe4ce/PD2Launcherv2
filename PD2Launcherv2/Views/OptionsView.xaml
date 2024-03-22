@@ -4,23 +4,60 @@
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:PD2Launcherv2.ViewModels"
+      xmlns:conv="clr-namespace:ProjectDiablo2Launcherv2.Converters"
       Width="750" Height="550"
       mc:Ignorable="d" 
       Title="OptionsView"
       DataContext="{Binding OptionsViewModel, Source={StaticResource ViewModelLocator}}">
 
-
     <Grid>
         <Image Source="/Resources/Images/bg_plain.jpg" Stretch="Fill"/>
-        <!-- Your options controls go here -->
+        <!-- Options controls -->
 
-        <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}" FontFamily="{StaticResource BlizzHeavy}" Command="{Binding CloseCommand}" 
-                FontSize="25" Content="X" />
-        <Grid>
-            <TextBlock x:Name="Options" Text="Options" FontSize="25" Margin="0,20,0,0"
-                       VerticalAlignment="Top" HorizontalAlignment="Center" 
-                       Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzHeavy}">
-            </TextBlock>
-        </Grid>
+        <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}" FontFamily="{StaticResource BlizzHeavy}" Command="{Binding CloseCommand}" FontSize="25" Content="X" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"/>
+
+        <ScrollViewer Margin="20">
+            <StackPanel>
+                <TextBlock Text="Options" FontSize="25" Margin="0,20,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzHeavy}"/>
+
+                <GroupBox Header="Graphics" Margin="10" FontWeight="Bold" Foreground="{StaticResource GoldBrush}">
+                    <StackPanel>
+                        <RadioButton Content="3dfx" GroupName="renderer" Style="{StaticResource CustomRadioButtonStyle}"/>
+                        <RadioButton Content="ddraw" GroupName="renderer" Style="{StaticResource CustomRadioButtonStyle}"/>
+                        <TextBlock Text="Note: You can use CTRL+O in-game to edit video settings" FontStyle="Italic" Margin="5,10,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Sound" Margin="10" FontWeight="Bold" Foreground="{StaticResource GoldBrush}">
+                    <CheckBox Content="Sound in Background (-sndbkg)" Style="{StaticResource CustomCheckBoxStyle}"/>
+                </GroupBox>
+
+                <GroupBox Header="Other" Margin="10" FontWeight="Bold" Foreground="{StaticResource GoldBrush}">
+                    <CheckBox Content="Skip To BattleNet (-skiptobnet)" Style="{StaticResource CustomCheckBoxStyle}"/>
+                </GroupBox>
+
+                <GroupBox Header="DDraw Options" Margin="10" FontWeight="Bold" Foreground="{StaticResource GoldBrush}">
+                    <StackPanel>
+                        <TextBlock Text="Mode" Margin="0,5,0,0"/>
+                        <ComboBox Style="{StaticResource CustomComboBoxStyle}">
+                            <ComboBoxItem Content="Fullscreen (default)"/>
+                            <ComboBoxItem Content="Borderless"/>
+                            <ComboBoxItem Content="Windowed"/>
+                        </ComboBox>
+                        <!-- Additional DDraw options here -->
+                    </StackPanel>
+                </GroupBox>
+
+                <TextBlock Text="Width" Margin="0,5,0,0"/>
+                <TextBox Style="{StaticResource CustomTextBoxStyle}" />
+                <TextBlock Text="Height" Margin="0,5,0,0"/>
+                <TextBox Style="{StaticResource CustomTextBoxStyle}" />
+
+                <CheckBox Content="Enable Advanced Options" Style="{StaticResource CustomCheckBoxStyle}" x:Name="showAdvancedOptions"/>
+                
+                <StackPanel Visibility="{Binding IsChecked, ElementName=showAdvancedOptions, Converter={StaticResource BoolToVis}}">
+                </StackPanel>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>
