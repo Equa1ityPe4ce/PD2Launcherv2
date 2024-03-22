@@ -64,13 +64,13 @@
             </ListBox>
         </StackPanel>
 
-        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,15,0">
+        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,35,0">
             <Button Content="Save Filter"
                     Style="{StaticResource CustomColorChangeButton}"
                     Command="{Binding SaveFilterCommand}"
                     FontFamily="{StaticResource BlizzMedium}"
                     FocusVisualStyle="{x:Null}"
-                    FontSize="22"
+                    FontSize="18"
                     Margin="0,0,0,50"
                     />
             
@@ -79,7 +79,7 @@
                     Command="{Binding OpenAuthorsPageCommand}"
                     FontFamily="{StaticResource BlizzMedium}"
                     FocusVisualStyle="{x:Null}"
-                    FontSize="22"
+                    FontSize="18"
                     Margin="0,0,0,50"
                     />
         </StackPanel>

@@ -24,23 +24,19 @@
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock Text="File Update Testing" FontSize="16" FontFamily="{StaticResource BlizzHeavy}" Foreground="{StaticResource GoldBrush}"></TextBlock>
 
-            <Button x:Name="PRODBucket" Content="PRODBucket" Style="{StaticResource CloseButtonStyle}"
-                    Width="200" Height="35" Margin="10" Background="{StaticResource ShakoBrush}"
+            <Button x:Name="PRODBucket" Content="Normal" Style="{StaticResource CustomColorChangeButton}"
+                    Width="200" Height="35" Margin="10" Foreground="Black"
                     Command="{Binding ProdBucket}" FontFamily="{StaticResource BlizzHeavy}">
             </Button>
 
-            <Button x:Name="BetaBucket" Content="BetaBucket" Style="{StaticResource CloseButtonStyle}"
-                    Width="200" Height="35" Margin="10" Background="{StaticResource ShakoBrush}"
+            <Button x:Name="BetaBucket" Content="Beta" Style="{StaticResource CustomColorChangeButton}"
+                    Width="200" Height="35" Margin="10" Foreground="Black"
                     Command="{Binding BetaBucket}" FontFamily="{StaticResource BlizzHeavy}">
             </Button>
 
-            <Button x:Name="UPDATEbtn" Content="UPDATEBtn" Style="{StaticResource CloseButtonStyle}"
-                    Width="200" Height="35" Margin="10" Background="{StaticResource ShakoBrush}"
+            <Button x:Name="UPDATEbtn" Content="Update" Style="{StaticResource CustomColorChangeButton}"
+                    Width="200" Height="35" Margin="10"
                     Command="{Binding UpdateFilesCall}" FontFamily="{StaticResource BlizzHeavy}">
-            </Button>
-            <Button x:Name="READstorage" Content="Read storage" Style="{StaticResource CloseButtonStyle}"
-        Width="200" Height="35" Margin="10" Background="{StaticResource ShakoBrush}"
-        Command="{Binding ReadStorageCall}" FontFamily="{StaticResource BlizzHeavy}">
             </Button>
         </StackPanel>
     </Grid>

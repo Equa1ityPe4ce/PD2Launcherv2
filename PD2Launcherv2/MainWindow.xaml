@@ -95,10 +95,22 @@
                                      NormalImageSource="pack://application:,,,/Resources/Images/donate.jpg"
                                      PressedImageSource="pack://application:,,,/Resources/Images/donate_pressed.jpg"
                                      Click="DonateButton_Click"/>
+            <TextBlock 
+                Text="Thanks for your support, we couldn't keep the servers around without this community!"
+                HorizontalAlignment="Right"
+                Width="250"
+                Height="50"
+                Foreground="{StaticResource DarkGray}"
+                TextWrapping="Wrap"
+                       Foreground="{StaticResource SoftWhite}"
+                       FontFamily="{StaticResource BlizzLight}"/>
             <local:CustomImageButton x:Name="AboutButton" HorizontalAlignment="Right" Width="25" Height="25" Margin="0,0,0,0"
                                      NormalImageSource="pack://application:,,,/Resources/Images/btn_more.jpg"
                                      PressedImageSource="pack://application:,,,/Resources/Images/btn_more_pressed.jpg"
                                      Command="{Binding OpenAboutCommand}"/>
+            <TextBlock Text="v 2.0.0" HorizontalAlignment="Right"
+                       Foreground="{StaticResource SoftWhite}"
+                       FontFamily="{StaticResource BlizzLight}"/>
         </StackPanel>
         <Rectangle x:Name="Overlay" Fill="#AA000000" Visibility="Collapsed" />
         <Frame x:Name="MainFrame" Grid.Row="1" NavigationUIVisibility="Hidden" Content="{Binding CurrentView}" />

@@ -256,12 +256,6 @@ namespace PD2Launcherv2.ViewModels
 
         private async void OpenAuthorsPageExecute()
         {
-            SelectedAuthorAndFilter authorAndFilter = new SelectedAuthorAndFilter
-            {
-                selectedAuthor = _selectedAuthor,
-                selectedFilter = _selectedFilter,
-            };
-            await _filterHelpers.CheckAndUpdateFilterAsync(authorAndFilter);
 
             if (SelectedAuthor != null && !string.IsNullOrEmpty(SelectedAuthor.Url))
             {
