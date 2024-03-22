@@ -42,6 +42,11 @@
                                       VerticalAlignment="Center" />
                     </Border>
                     <ControlTemplate.Triggers>
+                        <!-- Change background when mouse hovers over -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="{StaticResource GoldLighterBrush}" />
+                        </Trigger>
+                        <!-- Ensure the IsPressed effect shows even with IsMouseOver -->
                         <Trigger Property="IsPressed" Value="True">
                             <Setter Property="Background" Value="{StaticResource ShakoBrush}" />
                         </Trigger>
@@ -50,6 +55,7 @@
             </Setter.Value>
         </Setter>
     </Style>
+
 
     <!-- Close Button -->
     <Style x:Key="CloseButtonStyle" TargetType="Button">
@@ -79,7 +85,7 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter Property="BorderBrush" Value="{StaticResource ShakoBrush}" />
-                            <Setter Property="Foreground" Value="Black"/>
+                            <Setter Property="Foreground" Value="White"/>
                             <Setter Property="BorderThickness" Value="2.5" />
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -145,7 +151,10 @@
                         <Trigger Property="IsSelected" Value="true">
                             <Setter TargetName="Border" Property="Background" Value="{StaticResource ShakoBrush}" />
                             <Setter TargetName="Border" Property="BorderBrush" Value="Transparent" />
-                            <Setter Property="Foreground" Value="Black"/>
+                            <Setter Property="Foreground" Value="White"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter Property="Foreground" Value="{StaticResource GoldLighterBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

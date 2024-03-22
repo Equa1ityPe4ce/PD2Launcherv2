@@ -22,7 +22,7 @@
 
         <!-- Author List-->
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,70,0,0">
-            <TextBlock Text="Authors" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,10" FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}"/>
+            <TextBlock Text="Author" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,10" FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}"/>
             <ListBox x:Name="AuthorsListBox"
                      ItemsSource="{Binding AuthorsList}"
                      ItemContainerStyle="{StaticResource CustomListBoxItemStyle}"
@@ -44,7 +44,7 @@
 
         <!-- Filter List-->
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="20,70,0,0">
-            <TextBlock Text="{Binding SelectedAuthor.Name}" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,10" FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}"/>
+            <TextBlock Text="{Binding SelectedAuthor.Name}" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,10" FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldLighterBrush}"/>
             <ListBox x:Name="FiltersListBox"
                      ItemsSource="{Binding FiltersList}"
                      ItemContainerStyle="{StaticResource CustomListBoxItemStyle}"
