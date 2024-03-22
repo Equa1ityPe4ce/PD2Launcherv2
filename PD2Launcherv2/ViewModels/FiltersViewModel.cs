@@ -167,6 +167,7 @@ namespace PD2Launcherv2.ViewModels
             {
                 // Prepend "Local" author to the list
                 var updatedList = new List<FilterAuthor> { new FilterAuthor { Name = "Local Filter", Url = "local", Author = "Local Filter" } };
+
                 updatedList.AddRange(storedData.StorageAuthorList);
                 AuthorsList = updatedList;
             }
