@@ -3,6 +3,7 @@ using GalaSoft.MvvmLight.Messaging;
 using PD2Launcherv2.Enums;
 using PD2Launcherv2.Helpers;
 using PD2Launcherv2.Interfaces;
+using ProjectDiablo2Launcherv2.Models;
 
 namespace PD2Launcherv2.ViewModels
 {
@@ -13,6 +14,17 @@ namespace PD2Launcherv2.ViewModels
         {
             CloseCommand = new RelayCommand(CloseView);
             _localStorage = localStorage;
+        }
+
+        private List<DisplayValuePair> _optionsModePicker;
+        public List<DisplayValuePair> OptionsModePicker
+        {
+            get { return _optionsModePicker; }
+            set
+            {
+                _optionsModePicker = value;
+                OnPropertyChanged(nameof(OptionsModePicker));
+            }
         }
 
         private void CloseView()

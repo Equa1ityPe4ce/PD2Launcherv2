@@ -106,8 +106,8 @@
                         </Grid.RowDefinitions>
                         <RepeatButton Grid.Row="0" Command="ScrollBar.LineUpCommand" 
                                   Content="UP" 
-                                  Background="Black"
-                                  Foreground="{StaticResource GoldBrush}" 
+                                  Background="Transparent"
+                            Foreground="{StaticResource GoldBrush}" 
                                   Width="18" Height="18">
                             <RepeatButton.ContentTemplate>
                                 <DataTemplate>
@@ -122,8 +122,8 @@
                         </Track>
                         <RepeatButton Grid.Row="2" Command="ScrollBar.LineDownCommand" 
                                   Content="DOWN" 
-                                  Background="Black"
-                                  Foreground="{StaticResource GoldBrush}" 
+                                  Background="Transparent"
+                            Foreground="{StaticResource GoldBrush}" 
                                   Width="18" Height="18">
                             <RepeatButton.ContentTemplate>
                                 <DataTemplate>
@@ -136,6 +136,7 @@
             </Setter.Value>
         </Setter>
     </Style>
+
 
     <Style x:Key="CustomListBoxItemStyle" TargetType="ListBoxItem">
         <Setter Property="Foreground" Value="{StaticResource GoldBrush}" />
@@ -166,19 +167,13 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="CheckBox">
-                    <Grid>
-                        <Image Name="CheckImage"
-                           Width="20" Height="20"
-                           Source="pack://application:,,,/Resources/Images/checkbox_unchecked.png" />
-                    </Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Name="CheckImage" Width="20" Height="20" Source="pack://application:,,,/Resources/Images/checkbox_unchecked.png"/>
+                        <ContentPresenter Margin="5,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="CheckImage" Property="Source"
-                                Value="pack://application:,,,/Resources/Images/checkbox_checked.png" />
-                        </Trigger>
-                        <Trigger Property="IsChecked" Value="{x:Null}">
-                            <Setter TargetName="CheckImage" Property="Source"
-                                Value="pack://application:,,,/Resources/Images/checkbox_unchecked.png" />
+                            <Setter TargetName="CheckImage" Property="Source" Value="pack://application:,,,/Resources/Images/checkbox_checked.png"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -186,25 +181,27 @@
         </Setter>
     </Style>
 
+
     <Style TargetType="RadioButton" x:Key="CustomRadioButtonStyle">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="RadioButton">
-                    <Grid>
-                        <Image Name="RadioImage"
-                           Width="20" Height="20"
-                           Source="pack://application:,,,/Resources/Images/checkbox_unchecked.png" />
-                    </Grid>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Name="RadioImage" Width="20" Height="20"
+                           Source="pack://application:,,,/Resources/Images/checkbox_unchecked.png"/>
+                        <ContentPresenter Margin="5,0,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsChecked" Value="True">
                             <Setter TargetName="RadioImage" Property="Source"
-                                Value="pack://application:,,,/Resources/Images/checkbox_checked.png" />
+                                Value="pack://application:,,,/Resources/Images/checkbox_checked.png"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
     </Style>
+
 
     <Style x:Key="CustomTextBoxStyle" TargetType="{x:Type TextBox}">
         <Setter Property="Foreground" Value="White"/>
@@ -238,22 +235,89 @@
     </Style>
 
     <Style x:Key="CustomComboBoxStyle" TargetType="{x:Type ComboBox}">
-        <Setter Property="Foreground" Value="White"/>
-        <Setter Property="Background" Value="#FF333333"/>
-        <Setter Property="BorderBrush" Value="Orange"/>
+        <Setter Property="Foreground" Value="Gold"/>
+        <Setter Property="Background" Value="Black"/>
+        <Setter Property="BorderBrush" Value="Gold"/>
         <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Padding" Value="4"/>
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="FontFamily" Value="Segoe UI"/>
-        <Setter Property="Height" Value="30"/>
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="BorderBrush" Value="Gold"/>
-            </Trigger>
-            <Trigger Property="IsFocused" Value="True">
-                <Setter Property="BorderBrush" Value="LimeGreen"/>
-            </Trigger>
-        </Style.Triggers>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ComboBox}">
+                    <Grid>
+                        <ToggleButton Name="ToggleButton" ClickMode="Press" Background="{TemplateBinding Background}">
+                            <!-- Style your toggle button here -->
+                        </ToggleButton>
+                        <ContentPresenter Name="ContentSite" IsHitTestVisible="False"/>
+                        <TextBox x:Name="PART_EditableTextBox" Visibility="Hidden"/>
+                        <Popup Name="Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom">
+                            <Grid Name="DropDown">
+                                <Border x:Name="DropDownBorder" Background="{TemplateBinding Background}"/>
+                                <ScrollViewer>
+                                    <ItemsPresenter/>
+                                </ScrollViewer>
+                            </Grid>
+                        </Popup>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="CustomComboBoxItemStyle" TargetType="{x:Type ComboBoxItem}">
+        <Setter Property="Foreground" Value="Gold"/>
+        <Setter Property="Background" Value="Black"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                    <Border Background="{TemplateBinding Background}" Padding="3">
+                        <ContentPresenter/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" Value="#222"/>
+                            <!-- Slightly lighter black for hover -->
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="#222"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ScrollBar">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <RepeatButton Grid.Row="0" Command="ScrollBar.LineUpCommand" Content="UP" Background="Black" Foreground="{StaticResource GoldBrush}" Width="18" Height="18">
+                            <RepeatButton.ContentTemplate>
+                                <DataTemplate>
+                                    <Image Source="/Resources/Images/thin_prev.jpg"/>
+                                </DataTemplate>
+                            </RepeatButton.ContentTemplate>
+                        </RepeatButton>
+                        <Track Grid.Row="1" Name="PART_Track" IsDirectionReversed="true">
+                            <Track.Thumb>
+                                <Thumb Background="{StaticResource ShakoBrush}" BorderBrush="{StaticResource GoldBrush}" Foreground="Black"/>
+                            </Track.Thumb>
+                        </Track>
+                        <RepeatButton Grid.Row="2" Command="ScrollBar.LineDownCommand" Content="DOWN" Background="Black" Foreground="{StaticResource GoldBrush}" Width="18" Height="18">
+                            <RepeatButton.ContentTemplate>
+                                <DataTemplate>
+                                    <Image Source="/Resources/Images/thin_next.jpg"/>
+                                </DataTemplate>
+                            </RepeatButton.ContentTemplate>
+                        </RepeatButton>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
 

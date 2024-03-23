@@ -27,7 +27,7 @@
                      ItemsSource="{Binding AuthorsList}"
                      ItemContainerStyle="{StaticResource CustomListBoxItemStyle}"
                      FontFamily="{StaticResource BlizzMedium}"
-                     FontSize="18"
+                     FontSize="38"
                      DisplayMemberPath="Author"
                      Background="Black"
                      BorderBrush="{StaticResource GoldBrush}"
