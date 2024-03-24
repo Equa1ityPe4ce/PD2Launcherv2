@@ -11,6 +11,11 @@
                 <ResourceDictionary Source="Resources/Styles/ControlStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
+            <!-- Global Style to remove the focus visual style from all controls -->
+            <Style TargetType="{x:Type Control}">
+                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            </Style>
+
             <conv:BooleanToVisibilityConverter x:Key="BoolToVis"/>
             <local:ViewModelLocator x:Key="ViewModelLocator"/>
 

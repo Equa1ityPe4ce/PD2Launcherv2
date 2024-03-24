@@ -20,7 +20,6 @@
                     <Setter Property="Background" Value="{StaticResource BlackBrush}"/>
                     <Setter Property="Foreground" Value="{StaticResource BlackBrush}"/>
                     <Style.Resources>
-
                         <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Black"/>
                         <SolidColorBrush x:Key="{x:Static SystemColors.HighlightTextBrushKey}" Color="{StaticResource Black}"/>
                         <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="Black"/>

@@ -1,7 +1,18 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:PD2Launcherv2.CustomControl">
-
+    
+    <Style x:Key="{x:Static SystemParameters.FocusVisualStyleKey}">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Border BorderBrush="Transparent" BorderThickness="1">
+                        <Rectangle Margin="2" Stroke="Transparent" StrokeThickness="1"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <!-- Image Button -->
 
     <Style TargetType="{x:Type local:CustomImageButton}">
@@ -204,13 +215,17 @@
 
 
     <Style x:Key="CustomTextBoxStyle" TargetType="{x:Type TextBox}">
-        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Foreground" Value="{StaticResource GoldBrush}"/>
         <Setter Property="Background" Value="#FF333333"/>
-        <Setter Property="BorderBrush" Value="Orange"/>
+        <Setter Property="BorderBrush" Value="{StaticResource GoldBrush}"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="Width" Value="175"/>
+        <Setter Property="Margin" Value="10"/>
         <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="Padding" Value="4"/>
         <Setter Property="FontSize" Value="14"/>
-        <Setter Property="FontFamily" Value="Segoe UI"/>
+        <Setter Property="FontFamily" Value="{StaticResource BlizzLight}"/>
         <Setter Property="Height" Value="25"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -226,27 +241,62 @@
         </Setter>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="BorderBrush" Value="Gold"/>
+                <Setter Property="BorderBrush" Value="{StaticResource GoldLighterBrush}"/>
+                <Setter Property="BorderThickness" Value="2"/>
             </Trigger>
             <Trigger Property="IsFocused" Value="True">
-                <Setter Property="BorderBrush" Value="LimeGreen"/>
+                <Setter Property="BorderBrush" Value="{StaticResource ShakoBrush}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
 
-    <Style x:Key="CustomComboBoxStyle" TargetType="{x:Type ComboBox}">
-        <Setter Property="Foreground" Value="Gold"/>
+    <Style x:Key="CustomComboBoxItemStyle" TargetType="{x:Type ComboBoxItem}">
+        <Setter Property="OverridesDefaultStyle" Value="True"/>
+        <Setter Property="Foreground" Value="{StaticResource GoldBrush}"/>
+        <Setter Property="FontFamily" Value="{StaticResource BlizzMedium}"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="Background" Value="Black"/>
-        <Setter Property="BorderBrush" Value="Gold"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ComboBoxItem}">
+                    <Border Background="{TemplateBinding Background}" Padding="3">
+                        <ContentPresenter/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="{StaticResource GoldLighterBrush}"/>
+                            <Setter Property="BorderBrush" Value="{StaticResource ShakoBrush}"/>
+                            <Setter Property="BorderThickness" Value="1.5"/>
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                            <Setter Property="Background" Value="#222"/>
+                            </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="CustomComboBoxStyle" TargetType="{x:Type ComboBox}">
+        <Setter Property="Width" Value="600"/>
+        <Setter Property="HorizontalAlignment" Value="Left"/>
+        <Setter Property="Foreground" Value="{StaticResource GoldLighterBrush}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderBrush" Value="{StaticResource GoldBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ComboBox}">
                     <Grid>
-                        <ToggleButton Name="ToggleButton" ClickMode="Press" Background="{TemplateBinding Background}">
-                            <!-- Style your toggle button here -->
+                        <ToggleButton Name="ToggleButton" ClickMode="Press" Background="{TemplateBinding Background}" Foreground="{TemplateBinding Foreground}"
+                                IsChecked="{Binding Path=IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                            <!-- ToggleButton Content here -->
                         </ToggleButton>
-                        <ContentPresenter Name="ContentSite" IsHitTestVisible="False"/>
+                        <ContentPresenter Name="ContentSite" IsHitTestVisible="False" 
+                                    Content="{TemplateBinding SelectionBoxItem}" 
+                                    ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"/>
                         <TextBox x:Name="PART_EditableTextBox" Visibility="Hidden"/>
                         <Popup Name="Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom">
                             <Grid Name="DropDown">
@@ -257,29 +307,6 @@
                             </Grid>
                         </Popup>
                     </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <Style x:Key="CustomComboBoxItemStyle" TargetType="{x:Type ComboBoxItem}">
-        <Setter Property="Foreground" Value="Gold"/>
-        <Setter Property="Background" Value="Black"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ComboBoxItem}">
-                    <Border Background="{TemplateBinding Background}" Padding="3">
-                        <ContentPresenter/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Background" Value="#222"/>
-                            <!-- Slightly lighter black for hover -->
-                        </Trigger>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="#222"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -318,6 +345,14 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <Style x:Key="OptionsTextBlockHeaderStyle" TargetType="TextBlock">
+        <Setter Property="Margin" Value="10"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontFamily" Value="{StaticResource BlizzMedium}"/>
+        <Setter Property="Foreground" Value="{StaticResource GoldBrush}"/>
+        <Setter Property="FontSize" Value="14"/>
     </Style>
 
 </ResourceDictionary>

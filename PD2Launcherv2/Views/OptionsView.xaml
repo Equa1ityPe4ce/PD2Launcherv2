@@ -15,7 +15,7 @@
         <Image Source="/Resources/Images/bg_plain.jpg" Stretch="Fill"/>
         <!-- Options controls -->
 
-        <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}" FontFamily="{StaticResource BlizzHeavy}" Command="{Binding CloseCommand}" FontSize="25" Content="X" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10"/>
+        <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}" FontFamily="{StaticResource BlizzHeavy}" Command="{Binding CloseCommand}" FontSize="25" Content="X" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Panel.ZIndex="99"/>
 
         <ScrollViewer Margin="20" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
             <StackPanel>
@@ -25,10 +25,10 @@
                           FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}" 
                           FontSize="14">
                     <StackPanel>
-                        <RadioButton Content="3dfx" GroupName="renderer" Style="{StaticResource CustomRadioButtonStyle}" 
+                        <RadioButton x:Name="d2gl" Content="3dfx" GroupName="renderer" Style="{StaticResource CustomRadioButtonStyle}" 
                                      FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}" 
                                      FontSize="18" HorizontalAlignment="Left" Margin="30,10,0,0"/>
-                        <RadioButton Content="ddraw" GroupName="renderer" Style="{StaticResource CustomRadioButtonStyle}" 
+                        <RadioButton x:Name="ddraw" Content="ddraw" GroupName="renderer" Style="{StaticResource CustomRadioButtonStyle}" 
                                      FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}" 
                                      HorizontalAlignment="Left" Margin="30,10,0,0"/>
                         <TextBlock Text="Note: You can use CTRL+O in-game to edit video settings" FontStyle="Italic" Margin="5,10,0,0"/>
@@ -38,7 +38,7 @@
                 <GroupBox Header="Sound" Margin="10" FontWeight="Bold" BorderThickness="0" 
                           FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}" 
                           FontSize="14">
-                    <CheckBox Content="Sound in Background (-sndbkg)" Style="{StaticResource CustomCheckBoxStyle}"
+                    <CheckBox x:Name="sndbkg" Content="Sound in Background (-sndbkg)" Style="{StaticResource CustomCheckBoxStyle}"
                               FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
                               FontSize="12" Margin="10,10,10,0"/>
                 </GroupBox>
@@ -46,35 +46,217 @@
                 <GroupBox Header="Other" Margin="10" FontWeight="Bold" BorderThickness="0"  
                           FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}" 
                           FontSize="14">
-                    <CheckBox Content="Skip To BattleNet (-skiptobnet)" Style="{StaticResource CustomCheckBoxStyle}" 
+                    <CheckBox x:Name="SkipToBNet" Content="Skip To BattleNet (-skiptobnet)" Style="{StaticResource CustomCheckBoxStyle}" 
                               FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
                               FontSize="12" Margin="10,10,10,0"/>
                 </GroupBox>
 
-                <GroupBox Header="DDraw Options" Margin="10" FontWeight="Bold" BorderThickness="0" 
-                          FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}" 
-                          FontSize="14">
+                <GroupBox Header="DDraw Options" Margin="10" BorderThickness="0" 
+                          FontFamily="{StaticResource BlizzHeavy}" Foreground="{StaticResource GoldBrush}" 
+                          FontSize="16">
                     <StackPanel>
-                        <TextBlock Text="Mode" Margin="0,5,0,0" Background="Transparent"/>
-
-                        <ComboBox Style="{StaticResource CustomComboBoxStyle}"
-                                    ItemContainerStyle="{StaticResource CustomComboBoxItemStyle}"
-                                    ItemsSource="{Binding OptionsModePicker}" />
-                        <ComboBoxItem Content="Fullscreen (default)"/>
-                        <ComboBoxItem Content="Borderless"/>
-                        <ComboBoxItem Content="Windowed"/>
+                        <TextBlock Text="Mode" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
+                        <ComboBox x:Name="Mode" FocusVisualStyle="{x:Null}"
+                                  HorizontalAlignment="Left"
+                                  ItemsSource="{Binding OptionsModePicker}"
+                                  Width="175"
+                                  SelectedValuePath="ActualValue" 
+                                  DisplayMemberPath="DisplayValue" />
                     </StackPanel>
                 </GroupBox>
 
+                <TextBlock Text="Width" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
+                <TextBox x:Name="Width" Style="{StaticResource CustomTextBoxStyle}" />
 
-                <TextBlock Text="Width" Margin="0,5,0,0"/>
-                <TextBox Style="{StaticResource CustomTextBoxStyle}" />
-                <TextBlock Text="Height" Margin="0,5,0,0"/>
-                <TextBox Style="{StaticResource CustomTextBoxStyle}" />
+                <TextBlock Text="Height" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
+                <TextBox x:Name="Height" Style="{StaticResource CustomTextBoxStyle}" />
 
-                <CheckBox Content="Enable Advanced Options" Style="{StaticResource CustomCheckBoxStyle}" x:Name="showAdvancedOptions"/>
-                
+                <CheckBox Content="Enable Advanced Options"  Style="{StaticResource CustomCheckBoxStyle}" 
+                              FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
+                              FontSize="12" Margin="10,10,10,0"/>
+
                 <StackPanel Visibility="{Binding IsChecked, ElementName=showAdvancedOptions, Converter={StaticResource BoolToVis}}">
+                    <!-- Label converted to TextBlock in WPF -->
+                    <TextBlock Text="Window Position" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
+
+                    <!-- Sub-label for default position -->
+                    <TextBlock Text="-320000 = Center To Screen" Foreground="{StaticResource GoldDarkerBrush}" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
+
+                    <!-- Vertical label -->
+                    <TextBlock Text="Vertical" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
+
+                    <!-- Custom Entry for ddrawPosX -->
+                    <TextBox x:Name="ddrawPosX" Style="{StaticResource CustomTextBoxStyle}" />
+                    <!-- You'll need to implement the "CustomEntryTextChanged" event equivalent in WPF -->
+
+                    <!-- Horizontal label -->
+                    <TextBlock Text="Horizontal" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
+
+                    <!-- Custom Entry for ddrawPosY -->
+                    <TextBox x:Name="ddrawPosY" Style="{StaticResource CustomTextBoxStyle}" />
+                    <!-- Custom CheckBoxes, implemented with WPF CheckBox but styled -->
+                    <CheckBox x:Name="maintasCheckBox" Content="Maintain Aspect Ratio" Style="{StaticResource CustomCheckBoxStyle}"
+                              FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
+                              FontSize="12" Margin="10,10,10,0"/>
+                    <!-- Additional text for checkboxes can be handled with additional TextBlocks or ToolTips -->
+
+                    <CheckBox x:Name="boxingCheckBox" Content="Windowboxing / Integer Scaling" Style="{StaticResource CustomCheckBoxStyle}"
+                              FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
+                              FontSize="12" Margin="10,10,10,0"/>
+
+                    <CheckBox x:Name="adjmouseCheckBox"
+                      Content="Automatic Mouse Sensitivity" Style="{StaticResource CustomCheckBoxStyle}"
+                              FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
+                              FontSize="12" Margin="10,10,10,0"/>
+
+                    <CheckBox x:Name="vsyncCheckBox"
+                          Content="Vertical Sync" Style="{StaticResource CustomCheckBoxStyle}"
+                              FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
+                              FontSize="12" Margin="10,10,10,0"/>
+                    <TextBlock Text="Only works if full screen is enabled" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
+
+                    <!-- CustomCheckBox: devmodeCheckBox -->
+                    <CheckBox x:Name="devmodeCheckBox"
+                          Content="Unlock cursor" Style="{StaticResource CustomCheckBoxStyle}"
+                              FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
+                              FontSize="12" Margin="10,10,10,0"/>
+
+                    <!-- CustomCheckBox: borderCheckBox -->
+                    <CheckBox x:Name="borderCheckBox"
+                          Content="Show Window Borders" Style="{StaticResource CustomCheckBoxStyle}"
+                              FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
+                              FontSize="12" Margin="10,10,10,0"/>
+
+                    <!-- CustomCheckBox: resizeableCheckBox -->
+                    <CheckBox x:Name="resizeableCheckBox"
+                          Content="Resizable window" Style="{StaticResource CustomCheckBoxStyle}"
+                              FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
+                              FontSize="12" Margin="10,10,10,0"/>
+
+                    <!-- Button for Showing Advanced Options -->
+                    <Button x:Name="ShowAdvancedOptionsButton"
+                        Content="Show Advanced Options"
+                        Background="Transparent"
+                        Foreground="{StaticResource GoldLighterBrush}"
+                        Margin="0,0,0,20"/>
+                    <!-- Click event handler needs to be defined in code-behind -->
+
+                    <!-- Advanced Options Layout (initially hidden) -->
+                    <StackPanel x:Name="AdvancedOptionsLayout" Visibility="Collapsed">
+                        <TextBlock Text="Read ddraw.ini for info on advanced options"
+                            Margin="190,-30,0,0" FontStyle="Italic"/>
+
+                        <!-- Additional CustomCheckBoxes here, similar to above -->
+
+                        <TextBlock Text="Rendering rate (Max FPS)" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
+                        <!-- ComboBox for maxfpsPicker, assuming OptionsModePicker or equivalent binding -->
+                        <ComboBox x:Name="maxfpsPicker"
+                              Style="{StaticResource CustomComboBoxStyle}"
+                              ItemsSource="{Binding MaxFpsPickerItems}"
+                              SelectedValuePath="ActualValue" 
+                              DisplayMemberPath="DisplayValue"
+                              Margin="90,0,0,0"/>
+                        <TextBlock Text="Does not have an impact on the game speed"
+                           FontStyle="Italic"
+                           Foreground="{StaticResource GoldDarkerBrush}"
+                           Margin="90,0,0,0"/>
+
+                        <!-- Max game ticks -->
+                        <TextBlock Text="Max game ticks" Style="{StaticResource OptionsTextBlockHeaderStyle}" Margin="90,10,0,0"/>
+                        <ComboBox x:Name="maxgameticksPicker"
+              Style="{StaticResource CustomComboBoxStyle}"
+              ItemsSource="{Binding MaxGameTicksPickerItems}"
+                                SelectedValuePath="ActualValue" 
+              DisplayMemberPath="DisplayValue"
+              Margin="90,0,0,0"/>
+                        <TextBlock Text="Fix for flickering (lower = slower)"
+           Style="{StaticResource OptionsTextBlockHeaderStyle}"
+           Foreground="{StaticResource GoldDarkerBrush}"
+           Margin="90,0,0,0" />
+
+                        <!-- Save Window Position -->
+                        <TextBlock Text="Save Window Position" Style="{StaticResource OptionsTextBlockHeaderStyle}" Margin="90,10,0,0" />
+                        <ComboBox x:Name="savesettingsPicker"
+          Style="{StaticResource CustomComboBoxStyle}"
+          ItemsSource="{Binding SaveSettingsPickerItems}"
+                                SelectedValuePath="ActualValue" 
+          DisplayMemberPath="DisplayValue"
+          Margin="90,0,0,0"/>
+                        <TextBlock Text="Save window position/size"
+           Style="{StaticResource OptionsTextBlockHeaderStyle}"
+           Foreground="{StaticResource GoldDarkerBrush}"
+           Margin="90,0,0,0" />
+
+                        <!-- Renderer -->
+                        <TextBlock Text="Renderer" Style="{StaticResource OptionsTextBlockHeaderStyle}" Margin="90,10,0,0" />
+                        <ComboBox x:Name="rendererPicker"
+          Style="{StaticResource CustomComboBoxStyle}"
+          ItemsSource="{Binding RendererPickerItems}"
+                                    SelectedValuePath="ActualValue" 
+          DisplayMemberPath="DisplayValue"
+          Margin="90,0,0,0"/>
+                        <TextBlock Text="Auto will try OpenGL, Direct3D, finally GDI"
+           Style="{StaticResource OptionsTextBlockHeaderStyle}"
+           Foreground="{StaticResource GoldDarkerBrush}"
+           Margin="90,0,0,0" />
+
+                        <!-- Windows API Hooking -->
+                        <TextBlock Text="Windows API Hooking" Style="{StaticResource OptionsTextBlockHeaderStyle}" Margin="90,10,0,0" />
+                        <ComboBox x:Name="hookPicker"
+          Style="{StaticResource CustomComboBoxStyle}"
+          ItemsSource="{Binding HookPickerItems}"
+                                        SelectedValuePath="ActualValue" 
+          DisplayMemberPath="DisplayValue"
+          Margin="90,0,0,0"/>
+                        <TextBlock Text="Detours can help with problems, requires rendering GDI"
+                               Style="{StaticResource OptionsTextBlockHeaderStyle}"
+                               Foreground="{StaticResource GoldDarkerBrush}"
+                               Margin="90,0,0,0" />
+
+                        <TextBlock Text="Force Minimum FPS" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}" />
+                        <ComboBox x:Name="minfpsPicker"
+                              Style="{StaticResource CustomComboBoxStyle}"
+                              ItemsSource="{Binding MinFpsPickerItems}"
+                              SelectedValuePath="ActualValue"
+                              DisplayMemberPath="DisplayValue"
+                              Margin="90,0,0,0"/>
+                        <TextBlock Text="Use 5/10 for display issues(menus/loading screens)"
+                               FontStyle="Italic"
+                               Foreground="{StaticResource GoldDarkerBrush}"
+                               Margin="90,0,0,0" />
+
+                        <!-- Preliminary Shade Support -->
+                        <TextBlock Text="Preliminary Shade Support" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}" />
+                        <ComboBox x:Name="shaderPicker"
+                              Style="{StaticResource CustomComboBoxStyle}"
+                              ItemsSource="{Binding ShaderPickerItems}"
+                              SelectedValuePath="ActualValue"
+                              DisplayMemberPath="DisplayValue"
+                              Margin="90,0,0,0"/>
+                        <TextBlock Text="Requires Renderer OpenGL"
+                               FontStyle="Italic"
+                               Foreground="{StaticResource GoldDarkerBrush}"
+                               Margin="90,0,0,0" />
+
+                        <!-- Custom CheckBoxes -->
+                        <CheckBox x:Name="d3d9linearCheckBox"
+                              Content="Enable d3d9linear"
+                              Style="{StaticResource CustomCheckBoxStyle}"
+                              Margin="90,20,0,0" />
+                        <TextBlock Text="Upscaling filter for the direct3d9 renderer"
+                               FontStyle="Italic"
+                               Foreground="{StaticResource GoldDarkerBrush}"
+                               Margin="90,0,0,0" />
+
+                        <CheckBox x:Name="singlecpuCheckBox"
+                              Content="Force CPU0 affinity"
+                              Style="{StaticResource CustomCheckBoxStyle}"
+                              Margin="90,10,0,0" />
+                        <TextBlock Text="Avoids crashes/freezing can affect performance"
+                           FontStyle="Italic"
+                           Foreground="{StaticResource GoldDarkerBrush}"
+                           Margin="90,0,0,0" />
+                    </StackPanel>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
