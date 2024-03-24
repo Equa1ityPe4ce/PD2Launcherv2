@@ -19,6 +19,14 @@
                    VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,20,0,0"
                    Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzHeavy}">
         </TextBlock>
+        <Button Content="Help"
+        Style="{StaticResource CustomColorChangeButton}"
+        Command="{Binding OpenHelpPageCommand}"
+        FontFamily="{StaticResource BlizzMedium}"
+        FocusVisualStyle="{x:Null}"
+        FontSize="18"
+        HorizontalAlignment="Right" VerticalAlignment="Top"
+        Margin="10"/>
 
         <!-- Author List-->
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,70,0,0">

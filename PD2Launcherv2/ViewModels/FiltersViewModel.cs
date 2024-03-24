@@ -21,6 +21,7 @@ namespace PD2Launcherv2.ViewModels
         private readonly ILocalStorage _localStorage;
         public RelayCommand SaveFilterCommand { get; private set; }
         public RelayCommand OpenAuthorsPageCommand { get; private set; }
+        public RelayCommand OpenHelpPageCommand { get; private set; }
 
         private List<FilterAuthor> _authorsList;
         public List<FilterAuthor> AuthorsList
@@ -103,6 +104,7 @@ namespace PD2Launcherv2.ViewModels
             FilterCall = new RelayCommand(FilterCall_Click);
             SaveFilterCommand = new RelayCommand(SaveFilterExecute);
             OpenAuthorsPageCommand = new RelayCommand(OpenAuthorsPageExecute);
+            OpenHelpPageCommand = new RelayCommand(OpenHelpPageExecute);
         }
 
         public async Task InitializeAsync()
@@ -110,6 +112,11 @@ namespace PD2Launcherv2.ViewModels
             Debug.WriteLine("Initializing FiltersViewModel...");
             await FetchAndStoreFilterAuthorsAsync();
             SelectStoredAuthorAndFilter();
+        }
+
+        private void OpenHelpPageExecute()
+        {
+            OpenUrlInBrowser("https://github.com/Project-Diablo-2/LootFilters");
         }
 
         private void SelectStoredAuthorAndFilter()
@@ -249,7 +256,6 @@ namespace PD2Launcherv2.ViewModels
                 else
                 {
                     Debug.WriteLine("Failed to apply filter.");
-                    // Optionally, inform the user of the failure
                 }
             }
         }
@@ -277,7 +283,6 @@ namespace PD2Launcherv2.ViewModels
             catch (Exception ex)
             {
                 Debug.WriteLine($"Failed to open URL: {url}. Error: {ex.Message}");
-                // Optionally, inform the user that opening the URL failed.
             }
         }
     }
