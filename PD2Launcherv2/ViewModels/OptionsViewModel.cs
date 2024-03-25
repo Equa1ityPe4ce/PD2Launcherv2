@@ -15,7 +15,6 @@ namespace PD2Launcherv2.ViewModels
         private readonly ILocalStorage _localStorage;
         public RelayCommand ToggleAdvancedOptionsCommand { get; }
 
-
         public OptionsViewModel(ILocalStorage localStorage)
         {
             _localStorage = localStorage;
