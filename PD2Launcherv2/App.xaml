@@ -17,6 +17,7 @@
             </Style>
 
             <conv:BooleanToVisibilityConverter x:Key="BoolToVis"/>
+            <conv:InverseBooleanConverter x:Key="InverseBool"/>
             <local:ViewModelLocator x:Key="ViewModelLocator"/>
 
             <!-- Font Family Resources -->

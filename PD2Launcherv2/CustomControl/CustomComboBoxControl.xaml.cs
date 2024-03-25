@@ -16,9 +16,9 @@ namespace PD2Launcherv2.CustomControl
         public List<DisplayValuePair>OptionsGameTicks => Constants.MaxGameTicksPickerItems();
         public List<DisplayValuePair>OptionsSaveWindowPosition => Constants.SaveWindowPositionPickerItems();
         public List<DisplayValuePair>OptionsRenderer => Constants.RendererPickerItems();
-        public List<DisplayValuePair>OptionsAPIHook => Constants.WindowsAPIHookingPickerItems();
-        public List<DisplayValuePair>OptionsForceMinimumFPS => Constants.ForceMinimumFPSPickerItems();
-        public List<DisplayValuePair>OptionsShadeSupport => Constants.ShadeSupportPickerItems();
+        public List<DisplayValuePair>OptionsAPIHook => Constants.SaveWindowPositionPickerItems();
+        public List<DisplayValuePair>OptionsForceMinimumFPS => Constants.MinFpsPickerItems();
+        public List<DisplayValuePair>OptionsShadeSupport => Constants.ShaderPickerItems();
 
         public CustomComboBoxControl()
         {

@@ -117,7 +117,7 @@ namespace ProjectDiablo2Launcherv2
             };
         }
 
-        public static List<DisplayValuePair> WindowsAPIHookingPickerItems()
+        public static List<DisplayValuePair> HookPickerItems()
         {
             return new List<DisplayValuePair>
             {
@@ -129,7 +129,7 @@ namespace ProjectDiablo2Launcherv2
             };
         }
 
-        public static List<DisplayValuePair> ForceMinimumFPSPickerItems()
+        public static List<DisplayValuePair> MinFpsPickerItems()
         {
             return new List<DisplayValuePair>
             {
@@ -140,7 +140,7 @@ namespace ProjectDiablo2Launcherv2
             };
         }
 
-        public static List<DisplayValuePair> ShadeSupportPickerItems()
+        public static List<DisplayValuePair> ShaderPickerItems()
         {
             return new List<DisplayValuePair>
             {
