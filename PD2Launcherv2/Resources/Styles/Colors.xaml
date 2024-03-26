@@ -2,9 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:PD2Launcherv2.CustomControl">
 
-    <Color x:Key="Gold">#FF998363</Color>
-    <Color x:Key="GoldLighter">#FFb39a74</Color>
-    <Color x:Key="GoldDarker">#FF877458</Color>
+    <Color x:Key="Gold">#FFA78E65</Color>
+    <Color x:Key="GoldLighter">#FFB59E76</Color>
+    <Color x:Key="GoldDarker">#FF947A56</Color>
     <Color x:Key="SHAKO">#007759</Color>
     <SolidColorBrush x:Key="GoldBrush" Color="{StaticResource Gold}"/>
     <SolidColorBrush x:Key="GoldLighterBrush" Color="{StaticResource GoldLighter}"/>

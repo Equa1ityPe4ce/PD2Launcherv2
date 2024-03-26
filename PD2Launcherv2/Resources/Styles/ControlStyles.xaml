@@ -226,7 +226,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ListBoxItem">
                     <Border Name="Border" Background="{TemplateBinding Background}"
-                    Padding="2" SnapsToDevicePixels="true">
+                    Padding="0" SnapsToDevicePixels="true">
                         <ContentPresenter />
                     </Border>
                     <ControlTemplate.Triggers>
