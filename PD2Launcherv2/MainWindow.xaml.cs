@@ -26,17 +26,11 @@ namespace PD2Launcherv2
         private readonly FileUpdateHelpers _fileUpdateHelpers;
         private readonly FilterHelpers _filterHelpers;
         private readonly LaunchGameHelpers _launchGameHelpers;
+        private readonly NewsHelpers _newsHelpers;
         public bool IsBeta { get; private set; }
         public ICommand OpenOptionsCommand { get; private set; }
         public ICommand OpenLootCommand { get; private set; }
-        public ICommand OpenDonateCommand { get; private set; }
         public ICommand OpenAboutCommand { get; private set; }
-        public ICommand OpenHomeCommand { get; set; }
-        public ICommand OpenTradeCommand { get; set; }
-        public ICommand OpenRedditCommand { get; set; }
-        public ICommand OpenTwitterCommand { get; set; }
-        public ICommand OpenDiscordCommand { get; set; }
-        public ICommand OpenWikiCommand { get; set; }
 
         public MainWindow()
         {
@@ -50,6 +44,8 @@ namespace PD2Launcherv2
             _fileUpdateHelpers = (FileUpdateHelpers)App.ServiceProvider.GetService(typeof(FileUpdateHelpers));
             _filterHelpers = (FilterHelpers)App.ServiceProvider.GetService(typeof(FilterHelpers));
             _launchGameHelpers = (LaunchGameHelpers)App.ServiceProvider.GetService(typeof(LaunchGameHelpers));
+            _newsHelpers = (NewsHelpers)App.ServiceProvider.GetService(typeof(NewsHelpers));
+            _newsHelpers.FetchAndStoreNewsAsync(_localStorage);
             LoadConfiguration();
 
         // Registering to receive NavigationMessage
@@ -57,6 +53,7 @@ namespace PD2Launcherv2
         Messenger.Default.Register<ConfigurationChangeMessage>(this, OnConfigurationChanged);
             DataContext = this;
         }
+
         private void OnNavigationMessageReceived(NavigationMessage message)
         {
             Overlay.Visibility = Visibility.Collapsed;
@@ -94,7 +91,7 @@ namespace PD2Launcherv2
 
         private async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("PlayButton_Click start");
+            //Debug.WriteLine("PlayButton_Click start");
             var selectedAuthorAndFilter = _localStorage.LoadSection<SelectedAuthorAndFilter>(StorageKey.SelectedAuthorAndFilter);
             if (selectedAuthorAndFilter?.selectedFilter != null)
             {
@@ -121,14 +118,14 @@ namespace PD2Launcherv2
             var playImageUri = new Uri("pack://application:,,,/Resources/Images/play.jpg");
             PlayButton.NormalImageSource = new BitmapImage(playImageUri);
             _launchGameHelpers.LaunchGame(_localStorage);
-            Debug.WriteLine("PlayButton_Click end");
+            //Debug.WriteLine("PlayButton_Click end");
         }
 
         private void OptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("OptionsButton_Click start");
+            //Debug.WriteLine("OptionsButton_Click start");
             ShowOptionsView();
-            Debug.WriteLine("OptionsButton_Click end");
+            //Debug.WriteLine("OptionsButton_Click end");
         }
 
         private void ShowOptionsView()
@@ -160,24 +157,27 @@ namespace PD2Launcherv2
             // Prevent the default behavior of opening the link
             e.Handled = true;
         }
+
         private void DonateButton_Click(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("DonateButton_Click start");
-            Debug.WriteLine("DonateButton_Click end");
+            try
+            {
+                Process.Start(new ProcessStartInfo("https://www.projectdiablo2.com/donate") { UseShellExecute = true });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("CloseButton_Click start");
             this.Close();
-            Debug.WriteLine("CloseButton_Click end");
         }
 
         private void MinimizeButton_Click(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("MinimizeButton_Click start");
             this.WindowState = WindowState.Minimized;
-            Debug.WriteLine("MinimizeButton_Click end");
         }
 
         private void TextBlock_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)

@@ -6,12 +6,15 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Resources\Icons\icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="Resources\Fonts\exocet-blizzard-heavy.otf" />
     <None Remove="Resources\Fonts\exocet-blizzard-light.ttf" />
     <None Remove="Resources\Fonts\exocet-blizzard-medium.ttf" />
+    <None Remove="Resources\Icons\icon.ico" />
+    <None Remove="Resources\Icons\icon.png" />
     <None Remove="Resources\Images\bg.jpg" />
     <None Remove="Resources\Images\bg_plain.jpg" />
     <None Remove="Resources\Images\btn_more.jpg" />
@@ -39,6 +42,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Resources\Icons\icon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Crc32.NET" Version="1.2.0" />
     <PackageReference Include="Dropbox.Api" Version="6.37.0" />
     <PackageReference Include="MadMilkman.Ini" Version="1.0.6" />
@@ -54,6 +61,8 @@
     <Resource Include="Resources\Fonts\exocet-blizzard-heavy.otf" />
     <Resource Include="Resources\Fonts\exocet-blizzard-light.ttf" />
     <Resource Include="Resources\Fonts\exocet-blizzard-medium.ttf" />
+    <Resource Include="Resources\Icons\icon.ico" />
+    <Resource Include="Resources\Icons\icon.png" />
     <Resource Include="Resources\Images\bg.jpg" />
     <Resource Include="Resources\Images\bg_plain.jpg" />
     <Resource Include="Resources\Images\btn_more.jpg" />
