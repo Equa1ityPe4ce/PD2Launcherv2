@@ -5,12 +5,9 @@ using PD2Launcherv2.Helpers;
 using PD2Launcherv2.Interfaces;
 using PD2Launcherv2.Messages;
 using PD2Launcherv2.Models;
-using ProjectDiablo2Launcherv2;
 using ProjectDiablo2Launcherv2.Models;
 using System.Diagnostics;
-using System.IO;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 
 namespace PD2Launcherv2.ViewModels
 {

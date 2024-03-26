@@ -5,13 +5,9 @@ using PD2Launcherv2.Helpers;
 using PD2Launcherv2.Interfaces;
 using PD2Launcherv2.Models;
 using ProjectDiablo2Launcherv2.Models;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
-using System.Runtime.CompilerServices;
-using static Dropbox.Api.TeamPolicies.SmartSyncPolicy;
 
 namespace PD2Launcherv2.ViewModels
 {
