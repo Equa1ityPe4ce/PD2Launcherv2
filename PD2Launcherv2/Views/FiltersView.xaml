@@ -20,13 +20,13 @@
                    Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzHeavy}">
         </TextBlock>
         <Button Content="Help"
-        Style="{StaticResource CustomColorChangeButton}"
-        Command="{Binding OpenHelpPageCommand}"
-        FontFamily="{StaticResource BlizzMedium}"
-        FocusVisualStyle="{x:Null}"
-        FontSize="12"
-        HorizontalAlignment="Center" VerticalAlignment="Top"
-        Margin="180,30,0,0"/>
+                Style="{StaticResource CustomColorChangeButton}"
+                Command="{Binding OpenHelpPageCommand}"
+                FontFamily="{StaticResource BlizzMedium}"
+                FocusVisualStyle="{x:Null}"
+                FontSize="12"
+                HorizontalAlignment="Center" VerticalAlignment="Top"
+                Margin="180,30,0,0"/>
 
         <!-- Author List-->
         <StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,70,0,0">

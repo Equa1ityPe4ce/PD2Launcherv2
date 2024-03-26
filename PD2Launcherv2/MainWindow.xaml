@@ -17,55 +17,94 @@
        gif:ImageBehavior.AnimatedSource="pack://application:,,,/Resources/Images/logo.gif" Stretch="None" 
                HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,5,0"/>
 
-        <!--Links Under the Logo -->
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,175,0,0">
-            <!-- Home -->
-            <TextBlock Margin="5" FontSize="20">
-                 <Hyperlink NavigateUri="https://www.projectdiablo2.com/market" RequestNavigate="Hyperlink_RequestNavigate">
-                   <TextBlock Text="Home" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
-                  </Hyperlink>
-            </TextBlock>
-            <TextBlock Text="•" Margin="5" FontSize="20" Foreground="{StaticResource GoldBrush}" />
-            <!-- Trade -->
-            <TextBlock Margin="5" FontSize="20">
-              <Hyperlink NavigateUri="https://www.projectdiablo2.com/market" RequestNavigate="Hyperlink_RequestNavigate">
-               <TextBlock Text="Trade" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
-              </Hyperlink>
-            </TextBlock>
-            <TextBlock Text="•" Margin="5" FontSize="20" Foreground="{StaticResource GoldBrush}" />
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-            <!-- Reddit -->
-            <TextBlock Margin="5" FontSize="20">
-                 <Hyperlink NavigateUri="https://www.reddit.com/r/ProjectDiablo2/" RequestNavigate="Hyperlink_RequestNavigate">
-                     <TextBlock Text="Reddit" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
-                 </Hyperlink>
-            </TextBlock>
-            <TextBlock Text="•" Margin="5" FontSize="20" Foreground="{StaticResource GoldBrush}" />
-            
-            <!-- Twitter -->
-            <TextBlock Margin="5" FontSize="20">
-                 <Hyperlink NavigateUri="https://twitter.com/projectdiablo2" RequestNavigate="Hyperlink_RequestNavigate">
-                   <TextBlock Text="Twitter" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
-                  </Hyperlink>
-            </TextBlock>
-            <TextBlock Text="•" Margin="5" FontSize="20" Foreground="{StaticResource GoldBrush}" />
-            
-            <!-- Discord -->
-            <TextBlock Margin="5" FontSize="20">
-                 <Hyperlink NavigateUri="https://discord.com/invite/RgX4MWu" RequestNavigate="Hyperlink_RequestNavigate">
-                     <TextBlock Text="Discord" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
-                  </Hyperlink>
-            </TextBlock>
-            <TextBlock Text="•" Margin="5" FontSize="20" Foreground="{StaticResource GoldBrush}" />
-            
-            <!-- Wiki -->
-            <TextBlock Margin="5" FontSize="20">
-                  <Hyperlink NavigateUri="https://projectdiablo2.miraheze.org/wiki/Main_Page" RequestNavigate="Hyperlink_RequestNavigate">
-                     <TextBlock Text="Wiki" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
-                  </Hyperlink>
-            </TextBlock>
-        </StackPanel>
+            <!-- Hyperlink StackPanel, set it to row 0 -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,175,0,0">
+                <!-- Home -->
+                <TextBlock Margin="5" FontSize="20">
+      <Hyperlink NavigateUri="https://www.projectdiablo2.com/market" RequestNavigate="Hyperlink_RequestNavigate">
+        <TextBlock Text="Home" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
+       </Hyperlink>
+ </TextBlock>
+                <TextBlock Text="•" Margin="5" FontSize="20" Foreground="{StaticResource GoldBrush}" />
+                <!-- Trade -->
+                <TextBlock Margin="5" FontSize="20">
+   <Hyperlink NavigateUri="https://www.projectdiablo2.com/market" RequestNavigate="Hyperlink_RequestNavigate">
+    <TextBlock Text="Trade" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
+   </Hyperlink>
+ </TextBlock>
+                <TextBlock Text="•" Margin="5" FontSize="20" Foreground="{StaticResource GoldBrush}" />
 
+                <!-- Reddit -->
+                <TextBlock Margin="5" FontSize="20">
+      <Hyperlink NavigateUri="https://www.reddit.com/r/ProjectDiablo2/" RequestNavigate="Hyperlink_RequestNavigate">
+          <TextBlock Text="Reddit" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
+      </Hyperlink>
+ </TextBlock>
+                <TextBlock Text="•" Margin="5" FontSize="20" Foreground="{StaticResource GoldBrush}" />
+
+                <!-- Twitter -->
+                <TextBlock Margin="5" FontSize="20">
+      <Hyperlink NavigateUri="https://twitter.com/projectdiablo2" RequestNavigate="Hyperlink_RequestNavigate">
+        <TextBlock Text="Twitter" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
+       </Hyperlink>
+ </TextBlock>
+                <TextBlock Text="•" Margin="5" FontSize="20" Foreground="{StaticResource GoldBrush}" />
+
+                <!-- Discord -->
+                <TextBlock Margin="5" FontSize="20">
+      <Hyperlink NavigateUri="https://discord.com/invite/RgX4MWu" RequestNavigate="Hyperlink_RequestNavigate">
+          <TextBlock Text="Discord" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
+       </Hyperlink>
+ </TextBlock>
+                <TextBlock Text="•" Margin="5" FontSize="20" Foreground="{StaticResource GoldBrush}" />
+
+                <!-- Wiki -->
+                <TextBlock Margin="5" FontSize="20">
+       <Hyperlink NavigateUri="https://projectdiablo2.miraheze.org/wiki/Main_Page" RequestNavigate="Hyperlink_RequestNavigate">
+          <TextBlock Text="Wiki" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
+       </Hyperlink>
+ </TextBlock>
+            </StackPanel>
+            <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-25,0,0">
+                <ListBox x:Name="NewsListBox"
+                         ItemsSource="{Binding NewsItems}"
+                         ItemContainerStyle="{StaticResource CustomNewsListBoxItemStyle}"
+                         Background="{StaticResource DarkGray}"
+                         BorderBrush="{StaticResource GoldBrush}"
+                         BorderThickness="1"
+                         FontFamily="{StaticResource BlizzMedium}"
+                         FontSize="14"
+                         Opacity=".8"
+                         Width="750"
+                         Height="240"
+                         FocusVisualStyle="{x:Null}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         Grid.Row="1" 
+                         HorizontalAlignment="Center" 
+                         VerticalAlignment="Top" 
+                         Margin="0,20,0,0">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Vertical" Margin="5">
+                                <TextBlock Text="{Binding Title}" FontWeight="Bold" />
+                                <TextBlock Text="{Binding Date}" />
+                                <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" />
+                                <Border BorderBrush="{StaticResource GoldBrush}" BorderThickness="0,0,0,1" Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                    <ListBox.Resources>
+                        <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource CustomVerticalScrollBar}"/>
+                    </ListBox.Resources>
+                </ListBox>
+            </StackPanel>
+        </Grid>
 
         <!-- Top right buttons-->
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10">
@@ -110,28 +149,33 @@
         </StackPanel>
 
         <!-- Bottom right buttons -->
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10">
-            <local:CustomImageButton x:Name="DonateButton" Width="270" Height="35" Margin="0,0,0,10"
-                                     NormalImageSource="pack://application:,,,/Resources/Images/donate.jpg"
-                                     PressedImageSource="pack://application:,,,/Resources/Images/donate_pressed.jpg"
-                                     Click="DonateButton_Click"/>
-            <TextBlock 
-                Text="Thanks for your support, we couldn't keep the servers around without this community!"
-                HorizontalAlignment="Right"
-                Width="250"
-                Height="50"
-                TextWrapping="Wrap"
-                       Foreground="{StaticResource SoftWhite}"
-                       FontFamily="{StaticResource BlizzLight}"/>
-            <local:CustomImageButton x:Name="AboutButton" HorizontalAlignment="Right" Width="25" Height="25" Margin="0,0,0,0"
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10,20,0,0">
+            <local:CustomImageButton x:Name="DonateButton" Width="270" Height="35" Margin="10,1,10,0"
+                             NormalImageSource="pack://application:,,,/Resources/Images/donate.jpg"
+                             PressedImageSource="pack://application:,,,/Resources/Images/donate_pressed.jpg"
+                             Click="DonateButton_Click"/>
+            <!-- Added Margin on the top for the StackPanel containing the text block -->
+            <StackPanel HorizontalAlignment="Right" Width="271" Height="50" Margin="0,5,10,0">
+                <!-- Adjust the "5" as needed for your desired spacing -->
+                <StackPanel.Background>
+                    <SolidColorBrush Color="Black" Opacity="0.4" />
+                </StackPanel.Background>
+                <TextBlock 
+            Text="Thanks for your support, we couldn't keep the servers around without this community!"
+            TextWrapping="Wrap"
+            Foreground="{StaticResource GoldLighterBrush}"
+            FontFamily="{StaticResource BlizzLight}"/>
+            </StackPanel>
+
+            <local:CustomImageButton x:Name="AboutButton" HorizontalAlignment="Right" Width="25" Height="25" Margin="0,-1,10,0"
                                      NormalImageSource="pack://application:,,,/Resources/Images/btn_more.jpg"
                                      PressedImageSource="pack://application:,,,/Resources/Images/btn_more_pressed.jpg"
                                      Command="{Binding OpenAboutCommand}"/>
-            <TextBlock Text="v 2.0.0" HorizontalAlignment="Right"
+            <TextBlock Text="v 2.0.0" HorizontalAlignment="Right" Margin="0,0,10,1"
                        Foreground="{StaticResource SoftWhite}"
-                       FontFamily="{StaticResource BlizzLight}"/>
+                       FontFamily="{StaticResource BlizzMedium}"/>
         </StackPanel>
         <Rectangle x:Name="Overlay" Fill="#AA000000" Visibility="Collapsed" />
-        <Frame x:Name="MainFrame" Grid.Row="1" NavigationUIVisibility="Hidden" Content="{Binding CurrentView}" />
+        <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden" Content="{Binding CurrentView}" />
     </Grid>
 </Window>

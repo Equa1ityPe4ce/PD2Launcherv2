@@ -27,6 +27,7 @@ namespace PD2Launcherv2
         private readonly FilterHelpers _filterHelpers;
         private readonly LaunchGameHelpers _launchGameHelpers;
         private readonly NewsHelpers _newsHelpers;
+        public List<NewsItem> NewsItems { get; set; }
         public bool IsBeta { get; private set; }
         public ICommand OpenOptionsCommand { get; private set; }
         public ICommand OpenLootCommand { get; private set; }
@@ -45,7 +46,7 @@ namespace PD2Launcherv2
             _filterHelpers = (FilterHelpers)App.ServiceProvider.GetService(typeof(FilterHelpers));
             _launchGameHelpers = (LaunchGameHelpers)App.ServiceProvider.GetService(typeof(LaunchGameHelpers));
             _newsHelpers = (NewsHelpers)App.ServiceProvider.GetService(typeof(NewsHelpers));
-            _newsHelpers.FetchAndStoreNewsAsync(_localStorage);
+            LoadNews();
             LoadConfiguration();
 
         // Registering to receive NavigationMessage
@@ -201,6 +202,13 @@ namespace PD2Launcherv2
         {
             // Update UI based on the message content
             BetaNotification.Visibility = message.IsBeta ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void LoadNews()
+        {
+            _newsHelpers.FetchAndStoreNewsAsync(_localStorage);
+            News theNews = _localStorage.LoadSection<News>(StorageKey.News);
+            NewsItems = theNews.news;
         }
 
         public void InitializeDefaultSettings(ILocalStorage localStorage)
