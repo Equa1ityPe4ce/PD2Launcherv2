@@ -22,38 +22,46 @@
             <!-- Home -->
             <TextBlock Margin="5" FontSize="20">
                  <Hyperlink NavigateUri="https://www.projectdiablo2.com/market" RequestNavigate="Hyperlink_RequestNavigate">
-                   <TextBlock Text="Home" Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzMedium}"/>
+                   <TextBlock Text="Home" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
                   </Hyperlink>
             </TextBlock>
+            <TextBlock Text="•" Margin="5" FontSize="20" Foreground="{StaticResource GoldBrush}" />
             <!-- Trade -->
             <TextBlock Margin="5" FontSize="20">
               <Hyperlink NavigateUri="https://www.projectdiablo2.com/market" RequestNavigate="Hyperlink_RequestNavigate">
-               <TextBlock Text="Trade" Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzMedium}"/>
+               <TextBlock Text="Trade" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
               </Hyperlink>
             </TextBlock>
+            <TextBlock Text="•" Margin="5" FontSize="20" Foreground="{StaticResource GoldBrush}" />
 
             <!-- Reddit -->
             <TextBlock Margin="5" FontSize="20">
                  <Hyperlink NavigateUri="https://www.reddit.com/r/ProjectDiablo2/" RequestNavigate="Hyperlink_RequestNavigate">
-                     <TextBlock Text="Reddit" Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzMedium}"/>
+                     <TextBlock Text="Reddit" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
                  </Hyperlink>
             </TextBlock>
+            <TextBlock Text="•" Margin="5" FontSize="20" Foreground="{StaticResource GoldBrush}" />
+            
             <!-- Twitter -->
             <TextBlock Margin="5" FontSize="20">
                  <Hyperlink NavigateUri="https://twitter.com/projectdiablo2" RequestNavigate="Hyperlink_RequestNavigate">
-                   <TextBlock Text="Twitter" Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzMedium}"/>
+                   <TextBlock Text="Twitter" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
                   </Hyperlink>
             </TextBlock>
+            <TextBlock Text="•" Margin="5" FontSize="20" Foreground="{StaticResource GoldBrush}" />
+            
             <!-- Discord -->
             <TextBlock Margin="5" FontSize="20">
                  <Hyperlink NavigateUri="https://discord.com/invite/RgX4MWu" RequestNavigate="Hyperlink_RequestNavigate">
-                     <TextBlock Text="Discord" Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzMedium}"/>
+                     <TextBlock Text="Discord" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
                   </Hyperlink>
             </TextBlock>
+            <TextBlock Text="•" Margin="5" FontSize="20" Foreground="{StaticResource GoldBrush}" />
+            
             <!-- Wiki -->
             <TextBlock Margin="5" FontSize="20">
                   <Hyperlink NavigateUri="https://projectdiablo2.miraheze.org/wiki/Main_Page" RequestNavigate="Hyperlink_RequestNavigate">
-                     <TextBlock Text="Wiki" Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzMedium}"/>
+                     <TextBlock Text="Wiki" Style="{StaticResource HyperlinkMouseOverStyle}" FontFamily="{StaticResource BlizzMedium}"/>
                   </Hyperlink>
             </TextBlock>
         </StackPanel>
@@ -86,7 +94,6 @@
                     Foreground="Black" 
                     Background="Red"
                     Margin="0,10,0,0"
-                    Command="{Binding GetTheNews}"
                     Visibility="Collapsed" />
             <local:CustomImageButton x:Name="PlayButton" Width="270" Height="35" Margin="0,0,0,10"
                                      NormalImageSource="pack://application:,,,/Resources/Images/play.jpg"
