@@ -9,6 +9,7 @@ using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace PD2Launcherv2.Helpers
 {
@@ -54,6 +55,15 @@ namespace PD2Launcherv2.Helpers
 
                     if (newsItems != null)
                     {
+                        foreach (var item in newsItems)
+                        {
+                            // Convert the date string to a DateTime object
+                            if (DateTime.TryParse(item.Date, null, DateTimeStyles.AssumeUniversal, out var date))
+                            {
+                                // Convert the DateTime object to a more readable string format
+                                item.Date = date.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture);
+                            }
+                        }
                         var eTagValue = response.Headers.ETag?.Tag?.Trim('"');
 
                         // Update the news data and ETag in local storage
