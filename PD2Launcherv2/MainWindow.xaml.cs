@@ -92,7 +92,11 @@ namespace PD2Launcherv2
         private async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("PlayButton_Click start");
-
+            var selectedAuthorAndFilter = _localStorage.LoadSection<SelectedAuthorAndFilter>(StorageKey.SelectedAuthorAndFilter);
+            if (selectedAuthorAndFilter?.selectedFilter != null)
+            {
+                bool isUpdated = await _filterHelpers.CheckAndUpdateFilterAsync(selectedAuthorAndFilter);
+            }
             // Set the play button to the updating image immediately
             var updatingImageUri = new Uri("pack://application:,,,/Resources/Images/updating_disabled.jpg");
             PlayButton.NormalImageSource = new BitmapImage(updatingImageUri);
