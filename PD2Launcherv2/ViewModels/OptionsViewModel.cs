@@ -7,12 +7,14 @@ using ProjectDiablo2Launcherv2.Models;
 using ProjectDiablo2Launcherv2;
 using System.Diagnostics;
 using System.Windows;
+using PD2Launcherv2.Models;
 
 namespace PD2Launcherv2.ViewModels
 {
     public class OptionsViewModel : ViewModelBase
     {
         private readonly ILocalStorage _localStorage;
+        
         public RelayCommand ToggleAdvancedOptionsCommand { get; }
 
         public OptionsViewModel(ILocalStorage localStorage)

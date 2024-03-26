@@ -1,16 +1,21 @@
 ﻿using Force.Crc32;
 using PD2Launcherv2.Interfaces;
+using PD2Launcherv2.Models;
+using ProjectDiablo2Launcherv2;
+using ProjectDiablo2Launcherv2.Models;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace PD2Launcherv2.Helpers
 {
-    internal class FileUpdateHelpers
+    public class FileUpdateHelpers
     {
         private readonly HttpClient _httpClient;
+        private readonly List<string> _excludedFiles = Constants.excludedFiles;
 
         public FileUpdateHelpers(HttpClient httpClient)
         {
@@ -70,6 +75,70 @@ namespace PD2Launcherv2.Helpers
             byte[] remoteCrcBytes = Convert.FromBase64String(crcHash);
             uint remoteCrc = BitConverter.ToUInt32(remoteCrcBytes.Reverse().ToArray());
             return localCrc == remoteCrc;
+        }
+
+        public async Task UpdateFilesCheck(ILocalStorage _localStorage)
+        {
+            Debug.WriteLine("\nstart UpdateFilesCheck");
+            var fileUpdateModel = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
+            var installPath = Directory.GetCurrentDirectory();
+            var fullUpdatePath = Path.Combine(installPath, fileUpdateModel.FilePath);
+            if (!Directory.Exists(fullUpdatePath))
+            {
+                Directory.CreateDirectory(fullUpdatePath);
+            }
+
+            if (fileUpdateModel != null)
+            {
+                var cloudFileItems = await GetCloudFileMetadataAsync(fileUpdateModel.Client);
+
+                foreach (var cloudFile in cloudFileItems)
+                {
+                    if (cloudFile.Name.EndsWith("/")) // Skip directory markers so I dont try to download a folder
+                    {
+                        var directPath = Path.Combine(fullUpdatePath, cloudFile.Name.TrimEnd('/'));
+                        Directory.CreateDirectory(directPath);
+                        continue;
+                    }
+
+                    var localFilePath = Path.Combine(fullUpdatePath, cloudFile.Name);
+                    var directoryPath = Path.GetDirectoryName(localFilePath);
+                    Directory.CreateDirectory(directoryPath); // Ensure directory for the file exists
+
+                    var installFilePath = Path.Combine(installPath, cloudFile.Name);
+                    var installDirectoryPath = Path.GetDirectoryName(installFilePath);
+                    Directory.CreateDirectory(installDirectoryPath); // Ensure directory in parent ProjectD2 folder
+
+                    // Determine if the file is to be excluded only if it already exists
+                    bool shouldExclude = IsFileExcluded(cloudFile.Name) && File.Exists(installFilePath);
+
+                    // Download and update the file if needed, and not excluded or does not exist
+                    if (!shouldExclude && (!File.Exists(localFilePath) || !CompareCRC(localFilePath, cloudFile.Crc32c)))
+                    {
+                        Debug.WriteLine($"Updating file: {cloudFile.Name}");
+                        await DownloadFileAsync(cloudFile.MediaLink, localFilePath);
+                    }
+
+                    // Copy the file to parent ProjectD2 folder if it was updated or does not exist
+                    if (!shouldExclude || !File.Exists(installFilePath))
+                    {
+                        File.Copy(localFilePath, installFilePath, true);
+                    }
+                }
+            }
+            else
+            {
+                Debug.WriteLine("FileUpdateModel is not set or directory does not exist.");
+            }
+            Debug.WriteLine("end UpdateFilesCheck \n");
+        }
+
+        private bool IsFileExcluded(string fileName)
+        {
+            return _excludedFiles.Any(excluded =>
+                excluded.EndsWith("/*") && fileName.StartsWith(excluded.TrimEnd('*', '/')) ||
+                excluded.Equals(fileName, StringComparison.OrdinalIgnoreCase) ||
+                (excluded.Contains("*") && new Regex("^" + Regex.Escape(excluded).Replace("\\*", ".*") + "$").IsMatch(fileName)));
         }
     }
 

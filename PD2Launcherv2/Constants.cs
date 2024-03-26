@@ -12,6 +12,9 @@ namespace ProjectDiablo2Launcherv2
 
         static string author = "https://raw.githubusercontent.com/Project-Diablo-2/LootFilters/main/filters.json";
 
+        public static readonly List<string> excludedFiles = new List<string>
+        { "D2.LNG", "BnetLog.txt", "ProjectDiablo.cfg", "ddraw.ini", "default.filter", "loot.filter", "UI.ini", "d2gl.yaml"};
+
         public static class Ddraw
         {
             public const string IniFileName = "ddraw.ini";

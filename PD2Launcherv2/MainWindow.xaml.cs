@@ -4,14 +4,15 @@ using GalaSoft.MvvmLight.Messaging;
 using PD2Launcherv2.Enums;
 using PD2Launcherv2.Helpers;
 using PD2Launcherv2.Interfaces;
+using PD2Launcherv2.Messages;
 using PD2Launcherv2.Models;
 using PD2Launcherv2.Views;
 using ProjectDiablo2Launcherv2.Models;
 using System.Diagnostics;
-using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 
 namespace PD2Launcherv2
@@ -24,6 +25,7 @@ namespace PD2Launcherv2
         private readonly ILocalStorage _localStorage;
         private readonly FileUpdateHelpers _fileUpdateHelpers;
         private readonly FilterHelpers _filterHelpers;
+        public bool IsBeta { get; private set; }
         public ICommand OpenOptionsCommand { get; private set; }
         public ICommand OpenLootCommand { get; private set; }
         public ICommand OpenDonateCommand { get; private set; }
@@ -35,7 +37,6 @@ namespace PD2Launcherv2
         public ICommand OpenDiscordCommand { get; set; }
         public ICommand OpenWikiCommand { get; set; }
 
-
         public MainWindow()
         {
             InitializeComponent();
@@ -46,9 +47,11 @@ namespace PD2Launcherv2
             _localStorage = (ILocalStorage)App.ServiceProvider.GetService(typeof(ILocalStorage));
             _fileUpdateHelpers = (FileUpdateHelpers)App.ServiceProvider.GetService(typeof(FileUpdateHelpers));
             _filterHelpers = (FilterHelpers)App.ServiceProvider.GetService(typeof(FilterHelpers));
+            LoadConfiguration();
 
-            // Registering to receive NavigationMessage
-            Messenger.Default.Register<NavigationMessage>(this, OnNavigationMessageReceived);
+        // Registering to receive NavigationMessage
+        Messenger.Default.Register<NavigationMessage>(this, OnNavigationMessageReceived);
+        Messenger.Default.Register<ConfigurationChangeMessage>(this, OnConfigurationChanged);
             DataContext = this;
         }
         private void OnNavigationMessageReceived(NavigationMessage message)
@@ -89,58 +92,28 @@ namespace PD2Launcherv2
         private async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("PlayButton_Click start");
-            // Attempt to load the selected author and filter
-            var selectedAuthorAndFilter = _localStorage.LoadSection<SelectedAuthorAndFilter>(StorageKey.SelectedAuthorAndFilter);
-            if (selectedAuthorAndFilter?.selectedFilter != null)
+
+            // Set the play button to the updating image immediately
+            var updatingImageUri = new Uri("pack://application:,,,/Resources/Images/updating_disabled.jpg");
+            PlayButton.NormalImageSource = new BitmapImage(updatingImageUri);
+
+            // Load or setup default file update model
+            FileUpdateModel storeUpdate = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel) ?? new FileUpdateModel
             {
-                bool isUpdated = await _filterHelpers.CheckAndUpdateFilterAsync(selectedAuthorAndFilter);
-            }
-            var fileUpdateModel = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
-            if (fileUpdateModel != null)
+                Client = "https://storage.googleapis.com/storage/v1/b/pd2-client-files/o",
+                FilePath = "Live"
+            };
+            if (storeUpdate.Client is null)
             {
-                if (fileUpdateModel != null && Directory.Exists(fileUpdateModel.FilePath))
-                {
-                    var cloudFileItems = await _fileUpdateHelpers.GetCloudFileMetadataAsync(fileUpdateModel.Client);
-
-                    foreach (var cloudFile in cloudFileItems)
-                    {
-                        // Skip directory markers
-                        if (cloudFile.Name.EndsWith("/"))
-                        {
-                            // Ensure the directory structure is created for directory markers
-                            var directPath = Path.Combine(fileUpdateModel.FilePath, cloudFile.Name.TrimEnd('/'));
-                            if (!Directory.Exists(directPath))
-                            {
-                                Directory.CreateDirectory(directPath);
-                            }
-                            continue;
-                        }
-
-                        var localFilePath = Path.Combine(fileUpdateModel.FilePath, cloudFile.Name);
-
-                        // Ensure the directory for the file exists
-                        var directoryPath = Path.GetDirectoryName(localFilePath);
-                        if (!Directory.Exists(directoryPath))
-                        {
-                            Directory.CreateDirectory(directoryPath);
-                        }
-
-                        // Download and update the file if needed
-                        if (!_fileUpdateHelpers.CompareCRC(localFilePath, cloudFile.Crc32c))
-                        {
-                            Debug.WriteLine($"Updating file: {cloudFile.Name}");
-                            await _fileUpdateHelpers.DownloadFileAsync(cloudFile.MediaLink, localFilePath);
-                        }
-                        else
-                        {
-                        }
-                    }
-                }
-                else
-                {
-                    Debug.WriteLine("FileUpdateModel is not set or directory does not exist.");
-                }
+                _localStorage.Update(StorageKey.FileUpdateModel, storeUpdate);
             }
+
+            await _fileUpdateHelpers.UpdateFilesCheck(_localStorage);
+
+            // Optionally reset the play button image after updates are completed
+            var playImageUri = new Uri("pack://application:,,,/Resources/Images/play.jpg");
+            PlayButton.NormalImageSource = new BitmapImage(playImageUri);
+
             Debug.WriteLine("PlayButton_Click end");
         }
 
@@ -180,7 +153,6 @@ namespace PD2Launcherv2
             // Prevent the default behavior of opening the link
             e.Handled = true;
         }
-
         private void DonateButton_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("DonateButton_Click start");
@@ -207,6 +179,21 @@ namespace PD2Launcherv2
             {
                 Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
             }
+        }
+        private void LoadConfiguration()
+        {
+            // Assuming _localStorage has already been initialized
+            var fileUpdateModel = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
+            IsBeta = fileUpdateModel?.FilePath == "Beta";
+
+            // Directly setting the Visibility of BetaNotification
+            BetaNotification.Visibility = IsBeta ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        private void OnConfigurationChanged(ConfigurationChangeMessage message)
+        {
+            // Update UI based on the message content
+            BetaNotification.Visibility = message.IsBeta ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 }

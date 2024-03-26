@@ -47,7 +47,7 @@ namespace PD2Launcherv2
             services.AddSingleton<FilterHelpers>();
             services.AddSingleton<HttpClient>();
             services.AddSingleton<FileUpdateHelpers>(provider =>
-        new FileUpdateHelpers( provider.GetRequiredService<HttpClient>()));
+            new FileUpdateHelpers( provider.GetRequiredService<HttpClient>()));
             services.AddTransient<OptionsViewModel>();
             services.AddTransient<AboutViewModel>();
             services.AddTransient<FiltersViewModel>();
