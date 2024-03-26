@@ -3,6 +3,10 @@
     "PD2Launcherv2": {
       "commandName": "Project",
       "workingDirectory": "E:\\Games\\Blizzard\\d2\\Diablo II\\ProjectD2"
+    },
+    "CanightWD": {
+      "commandName": "Project",
+      "workingDirectory": "E:\\Diablo II\\ProjectD2Test"
     }
   }
 }

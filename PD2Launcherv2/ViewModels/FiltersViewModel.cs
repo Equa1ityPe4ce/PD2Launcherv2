@@ -118,7 +118,7 @@ namespace PD2Launcherv2.ViewModels
         private void SelectStoredAuthorAndFilter()
         {
             var storedSelection = _localStorage.LoadSection<SelectedAuthorAndFilter>(StorageKey.SelectedAuthorAndFilter);
-            if (storedSelection != null)
+            if (storedSelection?.selectedAuthor != null)
             {
                 // Attempt to select the stored author
                 SelectedAuthor = AuthorsList.FirstOrDefault(a => a.Author == storedSelection.selectedAuthor.Author);
@@ -148,7 +148,6 @@ namespace PD2Launcherv2.ViewModels
 
             // Use HttpClient to fetch data from the specified URL
             Debug.WriteLine($"Fetching data from {url}");
-            _filterHelpers.FetchFilterContentsAsync(url);
             var filterContents = await _filterHelpers.FetchFilterContentsAsync(url);
             if (filterContents != null)
             {
