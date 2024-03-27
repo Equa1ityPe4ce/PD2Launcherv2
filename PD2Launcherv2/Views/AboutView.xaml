@@ -24,7 +24,7 @@
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock Text="File Update Testing" FontSize="16" FontFamily="{StaticResource BlizzHeavy}" Foreground="{StaticResource GoldBrush}"></TextBlock>
 
-            <Button x:Name="PRODBucket" Content="Normal" Style="{StaticResource CustomColorChangeButton}"
+            <Button x:Name="PRODBucket" Content="Live" Style="{StaticResource CustomColorChangeButton}"
                     Width="200" Height="35" Margin="10" Foreground="Black"
                     Command="{Binding ProdBucket}" FontFamily="{StaticResource BlizzHeavy}">
             </Button>

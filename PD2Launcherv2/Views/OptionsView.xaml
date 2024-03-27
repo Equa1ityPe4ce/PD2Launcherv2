@@ -82,19 +82,19 @@
                         <TextBlock Text="0 = default" Margin="40,-10,0,0" FontSize="12" Foreground="{StaticResource GoldDarkerBrush}" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
 
                         <TextBlock Text="Width" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
-                        <TextBox x:Name="Width" Margin="0,-10,0,0" Text="{Binding Width, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CustomTextBoxStyle}"/>
+                        <TextBox x:Name="Width" Margin="0,-10,0,0" Text="{Binding Width, Mode=TwoWay, Converter={StaticResource StringToIntConverter}, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CustomTextBoxStyle}"/>
 
                         <TextBlock Text="Height" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
-                        <TextBox x:Name="Height" Margin="0,-10,0,0" Text="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CustomTextBoxStyle}" />
+                        <TextBox x:Name="Height" Margin="0,-10,0,0" Text="{Binding Height, Converter={StaticResource StringToIntConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CustomTextBoxStyle}" />
 
                         <TextBlock Text="Window Position" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
                         <TextBlock Text="-320000 = Center To Screen" Margin="40,-10,0,0" FontSize="12" Foreground="{StaticResource GoldDarkerBrush}" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
 
                         <TextBlock Text="Vertical" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
-                        <TextBox x:Name="ddrawPosX" Margin="0,-10,0,0" Text="{Binding DdrawPosX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CustomTextBoxStyle}" />
+                        <TextBox x:Name="ddrawPosX" Margin="0,-10,0,0" Text="{Binding DdrawPosX, Converter={StaticResource StringToIntConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CustomTextBoxStyle}" />
 
                         <TextBlock Text="Horizontal" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
-                        <TextBox x:Name="ddrawPosY" Margin="0,-10,0,0" Text="{Binding DdrawPosY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CustomTextBoxStyle}" />
+                        <TextBox x:Name="ddrawPosY" Margin="0,-10,0,0" Text="{Binding DdrawPosY, Converter={StaticResource StringToIntConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CustomTextBoxStyle}" />
                     </StackPanel>
 
                         <CheckBox x:Name="maintasCheckBox" Content="Maintain Aspect Ratio" Style="{StaticResource CustomCheckBoxStyle}"

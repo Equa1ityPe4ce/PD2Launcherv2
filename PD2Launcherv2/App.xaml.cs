@@ -48,6 +48,7 @@ namespace PD2Launcherv2
             services.AddSingleton<HttpClient>();
             services.AddSingleton<LaunchGameHelpers>();
             services.AddSingleton<NewsHelpers>();
+            services.AddSingleton<DDrawHelpers>();
             services.AddSingleton<FileUpdateHelpers>(provider =>
             new FileUpdateHelpers( provider.GetRequiredService<HttpClient>()));
             services.AddTransient<OptionsViewModel>();

@@ -9,11 +9,13 @@ using System.Windows;
 using PD2Launcherv2.Models;
 using System.Diagnostics;
 using System.Windows.Controls;
+using System.Net.Http;
 
 namespace PD2Launcherv2.ViewModels
 {
     public class OptionsViewModel : ViewModelBase
     {
+        private DDrawHelpers _ddrawHelpers;
         private readonly ILocalStorage _localStorage;
         public Dictionary<string, bool> CheckboxStates { get; set; }
 
@@ -22,6 +24,8 @@ namespace PD2Launcherv2.ViewModels
         public OptionsViewModel(ILocalStorage localStorage)
         {
             _localStorage = localStorage;
+            _ddrawHelpers = new DDrawHelpers();
+            _ddrawHelpers.ReadDdrawOptions();
             CheckboxStates = new Dictionary<string, bool>();
             OptionsModePicker = Constants.ModePickerItems();
             MaxFpsPickerItems = Constants.MaxFpsPickerItems();
@@ -643,12 +647,12 @@ namespace PD2Launcherv2.ViewModels
 
         private void SaveDDrawOptions()
         {
-            DdrawOptions dDrawOptions = _localStorage.LoadSection<DdrawOptions>(StorageKey.DdrawOptions) ?? new DdrawOptions();
+            DdrawOptions dDrawOptions = _localStorage.LoadSection<DdrawOptions>(StorageKey.DdrawOptions);
             //textbox's
-            Width = dDrawOptions.Width;
-            Height = dDrawOptions.Height;
-            DdrawPosX = dDrawOptions.PosX;
-            DdrawPosY = dDrawOptions.PosY;
+            dDrawOptions.Width = Width;
+            dDrawOptions.Height = Height;
+            dDrawOptions.PosX = DdrawPosX;
+            dDrawOptions.PosY = DdrawPosY;
 
             //checkbox's
             dDrawOptions.Maintas = MaintainAspectRatio;
@@ -712,6 +716,8 @@ namespace PD2Launcherv2.ViewModels
             UpdateLauncherArgsStorage();
             //save 
             UpdateDDrawStorage();
+            //write ddrawstorage to .ini
+            _ddrawHelpers.WriteDdrawOptions();
 
             // Sending a message to anyone who's listening for NavigationMessage
             Messenger.Default.Send(new NavigationMessage { Action = NavigationAction.GoBack });

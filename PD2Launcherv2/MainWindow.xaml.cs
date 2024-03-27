@@ -27,6 +27,7 @@ namespace PD2Launcherv2
         private readonly FilterHelpers _filterHelpers;
         private readonly LaunchGameHelpers _launchGameHelpers;
         private readonly NewsHelpers _newsHelpers;
+        private readonly DDrawHelpers _dDrawHelpers;
         public List<NewsItem> NewsItems { get; set; }
         public bool IsBeta { get; private set; }
         public ICommand OpenOptionsCommand { get; private set; }
@@ -40,12 +41,14 @@ namespace PD2Launcherv2
             OpenOptionsCommand = new RelayCommand(ShowOptionsView);
             OpenLootCommand = new RelayCommand(ShowLootView);
             OpenAboutCommand = new RelayCommand(ShowAboutView);
+            _dDrawHelpers = new DDrawHelpers();
             _localStorage = (ILocalStorage)App.ServiceProvider.GetService(typeof(ILocalStorage));
             InitializeDefaultSettings(_localStorage);
             _fileUpdateHelpers = (FileUpdateHelpers)App.ServiceProvider.GetService(typeof(FileUpdateHelpers));
             _filterHelpers = (FilterHelpers)App.ServiceProvider.GetService(typeof(FilterHelpers));
             _launchGameHelpers = (LaunchGameHelpers)App.ServiceProvider.GetService(typeof(LaunchGameHelpers));
             _newsHelpers = (NewsHelpers)App.ServiceProvider.GetService(typeof(NewsHelpers));
+            LoadAndUpdateDDrawOptions();
             Loaded += MainWindow_Loaded;
             LoadConfiguration();
 
@@ -216,6 +219,15 @@ namespace PD2Launcherv2
             News theNews = _localStorage.LoadSection<News>(StorageKey.News);
             NewsItems = theNews?.news ?? new List<NewsItem>();
             NewsListBox.ItemsSource = NewsItems;
+        }
+
+        private void LoadAndUpdateDDrawOptions()
+        {
+            // Read the current settings from ddraw.ini
+            DdrawOptions currentDdrawOptions = _dDrawHelpers.ReadDdrawOptions();
+
+            // Update the local storage with the current ddraw
+            _localStorage.Update(StorageKey.DdrawOptions, currentDdrawOptions);
         }
 
         public void InitializeDefaultSettings(ILocalStorage localStorage)
