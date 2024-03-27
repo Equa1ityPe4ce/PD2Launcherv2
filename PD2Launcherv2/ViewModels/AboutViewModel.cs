@@ -21,7 +21,6 @@ namespace PD2Launcherv2.ViewModels
 
         public RelayCommand ProdBucket { get; private set; }
         public RelayCommand BetaBucket { get; private set; }
-        public RelayCommand UpdateFilesCall { get; private set; }
 
         public AboutViewModel(ILocalStorage localStorage)
         {
@@ -30,7 +29,6 @@ namespace PD2Launcherv2.ViewModels
 
             ProdBucket = new RelayCommand(ProdBucketAssign);
             BetaBucket = new RelayCommand(BetaBucketAssign);
-            UpdateFilesCall = new RelayCommand(async () => await UpdateFilesCheck());
 
             CloseCommand = new RelayCommand(CloseView);
         }
@@ -60,12 +58,6 @@ namespace PD2Launcherv2.ViewModels
             _localStorage.Update(StorageKey.FileUpdateModel, fileUpdateModel);
             Messenger.Default.Send(new ConfigurationChangeMessage { IsBeta = true });
             Debug.WriteLine("end BetaBucketAssign \n");
-        }
-        public async Task UpdateFilesCheck()
-        {
-            Debug.WriteLine("\nstart UpdateFilesCheck");
-            await _fileUpdateHelpers.UpdateFilesCheck(_localStorage);
-            Debug.WriteLine("end UpdateFilesCheck \n");
         }
 
         private void CloseView()

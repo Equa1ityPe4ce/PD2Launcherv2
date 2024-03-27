@@ -36,6 +36,29 @@ namespace PD2Launcherv2.ViewModels
             ToggleAdvancedOptionsCommand = new RelayCommand(ToggleAdvancedOptions);
         }
 
+        public Visibility NonFullScreenVisibility
+        {
+            get => string.Equals(SelectedMode, "fullscreen", StringComparison.OrdinalIgnoreCase)
+                ? Visibility.Collapsed : Visibility.Visible;
+        }
+        public Visibility AdvancedOptionsVisibility => ShowAdvancedOptions ? Visibility.Visible : Visibility.Collapsed;
+        public Visibility DDrawControlsVisible => IsDdrawSelected ? Visibility.Visible : Visibility.Collapsed;
+
+        private bool _showAdvancedOptions = false;
+        public bool ShowAdvancedOptions
+        {
+            get => _showAdvancedOptions;
+            set
+            {
+                if (_showAdvancedOptions != value)
+                {
+                    _showAdvancedOptions = value;
+                    OnPropertyChanged(nameof(ShowAdvancedOptions));
+                    OnPropertyChanged(nameof(AdvancedOptionsVisibility));
+                }
+            }
+        }
+
         private string _selectedMode;
         public string SelectedMode
         {
@@ -47,28 +70,6 @@ namespace PD2Launcherv2.ViewModels
                     _selectedMode = value;
                     OnPropertyChanged(nameof(SelectedMode));
                     OnPropertyChanged(nameof(NonFullScreenVisibility));
-                }
-            }
-        }
-
-        public Visibility NonFullScreenVisibility
-        {
-            get => string.Equals(SelectedMode, "fullscreen", StringComparison.OrdinalIgnoreCase)
-                ? Visibility.Collapsed : Visibility.Visible;
-        }
-
-        private bool _showAdvancedOptions = false;
-        public Visibility AdvancedOptionsVisibility => ShowAdvancedOptions ? Visibility.Visible : Visibility.Collapsed;
-        public bool ShowAdvancedOptions
-        {
-            get => _showAdvancedOptions;
-            set
-            {
-                if (_showAdvancedOptions != value)
-                {
-                    _showAdvancedOptions = value;
-                    OnPropertyChanged(nameof(ShowAdvancedOptions));
-                    OnPropertyChanged(nameof(AdvancedOptionsVisibility));
                 }
             }
         }
@@ -88,7 +89,6 @@ namespace PD2Launcherv2.ViewModels
                 }
             }
         }
-        public Visibility DDrawControlsVisible => IsDdrawSelected ? Visibility.Visible : Visibility.Collapsed;
 
         private List<DisplayValuePair> _optionsModePicker;
         public List<DisplayValuePair> OptionsModePicker
@@ -183,6 +183,106 @@ namespace PD2Launcherv2.ViewModels
             {
                 _shaderPickerItems = value;
                 OnPropertyChanged(nameof(ShaderPickerItems));
+            }
+        }
+
+        private string _selectedMaxFps;
+        public string SelectedMaxFps
+        {
+            get => _selectedMaxFps;
+            set
+            {
+                if (_selectedMaxFps != value)
+                {
+                    _selectedMaxFps = value;
+                    OnPropertyChanged(nameof(SelectedMaxFps));
+                    // Additional logic when selection changes, if necessary
+                }
+            }
+        }
+
+        private string _selectedMaxGameTicks;
+        public string SelectedMaxGameTicks
+        {
+            get => _selectedMaxGameTicks;
+            set
+            {
+                if (_selectedMaxGameTicks != value)
+                {
+                    _selectedMaxGameTicks = value;
+                    OnPropertyChanged(nameof(SelectedMaxGameTicks));
+                    // Additional logic when selection changes, if necessary
+                }
+            }
+        }
+
+        private string _selectedSaveWindowPosition;
+        public string SelectedSaveWindowPosition
+        {
+            get => _selectedSaveWindowPosition;
+            set
+            {
+                if (_selectedSaveWindowPosition != value)
+                {
+                    _selectedSaveWindowPosition = value;
+                    OnPropertyChanged(nameof(SelectedSaveWindowPosition));
+                }
+            }
+        }
+
+        private string _selectedRenderer;
+        public string SelectedRenderer
+        {
+            get => _selectedRenderer;
+            set
+            {
+                if (_selectedRenderer != value)
+                {
+                    _selectedRenderer = value;
+                    OnPropertyChanged(nameof(SelectedRenderer));
+                }
+            }
+        }
+
+        private string _selectedHook;
+        public string SelectedHook
+        {
+            get => _selectedHook;
+            set
+            {
+                if (_selectedHook != value)
+                {
+                    _selectedHook = value;
+                    OnPropertyChanged(nameof(SelectedHook));
+                }
+            }
+        }
+
+        private string _selectedMinFps;
+        public string SelectedMinFps
+        {
+            get => _selectedMinFps;
+            set
+            {
+                if (_selectedMinFps != value)
+                {
+                    _selectedMinFps = value;
+                    OnPropertyChanged(nameof(SelectedMinFps));
+                }
+            }
+        }
+
+        private string _selectedShader;
+        public string SelectedShader
+        {
+            get => _selectedShader;
+            set
+            {
+                if (_selectedShader != value)
+                {
+                    _selectedShader = value;
+                    OnPropertyChanged(nameof(SelectedShader));
+                }
             }
         }
 
