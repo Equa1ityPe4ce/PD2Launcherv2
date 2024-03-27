@@ -3,9 +3,6 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-      xmlns:cust="clr-namespace:PD2Launcherv2.CustomControl"
-      xmlns:local="clr-namespace:PD2Launcherv2.ViewModels"
-      xmlns:conv="clr-namespace:ProjectDiablo2Launcherv2.Converters"
       Width="750" Height="550"
       mc:Ignorable="d" 
       Title="OptionsView"
@@ -141,8 +138,9 @@
                                   FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
                                   FontSize="12" Margin="10,10,10,0"
                                   IsChecked="{Binding ResizableWindow, Mode=TwoWay}" />
-
-                        <Button x:Name="ShowAdvancedOptionsButton"
+                    <TextBlock Text="Default DDraw Settings" HorizontalAlignment="Right" FontSize="14" Height="50" Width="150"  TextWrapping="Wrap" Foreground="{StaticResource SoftWhite}" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsSubText}" Margin="-15"/>
+                    <Button Content="Default DDraw" FontSize="14" HorizontalAlignment="Right" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource CustomColorChangeButton}" Command="{Binding RestoreDefaultsCommand}" Margin="0"/>
+                    <Button x:Name="ShowAdvancedOptionsButton"
                                 Content="Show Advanced Options"
                                 FontFamily="{StaticResource BlizzHeavy}"
                                 FontSize="20"

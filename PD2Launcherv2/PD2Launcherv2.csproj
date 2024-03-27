@@ -39,10 +39,8 @@
     <None Remove="Resources\Images\options_pressed.jpg" />
     <None Remove="Resources\Images\play.jpg" />
     <None Remove="Resources\Images\play_pressed.jpg" />
-    <None Remove="Resources\Images\thin_left.jpg" />
     <None Remove="Resources\Images\thin_next.jpg" />
     <None Remove="Resources\Images\thin_prev.jpg" />
-    <None Remove="Resources\Images\thin_right.jpg" />
     <None Remove="Resources\Images\updating_disabled.jpg" />
   </ItemGroup>
 
@@ -85,10 +83,8 @@
     <Resource Include="Resources\Images\options_pressed.jpg" />
     <Resource Include="Resources\Images\play.jpg" />
     <Resource Include="Resources\Images\play_pressed.jpg" />
-    <Resource Include="Resources\Images\thin_left.jpg" />
     <Resource Include="Resources\Images\thin_next.jpg" />
     <Resource Include="Resources\Images\thin_prev.jpg" />
-    <Resource Include="Resources\Images\thin_right.jpg" />
     <Resource Include="Resources\Images\updating_disabled.jpg" />
   </ItemGroup>
 

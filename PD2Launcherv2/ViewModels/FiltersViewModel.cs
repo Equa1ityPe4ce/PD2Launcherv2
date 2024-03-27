@@ -96,8 +96,6 @@ namespace PD2Launcherv2.ViewModels
             CloseCommand = new RelayCommand(CloseView);
             _localStorage = localStorage;
             _filterHelpers = new FilterHelpers(new HttpClient(), _localStorage);
-            AuthorCall = new RelayCommand(async () => await AuthorCall_Click());
-            FilterCall = new RelayCommand(FilterCall_Click);
             SaveFilterCommand = new RelayCommand(SaveFilterExecute);
             OpenAuthorsPageCommand = new RelayCommand(OpenAuthorsPageExecute);
             OpenHelpPageCommand = new RelayCommand(OpenHelpPageExecute);
@@ -147,7 +145,6 @@ namespace PD2Launcherv2.ViewModels
             }
 
             // Use HttpClient to fetch data from the specified URL
-            Debug.WriteLine($"Fetching data from {url}");
             var filterContents = await _filterHelpers.FetchFilterContentsAsync(url);
             if (filterContents != null)
             {
@@ -201,19 +198,6 @@ namespace PD2Launcherv2.ViewModels
                     FiltersList = filterFiles;
                 }
             }
-        }
-
-        public async Task AuthorCall_Click()
-        {
-            Debug.WriteLine("start AuthorCall_Click");
-            await FetchAndStoreFilterAuthorsAsync();
-            Debug.WriteLine("end AuthorCall_Click");
-        }
-
-        public void FilterCall_Click()
-        {
-            Debug.WriteLine("FilterCall_Click start");
-            Debug.WriteLine("FilterCall_Click end");
         }
 
         private void SaveFilterToStorage()

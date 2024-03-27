@@ -46,7 +46,6 @@ namespace PD2Launcherv2.Helpers
 
         public async Task DownloadFileAsync(string mediaLink, string path)
         {
-            Debug.WriteLine($"Downloading file to: {path}");
             var response = await _httpClient.GetAsync(mediaLink, HttpCompletionOption.ResponseHeadersRead);
             response.EnsureSuccessStatusCode();
 

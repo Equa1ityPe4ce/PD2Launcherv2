@@ -29,16 +29,13 @@ namespace PD2Launcherv2.Helpers
             {
                 using (Stream iniStream = new FileStream(ddrawIniPath, FileMode.Open, FileAccess.Read))
                 {
-                    Debug.WriteLine($"iniStream: {iniStream}");
                     iniFile.Load(iniStream);
                 }
             }
             catch (Exception ex)
             {
-                // Handle exceptions (file not found, unable to read, etc.)
-                // Log the error and/or set default options
                 Debug.WriteLine($"Error reading ddraw.ini: {ex.Message}");
-                return new DdrawOptions(); // Return default or previously saved options
+                return new DdrawOptions(); 
             }
 
             // Read settings from iniFile and update DdrawOptions
@@ -125,17 +122,12 @@ namespace PD2Launcherv2.Helpers
             {
                 // Use ToStringInvariant if the method is available, or just ToString otherwise
                 string valueString = (value != null) ? value.ToString().ToLowerInvariant() : defaultValue.ToString().ToLowerInvariant();
-                Debug.WriteLine($"Attempting to set key: {keyName} to value: {valueString}");
-
                 if (ddrawSection.Keys[keyName] != null)
                 {
-                    Debug.WriteLine($"Pre set: {ddrawSection.Keys[keyName].Value}");
                     ddrawSection.Keys[keyName].Value = valueString;
-                    Debug.WriteLine($"Post set: {ddrawSection.Keys[keyName].Value}");
                 }
                 else
                 {
-                    Debug.WriteLine($"Key: {keyName} not found, creating new key with value: {valueString}");
                     ddrawSection.Keys.Add(keyName, valueString);
                 }
             }

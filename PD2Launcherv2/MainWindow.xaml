@@ -88,7 +88,8 @@
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                          Grid.Row="1" 
                          HorizontalAlignment="Center" 
-                         VerticalAlignment="Top">
+                         VerticalAlignment="Top"
+                         ScrollViewer.CanContentScroll="False">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Grid Margin="0,10,0,0">
@@ -187,7 +188,7 @@
                                      NormalImageSource="pack://application:,,,/Resources/Images/btn_more.jpg"
                                      PressedImageSource="pack://application:,,,/Resources/Images/btn_more_pressed.jpg"
                                      Command="{Binding OpenAboutCommand}"/>
-            <TextBlock Text="v 2.0.9" HorizontalAlignment="Right" Margin="0,0,10,1"
+            <TextBlock Text="v 2.1.0" HorizontalAlignment="Right" Margin="0,0,10,1"
                        Foreground="{StaticResource SoftWhite}"
                        FontFamily="{StaticResource BlizzMedium}"/>
         </StackPanel>

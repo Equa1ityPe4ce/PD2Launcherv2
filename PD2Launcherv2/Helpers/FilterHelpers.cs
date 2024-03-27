@@ -23,7 +23,6 @@ namespace PD2Launcherv2.Helpers
         }
         private async Task<HttpResponseMessage> GetAsync(string url, string eTag = null)
         {
-            Debug.WriteLine($"in GetAsync {url}");
             var request = new HttpRequestMessage(HttpMethod.Get, url);
 
             if (!string.IsNullOrWhiteSpace(eTag))
@@ -31,14 +30,11 @@ namespace PD2Launcherv2.Helpers
                 request.Headers.IfNoneMatch.Add(new EntityTagHeaderValue($"\"{eTag}\""));
                 request.Headers.Add("User-Agent", "PD2Launcherv2");
             }
-            Debug.WriteLine($"eTag sent out {eTag}");
             return await _httpClient.SendAsync(request);
         }
 
         private async Task<HttpResponseMessage> GetFilterListAsync(string url)
         {
-            Debug.WriteLine($"in GetFilterListAsync {url}");
-            Debug.WriteLine($"Getting Filter Liost from {url}");
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             request.Headers.Add("User-Agent", "PD2Launcherv2");
             return await _httpClient.SendAsync(request);
@@ -49,16 +45,11 @@ namespace PD2Launcherv2.Helpers
             try
             {
                 var response = await GetFilterListAsync(url);
-                Debug.WriteLine($"response.content {response.Content}");
-                Debug.WriteLine($"{response.StatusCode}");
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     var allFiles = JsonConvert.DeserializeObject<List<FilterFile>>(content);
-                    Debug.WriteLine($"content: {content}");
-                    Debug.WriteLine($"allFiles: {allFiles}");
                     var filterFiles = allFiles.Where(f => f.Name.EndsWith(".filter")).ToList();
-                    Debug.WriteLine($"filterFiles {filterFiles}");
                     return filterFiles;
                 }
             }
@@ -79,18 +70,7 @@ namespace PD2Launcherv2.Helpers
                 var eTag = storedData?.StorageETag ?? string.Empty;
 
                 var response = await GetAsync(FilterAuthorUrl, eTag);
-                Debug.WriteLine($"ETAG: {eTag}");
-                Debug.WriteLine($"response.StatusCode {response.StatusCode}");
-                Debug.WriteLine($"response.Content {response.Content}");
-                Debug.WriteLine($"response.ReasonPhrase {response.ReasonPhrase}");
-                Debug.WriteLine($"response.Version {response.Version}");
-                // Iterate over all headers
-                foreach (var header in response.Headers)
-                {
-                    Debug.WriteLine($"Header: {header.Key}, Value: {string.Join(", ", header.Value)}");
-                }
-
-
+          
                 if (response.StatusCode == System.Net.HttpStatusCode.NotModified)
                 {
                     // Data has not changed; no need to update
@@ -104,11 +84,6 @@ namespace PD2Launcherv2.Helpers
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     var authors = JsonConvert.DeserializeObject<List<FilterAuthor>>(content);
-                    Debug.WriteLine("is authors null?: " + authors != null);
-                    Debug.WriteLine($"content {content}");
-                    Debug.WriteLine($"authors {authors}");
-                    Debug.WriteLine($"ETag Header: {response.Headers.ETag?.Tag}");
-                    Debug.WriteLine($"2nd ETag Header: {response.Headers.ETag.ToString}");
                     var eTagValue = response.Headers.ETag?.Tag?.Trim('"');
                     Debug.WriteLine($"eTagValue {eTagValue}");
                     if (authors != null)
@@ -121,10 +96,6 @@ namespace PD2Launcherv2.Helpers
 
                         // Serialize eTaggedData to JSON for debugging
                         string eTaggedDataJson = JsonConvert.SerializeObject(eTaggedData, Formatting.Indented);
-                        Debug.WriteLine($"eTaggedData JSON: {eTaggedDataJson}");
-
-                        Debug.WriteLine($"eTaggedData: {eTaggedData}");
-                        Debug.WriteLine($"final response.Headers.ETag?.Tag,: {response.Headers.ETag?.Tag}");
 
                         _localStorage.Update(StorageKey.Pd2AuthorList, eTaggedData);
                         Console.WriteLine("Filter authors data updated.");
@@ -146,18 +117,13 @@ namespace PD2Launcherv2.Helpers
         private async Task<bool> DownloadFileAsync(string downloadUrl, string targetPath)
         {
             Debug.WriteLine($"DownloadFileAsync start");
-            Debug.WriteLine($"downloadUrl {downloadUrl}");
-            Debug.WriteLine($"targetPath {targetPath}");
             try
             {
                 var response = await _httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
                 response.EnsureSuccessStatusCode();
-                Debug.WriteLine($"response {response.Content}");
-                Debug.WriteLine($"response {response.StatusCode}");
 
                 using (var fileStream = new FileStream(targetPath, FileMode.Create, FileAccess.Write, FileShare.None))
                 {
-                    Debug.WriteLine($"fileStream {fileStream}");
                     await response.Content.CopyToAsync(fileStream);
                 }
 
@@ -203,10 +169,8 @@ namespace PD2Launcherv2.Helpers
                     }
                 }
 
-                // Create or update the symbolic link for the loot filter
+                // Create or update the loot filter
                 File.Copy(targetFilterPath, defaultFilterPath, true);
-                // Symlink requires admin
-                //File.CreateSymbolicLink(defaultFilterPath, targetFilterPath);
 
                 Debug.WriteLine("Filter applied successfully.");
                 return true;
@@ -224,7 +188,6 @@ namespace PD2Launcherv2.Helpers
             {
                 // Use GetFilterListAsync to ensure User-Agent is set and to handle request consistently
                 var filterListResponse = await GetFilterListAsync(selected.selectedAuthor.Url);
-                Debug.WriteLine($"Response Status: {filterListResponse.StatusCode}");
 
                 if (!filterListResponse.IsSuccessStatusCode)
                 {
@@ -240,7 +203,6 @@ namespace PD2Launcherv2.Helpers
                     return false;
                 }
 
-                Debug.WriteLine($"Target SHA: {targetFilter.Sha}, Selected SHA: {selected.selectedFilter.Sha}");
                 if (targetFilter.Sha.Equals(selected.selectedFilter.Sha, StringComparison.OrdinalIgnoreCase))
                 {
                     Debug.WriteLine("The filter is up-to-date.");

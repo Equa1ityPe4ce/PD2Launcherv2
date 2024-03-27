@@ -1,17 +1,9 @@
-﻿using ProjectDiablo2Launcherv2.Converters;
-using ProjectDiablo2Launcherv2.Models;
-using System.Text.Json;
+﻿using ProjectDiablo2Launcherv2.Models;
 
 namespace ProjectDiablo2Launcherv2
 {
     public static class Constants
     {
-        static string clientFilesBucket = "https://storage.googleapis.com/storage/v1/b/pd2-client-files/o";
-
-        static string betaClientFilesBucket = "https://storage.googleapis.com/storage/v1/b/pd2-beta-client-files/o";
-
-        static string author = "https://raw.githubusercontent.com/Project-Diablo-2/LootFilters/main/filters.json";
-
         public static readonly List<string> excludedFiles = new List<string>
         { "D2.LNG", "BnetLog.txt", "ProjectDiablo.cfg", "ddraw.ini", "default.filter", "loot.filter", "UI.ini", "d2gl.yaml"};
 
@@ -43,24 +35,6 @@ namespace ProjectDiablo2Launcherv2
             public const string DdrawOptionsKey = "DdrawOptions";
             public const string FileUpdateModelKey = "FileUpdateModel";
             public const string AuthorAndFilterKey = "AuthorAndFilterKey";
-        }
-
-        public static class Serialization
-        {
-            public static JsonSerializerOptions DefaultOptions
-            {
-                get
-                {
-                    return new JsonSerializerOptions()
-                    {
-                        WriteIndented = true,
-                        Converters =
-                        {
-                            new NumberAsStringJsonConverter()
-                        }
-                    };
-                }
-            }
         }
 
         public static List<DisplayValuePair> MaxFpsPickerItems()

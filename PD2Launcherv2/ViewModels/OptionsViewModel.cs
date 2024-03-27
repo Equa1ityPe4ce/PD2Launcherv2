@@ -10,6 +10,7 @@ using PD2Launcherv2.Models;
 using System.Diagnostics;
 using System.Windows.Controls;
 using System.Net.Http;
+using System.Windows.Input;
 
 namespace PD2Launcherv2.ViewModels
 {
@@ -20,6 +21,7 @@ namespace PD2Launcherv2.ViewModels
         public Dictionary<string, bool> CheckboxStates { get; set; }
 
         public RelayCommand ToggleAdvancedOptionsCommand { get; }
+        public RelayCommand RestoreDefaultsCommand { get; }
 
         public OptionsViewModel(ILocalStorage localStorage)
         {
@@ -40,6 +42,7 @@ namespace PD2Launcherv2.ViewModels
             DealWithLoadingModeComboBox(_localStorage);
             CloseCommand = new RelayCommand(CloseView);
             ToggleAdvancedOptionsCommand = new RelayCommand(ToggleAdvancedOptions);
+            RestoreDefaultsCommand = new RelayCommand(ResetDdrawOptionsToDefaults);
         }
 
         public Visibility NonFullScreenVisibility
@@ -708,6 +711,18 @@ namespace PD2Launcherv2.ViewModels
         private void UpdateDDrawStorage()
         {
             SaveDDrawOptions();
+        }
+
+        public void ResetDdrawOptionsToDefaults()
+        {
+            var defaultDdrawOptions = Constants.Ddraw.DefaultDdrawOptions;
+
+            // Optionally, you could update the settings in local storage if needed
+            _localStorage.Update(StorageKey.DdrawOptions, defaultDdrawOptions);
+
+            // Write the default options to ddraw.ini file
+            _ddrawHelpers.WriteDdrawOptions();
+            LoadDDrawStorage();
         }
 
         private void CloseView()

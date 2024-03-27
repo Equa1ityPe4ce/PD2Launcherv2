@@ -96,7 +96,7 @@ namespace PD2Launcherv2
 
         private async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            //Debug.WriteLine("PlayButton_Click start");
+            Debug.WriteLine("PlayButton_Click start");
             var selectedAuthorAndFilter = _localStorage.LoadSection<SelectedAuthorAndFilter>(StorageKey.SelectedAuthorAndFilter);
             if (selectedAuthorAndFilter?.selectedFilter != null)
             {
@@ -123,14 +123,14 @@ namespace PD2Launcherv2
             var playImageUri = new Uri("pack://application:,,,/Resources/Images/play.jpg");
             PlayButton.NormalImageSource = new BitmapImage(playImageUri);
             _launchGameHelpers.LaunchGame(_localStorage);
-            //Debug.WriteLine("PlayButton_Click end");
+            Debug.WriteLine("PlayButton_Click end");
         }
 
         private void OptionsButton_Click(object sender, RoutedEventArgs e)
         {
-            //Debug.WriteLine("OptionsButton_Click start");
+            Debug.WriteLine("OptionsButton_Click start");
             ShowOptionsView();
-            //Debug.WriteLine("OptionsButton_Click end");
+            Debug.WriteLine("OptionsButton_Click end");
         }
 
         private void ShowOptionsView()
