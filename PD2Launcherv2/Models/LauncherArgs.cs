@@ -2,8 +2,8 @@
 {
     public class LauncherArgs
     {
-        public string graphics { get; set; } = "-3dfx";
+        public bool graphics { get; set; } = false;
         public bool skiptobnet { get; set; } = true;
-        public bool sndbkg { get; set; }
+        public bool sndbkg { get; set; } = false;
     }
 }

@@ -15,9 +15,10 @@ namespace PD2Launcherv2.Storage
         public AllSettings Load()
         {
             string filePath = Path.Combine(_storageDirectory, StorageFileName);
-            if (!File.Exists(filePath)) return new AllSettings(); // Or default settings
+            if (!File.Exists(filePath)) return new AllSettings();
 
             string json = File.ReadAllText(filePath);
+            Debug.WriteLine($"\n\nStorage File Path\n{filePath}\n\n");
             return JsonConvert.DeserializeObject<AllSettings>(json) ?? new AllSettings();
         }
 
@@ -52,9 +53,9 @@ namespace PD2Launcherv2.Storage
             // Serialize the updated settings and save them back to the file
             string filePath = Path.Combine(_storageDirectory, StorageFileName);
             string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
-            Debug.WriteLine($"JSON to save: {json}");
+            //Debug.WriteLine($"JSON to save: {json}");
             Debug.WriteLine($"Saving to file: {filePath}");
-            Debug.WriteLine($"settings before save: {JsonConvert.SerializeObject(settings, Formatting.Indented)}");
+            //Debug.WriteLine($"settings before save: {JsonConvert.SerializeObject(settings, Formatting.Indented)}");
             File.WriteAllText(filePath, json);
         }
 

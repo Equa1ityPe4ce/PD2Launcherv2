@@ -35,7 +35,7 @@ namespace PD2Launcherv2.Helpers
             List<string> argsList = new List<string>();
 
             // Graphics mode
-            if (launcherArgs.graphics == "-ddraw")
+            if (launcherArgs.graphics)
             {
                 argsList.Add("-ddraw");
             }

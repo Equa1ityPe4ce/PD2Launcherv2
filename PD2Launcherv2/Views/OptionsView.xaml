@@ -25,10 +25,10 @@
                           FontSize="14">
                     <StackPanel>
                         <RadioButton x:Name="d2gl" Content="3dfx" GroupName="renderer" Style="{StaticResource CustomRadioButtonStyle}" 
-                                     FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}" IsChecked="{Binding IsDdrawSelected, Converter={StaticResource InverseBool}, Mode=TwoWay}"
+                                     FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}" IsChecked="{Binding IsDdrawSelected, Converter={StaticResource InverseBool}}"
                                      FontSize="18" HorizontalAlignment="Left" Margin="30,10,0,0"/>
                         <RadioButton x:Name="ddraw" Content="ddraw" GroupName="renderer" Style="{StaticResource CustomRadioButtonStyle}" 
-                                     FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}" IsChecked="{Binding IsDdrawSelected, Mode=TwoWay}"
+                                     FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}" IsChecked="{Binding IsDdrawSelected}"
                                      HorizontalAlignment="Left" Margin="30,10,0,0"/>
                         <TextBlock Text="Note: You can use CTRL+O in-game to edit video settings" FontStyle="Italic" Margin="5,10,0,0"/>
                     </StackPanel>
@@ -38,7 +38,7 @@
                           FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}" 
                           FontSize="14">
                     <CheckBox x:Name="sndbkg" Content="Sound in Background (-sndbkg)" Style="{StaticResource CustomCheckBoxStyle}"
-                          FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
+                          FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" IsChecked="{Binding SndBkg, Mode=TwoWay}"
                           FontSize="12" Margin="10,10,10,0"/>
                 </GroupBox>
 
@@ -46,7 +46,7 @@
                           FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}" 
                           FontSize="14">
                     <CheckBox x:Name="SkipToBNet" Content="Skip To BattleNet (-skiptobnet)" Style="{StaticResource CustomCheckBoxStyle}" 
-                          FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
+                          FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" IsChecked="{Binding SkipToBnet, Mode=TwoWay}"
                           FontSize="12" Margin="10,10,10,0"/>
                 </GroupBox>
 
@@ -63,19 +63,19 @@
                         <TextBlock Text="0 = default" Margin="40,-10,0,0" FontSize="12" Foreground="{StaticResource GoldDarkerBrush}" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
 
                         <TextBlock Text="Width" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
-                        <TextBox x:Name="Width" Margin="0,-10,0,0"  Style="{StaticResource CustomTextBoxStyle}"/>
+                        <TextBox x:Name="Width" Margin="0,-10,0,0" Text="{Binding Width, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CustomTextBoxStyle}"/>
 
                         <TextBlock Text="Height" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
-                        <TextBox x:Name="Height" Margin="0,-10,0,0" Style="{StaticResource CustomTextBoxStyle}" />
+                        <TextBox x:Name="Height" Margin="0,-10,0,0" Text="{Binding Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CustomTextBoxStyle}" />
 
                         <TextBlock Text="Window Position" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
                         <TextBlock Text="-320000 = Center To Screen" Margin="40,-10,0,0" FontSize="12" Foreground="{StaticResource GoldDarkerBrush}" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
 
                         <TextBlock Text="Vertical" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
-                        <TextBox x:Name="ddrawPosX" Margin="0,-10,0,0" Style="{StaticResource CustomTextBoxStyle}" />
+                        <TextBox x:Name="ddrawPosX" Margin="0,-10,0,0" Text="{Binding DdrawPosX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CustomTextBoxStyle}" />
 
                         <TextBlock Text="Horizontal" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
-                        <TextBox x:Name="ddrawPosY" Margin="0,-10,0,0" Style="{StaticResource CustomTextBoxStyle}" />
+                        <TextBox x:Name="ddrawPosY" Margin="0,-10,0,0" Text="{Binding DdrawPosY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CustomTextBoxStyle}" />
                     </StackPanel>
 
                     
