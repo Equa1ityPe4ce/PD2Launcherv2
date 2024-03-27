@@ -8,6 +8,7 @@ using ProjectDiablo2Launcherv2;
 using System.Windows;
 using PD2Launcherv2.Models;
 using System.Diagnostics;
+using System.Windows.Controls;
 
 namespace PD2Launcherv2.ViewModels
 {
@@ -22,8 +23,6 @@ namespace PD2Launcherv2.ViewModels
         {
             _localStorage = localStorage;
             CheckboxStates = new Dictionary<string, bool>();
-            LoadLauncherArgs();
-            LoadDDrawStorage();
             OptionsModePicker = Constants.ModePickerItems();
             MaxFpsPickerItems = Constants.MaxFpsPickerItems();
             MaxGameTicksPickerItems = Constants.MaxGameTicksPickerItems();
@@ -32,6 +31,9 @@ namespace PD2Launcherv2.ViewModels
             HookPickerItems = Constants.HookPickerItems();
             MinFpsPickerItems = Constants.MinFpsPickerItems();
             ShaderPickerItems = Constants.ShaderPickerItems();
+            LoadLauncherArgs();
+            LoadDDrawStorage();
+            DealWithLoadingModeComboBox(_localStorage);
             CloseCommand = new RelayCommand(CloseView);
             ToggleAdvancedOptionsCommand = new RelayCommand(ToggleAdvancedOptions);
         }
@@ -596,6 +598,8 @@ namespace PD2Launcherv2.ViewModels
             DdrawOptions dDrawOptions = _localStorage.LoadSection<DdrawOptions>(StorageKey.DdrawOptions);
             if (dDrawOptions != null)
             {
+                Debug.WriteLine($"\n\n dDrawOptions.Fullscreen: {dDrawOptions.Fullscreen}");
+                Debug.WriteLine($"dDrawOptions.Windowed: {dDrawOptions.Windowed} \n\n");
                 if (dDrawOptions.Fullscreen && dDrawOptions.Windowed)
                 {
                     SelectedMode = "borderless";
@@ -610,34 +614,11 @@ namespace PD2Launcherv2.ViewModels
                 }
             }
         }
-
-        private void DealWithSavingModeComboBox()
-        {
-            DdrawOptions dDrawOptions = _localStorage.LoadSection<DdrawOptions>(StorageKey.DdrawOptions) ?? new DdrawOptions();
-
-            switch (SelectedMode)
-            {
-                case "borderless":
-                    dDrawOptions.Fullscreen = true;
-                    dDrawOptions.Windowed = true;
-                    break;
-                case "windowed":
-                    dDrawOptions.Fullscreen = false;
-                    dDrawOptions.Windowed = true;
-                    break;
-                default: // "fullscreen" or any other case
-                    dDrawOptions.Fullscreen = true;
-                    dDrawOptions.Windowed = false;
-                    break;
-            }
-        }
-
             private void LoadDDrawComboBoxOptions()
         {
             DdrawOptions dDrawOptions = _localStorage.LoadSection<DdrawOptions>(StorageKey.DdrawOptions);
             if (dDrawOptions != null)
             {
-                DealWithLoadingModeComboBox(_localStorage);
                 SelectedMaxFps = dDrawOptions.MaxFps;
                 SelectedMaxGameTicks = dDrawOptions.MaxGameTicks;
                 SelectedSaveWindowPosition = dDrawOptions.SaveSettings;
@@ -660,10 +641,16 @@ namespace PD2Launcherv2.ViewModels
             }
         }
 
-        private void SaveDDrawCheckBoxOptions()
+        private void SaveDDrawOptions()
         {
             DdrawOptions dDrawOptions = _localStorage.LoadSection<DdrawOptions>(StorageKey.DdrawOptions) ?? new DdrawOptions();
+            //textbox's
+            Width = dDrawOptions.Width;
+            Height = dDrawOptions.Height;
+            DdrawPosX = dDrawOptions.PosX;
+            DdrawPosY = dDrawOptions.PosY;
 
+            //checkbox's
             dDrawOptions.Maintas = MaintainAspectRatio;
             dDrawOptions.Boxing = Windowboxing;
             dDrawOptions.Vsync = VerticalSync;
@@ -677,15 +664,7 @@ namespace PD2Launcherv2.ViewModels
             dDrawOptions.NonExclusive = NonExclusive;
             dDrawOptions.SingleCpu = ForceCpu0Affinity;
 
-            _localStorage.Update(StorageKey.DdrawOptions, dDrawOptions);
-        }
-
-        private void SaveDDrawComboBoxOptions()
-        {
-            DdrawOptions dDrawOptions = _localStorage.LoadSection<DdrawOptions>(StorageKey.DdrawOptions) ?? new DdrawOptions();
-
-            DealWithSavingModeComboBox();
-
+            //combo box's
             dDrawOptions.MaxFps = SelectedMaxFps;
             dDrawOptions.MaxGameTicks = SelectedMaxGameTicks;
             dDrawOptions.SaveSettings = SelectedSaveWindowPosition;
@@ -693,20 +672,25 @@ namespace PD2Launcherv2.ViewModels
             dDrawOptions.Hook = SelectedHook;
             dDrawOptions.Shader = SelectedShader;
             dDrawOptions.MinFps = SelectedMinFps;
-
-            _localStorage.Update(StorageKey.DdrawOptions, dDrawOptions);
-        }
-
-        private void SaveDDrawTextBoxOptions()
-        {
-            DdrawOptions dDrawOptions = _localStorage.LoadSection<DdrawOptions>(StorageKey.DdrawOptions) ?? new DdrawOptions();
-
-            // Directly assign the values without parsing
-            dDrawOptions.Width = Width;
-            dDrawOptions.Height = Height;
-            dDrawOptions.PosX = DdrawPosX;
-            dDrawOptions.PosY = DdrawPosY;
-
+            switch (SelectedMode)
+            {
+                case "borderless":
+                    dDrawOptions.Fullscreen = true;
+                    dDrawOptions.Windowed = true;
+                    break;
+                case "windowed":
+                    dDrawOptions.Fullscreen = false;
+                    dDrawOptions.Windowed = true;
+                    break;
+                case "fullscreen":
+                    dDrawOptions.Fullscreen = true;
+                    dDrawOptions.Windowed = false;
+                    break;
+                default:
+                    dDrawOptions.Fullscreen = true;
+                    dDrawOptions.Windowed = false;
+                    break;
+            }
             _localStorage.Update(StorageKey.DdrawOptions, dDrawOptions);
         }
 
@@ -719,9 +703,7 @@ namespace PD2Launcherv2.ViewModels
 
         private void UpdateDDrawStorage()
         {
-            SaveDDrawTextBoxOptions();
-            SaveDDrawComboBoxOptions();
-            SaveDDrawCheckBoxOptions();
+            SaveDDrawOptions();
         }
 
         private void CloseView()
