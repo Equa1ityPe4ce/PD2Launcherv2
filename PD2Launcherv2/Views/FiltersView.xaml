@@ -81,7 +81,7 @@
                     FontSize="18"
                     Margin="0,0,0,50"
                     />
-            
+
             <Button Content="Authors Page"
                     Style="{StaticResource CustomColorChangeButton}"
                     Command="{Binding OpenAuthorsPageCommand}"

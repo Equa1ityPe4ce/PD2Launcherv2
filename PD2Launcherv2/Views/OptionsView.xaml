@@ -20,7 +20,7 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                     <Button x:Name="SetWindowsPermissions" Content="Set" Style="{StaticResource CustomColorChangeButton}"
                                     Width="75" Height="25" FontSize="12" Margin="5" Foreground="Black"
-                                    Command="{Binding SetWindowsPermissionsCommand}" FontFamily="{StaticResource BlizzLight}">  
+                                    Command="{Binding SetWindowsPermissionsCommand}" FontFamily="{StaticResource BlizzLight}">
                         <Button.ToolTip>
                             <ToolTip>
                                 <TextBlock Text="If you're encountering windows permissions errors, try setting Windows permissions."/>
@@ -94,46 +94,46 @@
                         <TextBox x:Name="ddrawPosY" Margin="0,-10,0,0" Text="{Binding DdrawPosY, Converter={StaticResource StringToIntConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CustomTextBoxStyle}" />
                     </StackPanel>
 
-                        <CheckBox x:Name="maintasCheckBox" Content="Maintain Aspect Ratio" Style="{StaticResource CustomCheckBoxStyle}"
+                    <CheckBox x:Name="maintasCheckBox" Content="Maintain Aspect Ratio" Style="{StaticResource CustomCheckBoxStyle}"
                                   FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
                                   FontSize="12" Margin="10,10,10,0"
                                   IsChecked="{Binding MaintainAspectRatio, Mode=TwoWay}" />
 
-                        <CheckBox x:Name="boxingCheckBox" Content="Windowboxing / Integer Scaling" Style="{StaticResource CustomCheckBoxStyle}"
+                    <CheckBox x:Name="boxingCheckBox" Content="Windowboxing / Integer Scaling" Style="{StaticResource CustomCheckBoxStyle}"
                                   FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
                                   FontSize="12" Margin="10,10,10,0"
                                   IsChecked="{Binding Windowboxing, Mode=TwoWay}" />
 
-                        <CheckBox x:Name="vsyncCheckBox"
+                    <CheckBox x:Name="vsyncCheckBox"
                                    Content="Vertical Sync" Style="{StaticResource CustomCheckBoxStyle}"
                                    FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
                                    FontSize="12" Margin="10,10,10,0"
                                    IsChecked="{Binding VerticalSync, Mode=TwoWay}" />
-                        <TextBlock Text="Enable this if you get tearing." FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
+                    <TextBlock Text="Enable this if you get tearing." FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
 
-                        <CheckBox x:Name="adjmouseCheckBox"
+                    <CheckBox x:Name="adjmouseCheckBox"
                                   Content="Automatic Mouse Sensitivity" Style="{StaticResource CustomCheckBoxStyle}"
                                   FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
                                   FontSize="12" Margin="10,10,10,0"
                                   IsChecked="{Binding AutomaticMouseSensitivity, Mode=TwoWay}" />
-                        <TextBlock Text="Only works if full screen is enabled" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
+                    <TextBlock Text="Only works if full screen is enabled" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
 
-                        <!-- CustomCheckBox: devmodeCheckBox -->
-                        <CheckBox x:Name="devmodeCheckBox"
+                    <!-- CustomCheckBox: devmodeCheckBox -->
+                    <CheckBox x:Name="devmodeCheckBox"
                                   Content="Unlock cursor" Style="{StaticResource CustomCheckBoxStyle}"
                                   FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
                                   FontSize="12" Margin="10,10,10,0"
                                   IsChecked="{Binding UnlockCursor, Mode=TwoWay}" />
 
-                        <!-- CustomCheckBox: borderCheckBox -->
-                        <CheckBox x:Name="borderCheckBox"
+                    <!-- CustomCheckBox: borderCheckBox -->
+                    <CheckBox x:Name="borderCheckBox"
                                   Content="Show Window Borders" Style="{StaticResource CustomCheckBoxStyle}"
                                   FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
                                   FontSize="12" Margin="10,10,10,0"
                                   IsChecked="{Binding ShowWindowBorders, Mode=TwoWay}" />
 
-                        <!-- CustomCheckBox: resizeableCheckBox -->
-                        <CheckBox x:Name="resizeableCheckBox"
+                    <!-- CustomCheckBox: resizeableCheckBox -->
+                    <CheckBox x:Name="resizeableCheckBox"
                                   Content="Resizable window" Style="{StaticResource CustomCheckBoxStyle}"
                                   FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
                                   FontSize="12" Margin="10,10,10,0"
@@ -147,7 +147,7 @@
                                 Style="{StaticResource TransparentButtonWithHighlight}"
                                 Command="{Binding ToggleAdvancedOptionsCommand}"/>
                 </StackPanel>
-                    
+
                 <StackPanel Visibility="{Binding AdvancedOptionsVisibility}">
                     <!-- Hide alt+tab messages -->
                     <CheckBox x:Name="noActivateAppCheckBox"
@@ -172,7 +172,7 @@
                     <TextBlock Text="Use if some GUI elements are invisible." FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
 
                     <TextBlock Text="Rendering rate (Max FPS)" Style="{StaticResource OptionsTextBlockHeaderStyle}" FontFamily="{StaticResource BlizzHeavy}" Margin="0,10,0,0"/>
-    
+
                     <TextBlock Text="Does not have an impact on the game speed" Style="{StaticResource OptionsSubText}" FontFamily="{StaticResource BlizzMedium}" Margin="0,10,0,0"/>
                     <ComboBox x:Name="maxfpsPicker" ItemsSource="{Binding MaxFpsPickerItems}"
                               SelectedValue="{Binding SelectedMaxFps, Mode=TwoWay}"
@@ -180,7 +180,7 @@
                               DisplayMemberPath="DisplayValue"
                               Style="{StaticResource CustomComboBoxStyle}"
                               Margin="0,10,0,0"/>
-                    
+
                     <!-- Max game ticks -->
                     <TextBlock Text="Max game ticks" Style="{StaticResource OptionsTextBlockHeaderStyle}" FontFamily="{StaticResource BlizzHeavy}" Margin="0,10,0,0"/>
                     <TextBlock Text="Fix for flickering (lower = slower)" Style="{StaticResource OptionsSubText}" FontFamily="{StaticResource BlizzMedium}" Margin="0,10,0,0"/>
@@ -251,7 +251,7 @@
                               IsChecked="{Binding EnableD3d9Linear, Mode=TwoWay}" />
 
                     <TextBlock Text="Upscaling filter for the direct3d9 renderer" Style="{StaticResource OptionsTextBlockHeaderStyle}" FontFamily="{StaticResource BlizzMedium}" Margin="0,10,0,10"/>
-                    
+
                     <CheckBox x:Name="singlecpuCheckBox"
                               Content="Force CPU0 affinity"
                               FontFamily="{StaticResource BlizzMedium}"

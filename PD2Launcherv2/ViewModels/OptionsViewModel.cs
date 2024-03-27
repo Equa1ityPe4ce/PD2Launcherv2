@@ -621,7 +621,7 @@ namespace PD2Launcherv2.ViewModels
                 }
             }
         }
-            private void LoadDDrawComboBoxOptions()
+        private void LoadDDrawComboBoxOptions()
         {
             DdrawOptions dDrawOptions = _localStorage.LoadSection<DdrawOptions>(StorageKey.DdrawOptions);
             if (dDrawOptions != null)
