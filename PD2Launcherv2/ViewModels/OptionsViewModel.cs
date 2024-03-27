@@ -1,5 +1,4 @@
 using GalaSoft.MvvmLight.Command;
-using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 using PD2Launcherv2.Enums;
 using PD2Launcherv2.Helpers;
@@ -24,6 +23,7 @@ namespace PD2Launcherv2.ViewModels
             _localStorage = localStorage;
             CheckboxStates = new Dictionary<string, bool>();
             LoadLauncherArgs();
+            LoadDDrawStorage();
             OptionsModePicker = Constants.ModePickerItems();
             MaxFpsPickerItems = Constants.MaxFpsPickerItems();
             MaxGameTicksPickerItems = Constants.MaxGameTicksPickerItems();
@@ -67,6 +67,7 @@ namespace PD2Launcherv2.ViewModels
             {
                 if (_selectedMode != value)
                 {
+                    Debug.WriteLine($"SelectedMode: {value}");
                     _selectedMode = value;
                     OnPropertyChanged(nameof(SelectedMode));
                     OnPropertyChanged(nameof(NonFullScreenVisibility));
@@ -196,7 +197,6 @@ namespace PD2Launcherv2.ViewModels
                 {
                     _selectedMaxFps = value;
                     OnPropertyChanged(nameof(SelectedMaxFps));
-                    // Additional logic when selection changes, if necessary
                 }
             }
         }
@@ -211,7 +211,6 @@ namespace PD2Launcherv2.ViewModels
                 {
                     _selectedMaxGameTicks = value;
                     OnPropertyChanged(nameof(SelectedMaxGameTicks));
-                    // Additional logic when selection changes, if necessary
                 }
             }
         }
@@ -412,6 +411,48 @@ namespace PD2Launcherv2.ViewModels
             }
         }
 
+        private bool _noActivateApp;
+        public bool NoActivateApp
+        {
+            get => _noActivateApp;
+            set
+            {
+                if (_noActivateApp != value)
+                {
+                    _noActivateApp = value;
+                    OnPropertyChanged(nameof(NoActivateApp));
+                }
+            }
+        }
+
+        private bool _handleMouse;
+        public bool HandleMouse
+        {
+            get => _handleMouse;
+            set
+            {
+                if (_handleMouse != value)
+                {
+                    _handleMouse = value;
+                    OnPropertyChanged(nameof(HandleMouse));
+                }
+            }
+        }
+
+        private bool _nonExclusive;
+        public bool NonExclusive
+        {
+            get => _nonExclusive;
+            set
+            {
+                if (_nonExclusive != value)
+                {
+                    _nonExclusive = value;
+                    OnPropertyChanged(nameof(NonExclusive));
+                }
+            }
+        }
+
         private bool _skipToBnet;
         public bool SkipToBnet
         {
@@ -440,8 +481,8 @@ namespace PD2Launcherv2.ViewModels
             }
         }
 
-        private string _width;
-        public string Width
+        private int _width;
+        public int Width
         {
             get => _width;
             set
@@ -454,8 +495,8 @@ namespace PD2Launcherv2.ViewModels
             }
         }
 
-        private string _height;
-        public string Height
+        private int _height;
+        public int Height
         {
             get => _height;
             set
@@ -468,8 +509,8 @@ namespace PD2Launcherv2.ViewModels
             }
         }
 
-        private string _ddrawPosX;
-        public string DdrawPosX
+        private int _ddrawPosX;
+        public int DdrawPosX
         {
             get => _ddrawPosX;
             set
@@ -482,8 +523,8 @@ namespace PD2Launcherv2.ViewModels
             }
         }
 
-        private string _ddrawPosY;
-        public string DdrawPosY
+        private int _ddrawPosY;
+        public int DdrawPosY
         {
             get => _ddrawPosY;
             set
@@ -530,10 +571,165 @@ namespace PD2Launcherv2.ViewModels
             Debug.WriteLine("end UpdateLauncherArgsStorage\n");
         }
 
+        private void LoadDDrawCheckBoxOptions()
+        {
+            DdrawOptions dDrawOptions = _localStorage.LoadSection<DdrawOptions>(StorageKey.DdrawOptions);
+            if (dDrawOptions != null)
+            {
+                MaintainAspectRatio = dDrawOptions.Maintas;
+                Windowboxing = dDrawOptions.Boxing;
+                VerticalSync = dDrawOptions.Vsync;
+                AutomaticMouseSensitivity = dDrawOptions.AdjMouse;
+                UnlockCursor = dDrawOptions.DevMode;
+                ShowWindowBorders = dDrawOptions.Border;
+                ResizableWindow = dDrawOptions.Resizeable;
+                EnableD3d9Linear = dDrawOptions.D3d9Linear;
+                NoActivateApp = dDrawOptions.NoActivateApp;
+                HandleMouse = dDrawOptions.HandleMouse;
+                NonExclusive = dDrawOptions.NonExclusive;
+                ForceCpu0Affinity = dDrawOptions.SingleCpu;
+            }
+        }
+
+        private void DealWithLoadingModeComboBox(ILocalStorage localStorage)
+        {
+            DdrawOptions dDrawOptions = _localStorage.LoadSection<DdrawOptions>(StorageKey.DdrawOptions);
+            if (dDrawOptions != null)
+            {
+                if (dDrawOptions.Fullscreen && dDrawOptions.Windowed)
+                {
+                    SelectedMode = "borderless";
+                }
+                else if (!dDrawOptions.Fullscreen && dDrawOptions.Windowed)
+                {
+                    SelectedMode = "windowed";
+                }
+                else
+                {
+                    SelectedMode = "fullscreen";
+                }
+            }
+        }
+
+        private void DealWithSavingModeComboBox()
+        {
+            DdrawOptions dDrawOptions = _localStorage.LoadSection<DdrawOptions>(StorageKey.DdrawOptions) ?? new DdrawOptions();
+
+            switch (SelectedMode)
+            {
+                case "borderless":
+                    dDrawOptions.Fullscreen = true;
+                    dDrawOptions.Windowed = true;
+                    break;
+                case "windowed":
+                    dDrawOptions.Fullscreen = false;
+                    dDrawOptions.Windowed = true;
+                    break;
+                default: // "fullscreen" or any other case
+                    dDrawOptions.Fullscreen = true;
+                    dDrawOptions.Windowed = false;
+                    break;
+            }
+        }
+
+            private void LoadDDrawComboBoxOptions()
+        {
+            DdrawOptions dDrawOptions = _localStorage.LoadSection<DdrawOptions>(StorageKey.DdrawOptions);
+            if (dDrawOptions != null)
+            {
+                DealWithLoadingModeComboBox(_localStorage);
+                SelectedMaxFps = dDrawOptions.MaxFps;
+                SelectedMaxGameTicks = dDrawOptions.MaxGameTicks;
+                SelectedSaveWindowPosition = dDrawOptions.SaveSettings;
+                SelectedRenderer = dDrawOptions.Renderer;
+                SelectedHook = dDrawOptions.Hook;
+                SelectedShader = dDrawOptions.Shader;
+                SelectedMinFps = dDrawOptions.MinFps;
+            }
+        }
+
+        private void LoadDDrawTextBoxOptions()
+        {
+            DdrawOptions dDrawOptions = _localStorage.LoadSection<DdrawOptions>(StorageKey.DdrawOptions);
+            if (dDrawOptions != null)
+            {
+                Width = dDrawOptions.Width;
+                Height = dDrawOptions.Height;
+                DdrawPosX = dDrawOptions.PosX;
+                DdrawPosY = dDrawOptions.PosY;
+            }
+        }
+
+        private void SaveDDrawCheckBoxOptions()
+        {
+            DdrawOptions dDrawOptions = _localStorage.LoadSection<DdrawOptions>(StorageKey.DdrawOptions) ?? new DdrawOptions();
+
+            dDrawOptions.Maintas = MaintainAspectRatio;
+            dDrawOptions.Boxing = Windowboxing;
+            dDrawOptions.Vsync = VerticalSync;
+            dDrawOptions.AdjMouse = AutomaticMouseSensitivity;
+            dDrawOptions.DevMode = UnlockCursor;
+            dDrawOptions.Border = ShowWindowBorders;
+            dDrawOptions.Resizeable = ResizableWindow;
+            dDrawOptions.D3d9Linear = EnableD3d9Linear;
+            dDrawOptions.NoActivateApp = NoActivateApp;
+            dDrawOptions.HandleMouse = HandleMouse;
+            dDrawOptions.NonExclusive = NonExclusive;
+            dDrawOptions.SingleCpu = ForceCpu0Affinity;
+
+            _localStorage.Update(StorageKey.DdrawOptions, dDrawOptions);
+        }
+
+        private void SaveDDrawComboBoxOptions()
+        {
+            DdrawOptions dDrawOptions = _localStorage.LoadSection<DdrawOptions>(StorageKey.DdrawOptions) ?? new DdrawOptions();
+
+            DealWithSavingModeComboBox();
+
+            dDrawOptions.MaxFps = SelectedMaxFps;
+            dDrawOptions.MaxGameTicks = SelectedMaxGameTicks;
+            dDrawOptions.SaveSettings = SelectedSaveWindowPosition;
+            dDrawOptions.Renderer = SelectedRenderer;
+            dDrawOptions.Hook = SelectedHook;
+            dDrawOptions.Shader = SelectedShader;
+            dDrawOptions.MinFps = SelectedMinFps;
+
+            _localStorage.Update(StorageKey.DdrawOptions, dDrawOptions);
+        }
+
+        private void SaveDDrawTextBoxOptions()
+        {
+            DdrawOptions dDrawOptions = _localStorage.LoadSection<DdrawOptions>(StorageKey.DdrawOptions) ?? new DdrawOptions();
+
+            // Directly assign the values without parsing
+            dDrawOptions.Width = Width;
+            dDrawOptions.Height = Height;
+            dDrawOptions.PosX = DdrawPosX;
+            dDrawOptions.PosY = DdrawPosY;
+
+            _localStorage.Update(StorageKey.DdrawOptions, dDrawOptions);
+        }
+
+        private void LoadDDrawStorage()
+        {
+            LoadDDrawTextBoxOptions();
+            LoadDDrawComboBoxOptions();
+            LoadDDrawCheckBoxOptions();
+        }
+
+        private void UpdateDDrawStorage()
+        {
+            SaveDDrawTextBoxOptions();
+            SaveDDrawComboBoxOptions();
+            SaveDDrawCheckBoxOptions();
+        }
+
         private void CloseView()
         {
             //save LauncherArgs Storage
             UpdateLauncherArgsStorage();
+            //save 
+            UpdateDDrawStorage();
 
             // Sending a message to anyone who's listening for NavigationMessage
             Messenger.Default.Send(new NavigationMessage { Action = NavigationAction.GoBack });

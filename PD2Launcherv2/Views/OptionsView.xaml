@@ -19,6 +19,28 @@
         <ScrollViewer Margin="20" VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Hidden">
             <StackPanel>
                 <TextBlock Text="Options" FontSize="25" Margin="0,20,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzHeavy}"/>
+                <TextBlock Text="Windows Permissions" HorizontalAlignment="Center" FontSize="12" FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldLighterBrush}"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Button x:Name="SetWindowsPermissions" Content="Set" Style="{StaticResource CustomColorChangeButton}"
+                                    Width="75" Height="25" FontSize="12" Margin="5" Foreground="Black"
+                                    Command="{Binding SetWindowsPermissionsCommand}" FontFamily="{StaticResource BlizzLight}">  
+                        <Button.ToolTip>
+                            <ToolTip>
+                                <TextBlock Text="If you're encountering windows permissions errors, try setting Windows permissions."/>
+                            </ToolTip>
+                        </Button.ToolTip>
+                    </Button>
+
+                    <Button x:Name="RemoveWindowsPermissions" Content="Remove" Style="{StaticResource CustomColorChangeButton}"
+                                    Width="75" Height="25" Margin="5" FontSize="12" Foreground="Black"
+                                    Command="{Binding RemoveWindowsPermissionsCommand}" FontFamily="{StaticResource BlizzLight}">
+                        <Button.ToolTip>
+                            <ToolTip>
+                                <TextBlock Text="Remove Windows permissions if no longer needed."/>
+                            </ToolTip>
+                        </Button.ToolTip>
+                    </Button>
+                </StackPanel>
 
                 <GroupBox Header="Graphics" Margin="10" FontWeight="Bold" BorderThickness="0" 
                           FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}" 
@@ -75,7 +97,6 @@
                         <TextBox x:Name="ddrawPosY" Margin="0,-10,0,0" Text="{Binding DdrawPosY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CustomTextBoxStyle}" />
                     </StackPanel>
 
-                    
                         <CheckBox x:Name="maintasCheckBox" Content="Maintain Aspect Ratio" Style="{StaticResource CustomCheckBoxStyle}"
                                   FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
                                   FontSize="12" Margin="10,10,10,0"
@@ -86,17 +107,18 @@
                                   FontSize="12" Margin="10,10,10,0"
                                   IsChecked="{Binding Windowboxing, Mode=TwoWay}" />
 
+                        <CheckBox x:Name="vsyncCheckBox"
+                                   Content="Vertical Sync" Style="{StaticResource CustomCheckBoxStyle}"
+                                   FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
+                                   FontSize="12" Margin="10,10,10,0"
+                                   IsChecked="{Binding VerticalSync, Mode=TwoWay}" />
+                        <TextBlock Text="Enable this if you get tearing." FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
+
                         <CheckBox x:Name="adjmouseCheckBox"
                                   Content="Automatic Mouse Sensitivity" Style="{StaticResource CustomCheckBoxStyle}"
                                   FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
                                   FontSize="12" Margin="10,10,10,0"
                                   IsChecked="{Binding AutomaticMouseSensitivity, Mode=TwoWay}" />
-
-                        <CheckBox x:Name="vsyncCheckBox"
-                                  Content="Vertical Sync" Style="{StaticResource CustomCheckBoxStyle}"
-                                  FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
-                                  FontSize="12" Margin="10,10,10,0"
-                                  IsChecked="{Binding VerticalSync, Mode=TwoWay}" />
                         <TextBlock Text="Only works if full screen is enabled" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
 
                         <!-- CustomCheckBox: devmodeCheckBox -->
@@ -122,13 +144,37 @@
 
                         <Button x:Name="ShowAdvancedOptionsButton"
                                 Content="Show Advanced Options"
+                                FontFamily="{StaticResource BlizzHeavy}"
+                                FontSize="20"
                                 Style="{StaticResource TransparentButtonWithHighlight}"
                                 Command="{Binding ToggleAdvancedOptionsCommand}"/>
                 </StackPanel>
                     
                 <StackPanel Visibility="{Binding AdvancedOptionsVisibility}">
+                    <!-- Hide alt+tab messages -->
+                    <CheckBox x:Name="noActivateAppCheckBox"
+                              Content="Hide alt+tab messages" Style="{StaticResource CustomCheckBoxStyle}"
+                              FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
+                              FontSize="12" Margin="10,10,10,0"
+                              IsChecked="{Binding NoActivateApp, Mode=TwoWay}" />
+
+                    <!-- DDraw Handle Mouse -->
+                    <CheckBox x:Name="handleMouseCheckBox"
+                              Content="DDraw Handle Mouse" Style="{StaticResource CustomCheckBoxStyle}"
+                              FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
+                              FontSize="12" Margin="10,10,10,0"
+                              IsChecked="{Binding HandleMouse, Mode=TwoWay}" />
+                    <TextBlock Text="Uncheck this if cursor is disappearing." FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
+
+                    <CheckBox x:Name="nonExclusiveCheckBox"
+                              Content="Disable fullscreen-exclusive mode" Style="{StaticResource CustomCheckBoxStyle}"
+                              FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" 
+                              FontSize="12" Margin="10,10,10,0"
+                              IsChecked="{Binding NonExclusive, Mode=TwoWay}" />
+                    <TextBlock Text="Use if some GUI elements are invisible." FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
+
                     <TextBlock Text="Rendering rate (Max FPS)" Style="{StaticResource OptionsTextBlockHeaderStyle}" FontFamily="{StaticResource BlizzHeavy}" Margin="0,10,0,0"/>
-                    <!-- ComboBox for maxfpsPicker -->
+    
                     <TextBlock Text="Does not have an impact on the game speed" Style="{StaticResource OptionsSubText}" FontFamily="{StaticResource BlizzMedium}" Margin="0,10,0,0"/>
                     <ComboBox x:Name="maxfpsPicker" ItemsSource="{Binding MaxFpsPickerItems}"
                               SelectedValue="{Binding SelectedMaxFps, Mode=TwoWay}"
@@ -137,7 +183,6 @@
                               Style="{StaticResource CustomComboBoxStyle}"
                               Margin="0,10,0,0"/>
                     
-
                     <!-- Max game ticks -->
                     <TextBlock Text="Max game ticks" Style="{StaticResource OptionsTextBlockHeaderStyle}" FontFamily="{StaticResource BlizzHeavy}" Margin="0,10,0,0"/>
                     <TextBlock Text="Fix for flickering (lower = slower)" Style="{StaticResource OptionsSubText}" FontFamily="{StaticResource BlizzMedium}" Margin="0,10,0,0"/>
@@ -149,7 +194,6 @@
                               Style="{StaticResource CustomComboBoxStyle}"
                               Margin="0,10,0,0"/>
 
-
                     <!-- Save Window Position -->
                     <TextBlock Text="Save Window Position" Style="{StaticResource OptionsTextBlockHeaderStyle}" FontFamily="{StaticResource BlizzHeavy}" Margin="0,10,0,0"/>
                     <TextBlock Text="Save window position/size" Style="{StaticResource OptionsSubText}" FontFamily="{StaticResource BlizzMedium}" Margin="0,10,0,10"/>
@@ -160,7 +204,6 @@
                               DisplayMemberPath="DisplayValue"
                               Style="{StaticResource CustomComboBoxStyle}"/>
 
-
                     <TextBlock Text="Renderer" Style="{StaticResource OptionsTextBlockHeaderStyle}" FontFamily="{StaticResource BlizzHeavy}" Margin="0,10,0,0"/>
                     <TextBlock Text="Auto will try OpenGL, Direct3D, finally GDI" Style="{StaticResource OptionsSubText}" FontFamily="{StaticResource BlizzMedium}" Margin="0,10,0,10"/>
                     <ComboBox x:Name="rendererPicker"
@@ -169,7 +212,6 @@
                               SelectedValuePath="ActualValue" 
                               DisplayMemberPath="DisplayValue"
                               Style="{StaticResource CustomComboBoxStyle}"/>
-
 
                     <!-- Windows API Hooking -->
                     <TextBlock Text="Windows API Hooking" Style="{StaticResource OptionsTextBlockHeaderStyle}" FontFamily="{StaticResource BlizzHeavy}" Margin="0,10,0,0"/>
@@ -180,8 +222,6 @@
                               SelectedValuePath="ActualValue" 
                               DisplayMemberPath="DisplayValue"
                               Style="{StaticResource CustomComboBoxStyle}"/>
-
-
 
                     <TextBlock Text="Force Minimum FPS" Style="{StaticResource OptionsTextBlockHeaderStyle}" FontFamily="{StaticResource BlizzHeavy}" Margin="0,10,0,0"/>
                     <TextBlock Text="Use 5/10 for display issues(menus/loading screens)" Style="{StaticResource OptionsTextBlockHeaderStyle}" FontFamily="{StaticResource BlizzMedium}" Margin="0,10,0,10"/>

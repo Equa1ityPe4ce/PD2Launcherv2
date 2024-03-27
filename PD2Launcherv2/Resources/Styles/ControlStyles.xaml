@@ -298,7 +298,7 @@
         <Setter Property="Padding" Value="4"/>
         <Setter Property="FontSize" Value="14"/>
         <Setter Property="FontFamily" Value="{StaticResource BlizzLight}"/>
-        <Setter Property="Height" Value="25"/>
+        <Setter Property="Height" Value="35"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type TextBox}">
