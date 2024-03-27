@@ -107,7 +107,7 @@
                                            Foreground="{StaticResource GoldDarkerBrush}"/>
                                 <TextBlock Text="{Binding Summary}" 
                                            TextWrapping="Wrap" 
-                                           Grid.ColumnSpan="2" Margin="5,15,0,5"/>
+                                           Grid.ColumnSpan="2" Margin="5,20,0,10"/>
                                 <Border BorderBrush="{StaticResource GoldBrush}" 
                                         BorderThickness="0,0,0,1" 
                                         Grid.ColumnSpan="2"/>
@@ -191,6 +191,6 @@
                        FontFamily="{StaticResource BlizzMedium}"/>
         </StackPanel>
         <Rectangle x:Name="Overlay" Fill="#AA000000" Visibility="Collapsed" />
-        <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden" Content="{Binding CurrentView}" />
+        <Frame x:Name="MainFrame" NavigationUIVisibility="Hidden" />
     </Grid>
 </Window>

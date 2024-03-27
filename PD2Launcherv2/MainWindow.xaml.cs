@@ -46,28 +46,15 @@ namespace PD2Launcherv2
             _filterHelpers = (FilterHelpers)App.ServiceProvider.GetService(typeof(FilterHelpers));
             _launchGameHelpers = (LaunchGameHelpers)App.ServiceProvider.GetService(typeof(LaunchGameHelpers));
             _newsHelpers = (NewsHelpers)App.ServiceProvider.GetService(typeof(NewsHelpers));
-            LoadNews();
+            Loaded += MainWindow_Loaded;
             LoadConfiguration();
 
             // Registering to receive NavigationMessage
             Messenger.Default.Register<NavigationMessage>(this, OnNavigationMessageReceived);
             Messenger.Default.Register<ConfigurationChangeMessage>(this, OnConfigurationChanged);
             DataContext = this;
-
-            // Load or setup default file update model
-            FileUpdateModel storeUpdate = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel) ?? new FileUpdateModel
-            {
-                Client = "https://storage.googleapis.com/storage/v1/b/pd2-client-files/o",
-                Launcher = "https://storage.googleapis.com/storage/v1/b/pd2-beta-launcher-update/o",
-                FilePath = "Live"
-            };
-
-            // Don't try to update launcher in debug mode
-#if DEBUG
-#else
-            _fileUpdateHelpers?.UpdateLauncherCheck(_localStorage);
-#endif
         }
+
 
         private void OnNavigationMessageReceived(NavigationMessage message)
         {
@@ -120,9 +107,12 @@ namespace PD2Launcherv2
             FileUpdateModel storeUpdate = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel) ?? new FileUpdateModel
             {
                 Client = "https://storage.googleapis.com/storage/v1/b/pd2-client-files/o",
-                Launcher = "https://storage.googleapis.com/storage/v1/b/pd2-launcher-update/o",
                 FilePath = "Live"
             };
+            if (storeUpdate.Client is null)
+            {
+                _localStorage.Update(StorageKey.FileUpdateModel, storeUpdate);
+            }
 
             await _fileUpdateHelpers.UpdateFilesCheck(_localStorage);
 
@@ -215,11 +205,17 @@ namespace PD2Launcherv2
             BetaNotification.Visibility = message.IsBeta ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        private void LoadNews()
+        private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            _newsHelpers.FetchAndStoreNewsAsync(_localStorage);
+            await InitializeAsync();
+        }
+
+        private async Task InitializeAsync()
+        {
+            await _newsHelpers.FetchAndStoreNewsAsync(_localStorage);
             News theNews = _localStorage.LoadSection<News>(StorageKey.News);
-            NewsItems = theNews.news;
+            NewsItems = theNews?.news ?? new List<NewsItem>();
+            NewsListBox.ItemsSource = NewsItems;
         }
 
         public void InitializeDefaultSettings(ILocalStorage localStorage)
