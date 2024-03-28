@@ -1,4 +1,4 @@
-Filters Page README
+## Filters Page README
 
 The Filters page in the application serves to allow users to select and apply loot filters for their game experience. It fetches a list of available filters from various authors and presents them in a user-friendly interface. Users can browse, select, and save their preferred filter configurations.
 Key Components

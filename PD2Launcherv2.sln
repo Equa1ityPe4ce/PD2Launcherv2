@@ -7,7 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PD2Launcherv2", "PD2Launche
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{1D5A85A1-1523-4038-A854-E2B9481CB7AA}"
 	ProjectSection(SolutionItems) = preProject
-		WIP.md = WIP.md
+		About.md = About.md
+		Filters.md = Filters.md
+		MainWindow.md = MainWindow.md
+		Options.md = Options.md
 	EndProjectSection
 EndProject
 Global

@@ -7,7 +7,6 @@ Key Components
     News Section: Dynamically updates with the latest news fetched from a JSON file stored on GitHub, using the NewsHelpers service.
     Game Launch Button: Initiates the game launch sequence, including file updates and filter application, through the LaunchGameHelpers and FileUpdateHelpers services.
     Options, Loot Filter, and About Buttons: Navigate to respective views for additional functionalities and information, managed by commands in the ViewModel.
-
 ___
 #### ViewModel and Commands
 

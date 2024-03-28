@@ -1,8 +1,7 @@
-using Force.Crc32;
+
 using Newtonsoft.Json;
 using PD2Launcherv2.Interfaces;
 using PD2Launcherv2.Models;
-using ProjectDiablo2Launcherv2.Models;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
