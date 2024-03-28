@@ -8,9 +8,6 @@ using ProjectDiablo2Launcherv2;
 using System.Windows;
 using PD2Launcherv2.Models;
 using System.Diagnostics;
-using System.Windows.Controls;
-using System.Net.Http;
-using System.Windows.Input;
 
 namespace PD2Launcherv2.ViewModels
 {

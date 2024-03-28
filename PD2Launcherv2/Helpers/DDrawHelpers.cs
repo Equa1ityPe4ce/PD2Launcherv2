@@ -6,7 +6,6 @@ using ProjectDiablo2Launcherv2;
 using ProjectDiablo2Launcherv2.Models;
 using System.Diagnostics;
 using System.IO;
-using System.Windows.Controls;
 
 namespace PD2Launcherv2.Helpers
 {

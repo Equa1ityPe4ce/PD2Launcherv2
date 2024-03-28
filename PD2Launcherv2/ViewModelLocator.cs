@@ -1,6 +1,5 @@
 ﻿using PD2Launcherv2.ViewModels;
 
-
 namespace PD2Launcherv2
 {
     public class ViewModelLocator

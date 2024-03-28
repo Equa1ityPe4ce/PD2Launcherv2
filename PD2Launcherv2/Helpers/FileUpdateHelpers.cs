@@ -130,7 +130,6 @@ namespace PD2Launcherv2.Helpers
                     catch (IOException ioEx)
                     {
                         Debug.WriteLine($"Unable to copy file: {ioEx.Message}");
-                        // Here you could log the error, or use a method to show a dialog or notification to the user
                         ShowErrorMessage($"An error occurred while updating files: {ioEx.Message}\nPlease verify your game is closed and try again.");
                     }
                 }
@@ -144,7 +143,7 @@ namespace PD2Launcherv2.Helpers
 
         private void ShowErrorMessage(string message)
         {
-            // Assuming this code is running in a WPF application; adjust for other UI frameworks as necessary
+
             MessageBox.Show(message, "Error Updating Files", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
