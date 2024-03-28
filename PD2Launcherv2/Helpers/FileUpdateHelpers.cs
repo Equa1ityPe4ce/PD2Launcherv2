@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using System.Windows;
 
 namespace PD2Launcherv2.Helpers
 {
@@ -118,10 +119,19 @@ namespace PD2Launcherv2.Helpers
                         await DownloadFileAsync(cloudFile.MediaLink, localFilePath);
                     }
 
-                    // Copy the file to parent ProjectD2 folder if it was updated or does not exist
-                    if (!shouldExclude || !File.Exists(installFilePath))
+                    try
                     {
-                        File.Copy(localFilePath, installFilePath, true);
+                        // Copy the file to parent ProjectD2 folder if it was updated or does not exist
+                        if (!shouldExclude || !File.Exists(installFilePath))
+                        {
+                            File.Copy(localFilePath, installFilePath, true);
+                        }
+                    }
+                    catch (IOException ioEx)
+                    {
+                        Debug.WriteLine($"Unable to copy file: {ioEx.Message}");
+                        // Here you could log the error, or use a method to show a dialog or notification to the user
+                        ShowErrorMessage($"An error occurred while updating files: {ioEx.Message}\nPlease verify your game is closed and try again.");
                     }
                 }
             }
@@ -130,6 +140,12 @@ namespace PD2Launcherv2.Helpers
                 Debug.WriteLine("FileUpdateModel is not set or directory does not exist.");
             }
             Debug.WriteLine("end UpdateFilesCheck \n");
+        }
+
+        private void ShowErrorMessage(string message)
+        {
+            // Assuming this code is running in a WPF application; adjust for other UI frameworks as necessary
+            MessageBox.Show(message, "Error Updating Files", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
         public async Task UpdateLauncherCheck(ILocalStorage _localStorage)

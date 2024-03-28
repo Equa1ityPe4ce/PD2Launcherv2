@@ -184,20 +184,21 @@ namespace PD2Launcherv2.ViewModels
 
         private void LoadLocalFilters()
         {
-            // Retrieve the base path from storage
-            var fileUpdateModel = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
-            if (fileUpdateModel != null)
+            string rootDirectory = Directory.GetCurrentDirectory();
+            var localFiltersPath = Path.Combine(rootDirectory, "filters", "local");
+            Debug.WriteLine($"localFiltersPath: {localFiltersPath}");
+            Debug.WriteLine($"localFiltersPath: {localFiltersPath}");
+            Debug.WriteLine($"localFiltersPath: {localFiltersPath}");
+            Debug.WriteLine($"localFiltersPath: {localFiltersPath}");
+            if (Directory.Exists(localFiltersPath))
             {
-                var localFiltersPath = Path.Combine(fileUpdateModel.FilePath, "filters", "local");
-                if (Directory.Exists(localFiltersPath))
-                {
-                    var filterFiles = Directory.EnumerateFiles(localFiltersPath, "*.filter")
-                                               .Select(path => new FilterFile { Name = Path.GetFileName(path), Path = path })
-                                               .ToList();
+                var filterFiles = Directory.EnumerateFiles(localFiltersPath, "*.filter")
+                                           .Select(path => new FilterFile { Name = Path.GetFileName(path), Path = path })
+                                           .ToList();
 
-                    FiltersList = filterFiles;
-                }
+                FiltersList = filterFiles;
             }
+
         }
 
         private void SaveFilterToStorage()
@@ -231,6 +232,7 @@ namespace PD2Launcherv2.ViewModels
                     // Update storage to reflect the new or updated filter
                     SaveFilterToStorage();
                     Debug.WriteLine("Filter applied successfully.");
+                    Messenger.Default.Send(new NavigationMessage { Action = NavigationAction.GoBack });
                 }
                 else
                 {

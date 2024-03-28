@@ -148,9 +148,8 @@ namespace PD2Launcherv2.Helpers
                 // Ensure necessary directories exist
                 Directory.CreateDirectory(localPath);
                 Directory.CreateDirectory(onlinePath);
-
                 string targetFilterPath;
-                if (author.Equals("local", StringComparison.OrdinalIgnoreCase))
+                if (author.Equals("Local Filter", StringComparison.OrdinalIgnoreCase))
                 {
                     targetFilterPath = Path.Combine(localPath, filterName);
                 }
