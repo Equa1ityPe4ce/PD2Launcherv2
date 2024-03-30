@@ -89,7 +89,8 @@
                          Grid.Row="1" 
                          HorizontalAlignment="Center" 
                          VerticalAlignment="Top"
-                         ScrollViewer.CanContentScroll="False">
+                         ScrollViewer.CanContentScroll="False"
+                         SelectionChanged="NewsListBox_SelectionChanged">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Grid Margin="0,10,0,0">

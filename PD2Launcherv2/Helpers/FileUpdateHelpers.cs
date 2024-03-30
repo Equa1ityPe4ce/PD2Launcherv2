@@ -92,46 +92,45 @@ namespace PD2Launcherv2.Helpers
             {
                 var cloudFileItems = await GetCloudFileMetadataAsync(fileUpdateModel.Client);
 
-                foreach (var cloudFile in cloudFileItems)
+                try
                 {
-                    if (cloudFile.Name.EndsWith("/")) // Skip directory markers so I dont try to download a folder
+                    foreach (var cloudFile in cloudFileItems)
                     {
-                        var directPath = Path.Combine(fullUpdatePath, cloudFile.Name.TrimEnd('/'));
-                        Directory.CreateDirectory(directPath);
-                        continue;
-                    }
+                        if (cloudFile.Name.EndsWith("/")) // Skip directory markers
+                        {
+                            var directPath = Path.Combine(fullUpdatePath, cloudFile.Name.TrimEnd('/'));
+                            Directory.CreateDirectory(directPath);
+                            continue;
+                        }
 
-                    var localFilePath = Path.Combine(fullUpdatePath, cloudFile.Name);
-                    var directoryPath = Path.GetDirectoryName(localFilePath);
-                    Directory.CreateDirectory(directoryPath); // Ensure directory for the file exists
+                        var localFilePath = Path.Combine(fullUpdatePath, cloudFile.Name);
+                        var directoryPath = Path.GetDirectoryName(localFilePath);
+                        Directory.CreateDirectory(directoryPath); // Ensure directory for the file exists
 
-                    var installFilePath = Path.Combine(installPath, cloudFile.Name);
-                    var installDirectoryPath = Path.GetDirectoryName(installFilePath);
-                    Directory.CreateDirectory(installDirectoryPath); // Ensure directory in parent ProjectD2 folder
+                        var installFilePath = Path.Combine(installPath, cloudFile.Name);
+                        var installDirectoryPath = Path.GetDirectoryName(installFilePath);
+                        Directory.CreateDirectory(installDirectoryPath); // Ensure directory in parent folder
 
-                    // Determine if the file is to be excluded only if it already exists
-                    bool shouldExclude = IsFileExcluded(cloudFile.Name) && File.Exists(installFilePath);
+                        bool shouldExclude = IsFileExcluded(cloudFile.Name) && File.Exists(installFilePath);
 
-                    // Download and update the file if needed, and not excluded or does not exist
-                    if (!shouldExclude && (!File.Exists(localFilePath) || !CompareCRC(localFilePath, cloudFile.Crc32c)))
-                    {
-                        Debug.WriteLine($"Updating file: {cloudFile.Name}");
-                        await DownloadFileAsync(cloudFile.MediaLink, localFilePath);
-                    }
+                        if (!shouldExclude && (!File.Exists(localFilePath) || !CompareCRC(localFilePath, cloudFile.Crc32c)))
+                        {
+                            Debug.WriteLine($"Updating file: {cloudFile.Name}");
+                            await DownloadFileAsync(cloudFile.MediaLink, localFilePath);
+                        }
 
-                    try
-                    {
-                        // Copy the file to parent ProjectD2 folder if it was updated or does not exist
+                        // Try to copy the file
                         if (!shouldExclude || !File.Exists(installFilePath))
                         {
                             File.Copy(localFilePath, installFilePath, true);
                         }
                     }
-                    catch (IOException ioEx)
-                    {
-                        Debug.WriteLine($"Unable to copy file: {ioEx.Message}");
-                        ShowErrorMessage($"An error occurred while updating files: {ioEx.Message}\nPlease verify your game is closed and try again.");
-                    }
+                }
+                catch (IOException ioEx)
+                {
+                    Debug.WriteLine($"Unable to copy file: {ioEx.Message}");
+                    // Throw a custom exception to be caught outside the loop
+                    ShowErrorMessage($"An error occurred while updating files: {ioEx.Message}\nPlease verify your game is closed and try again.");
                 }
             }
             else

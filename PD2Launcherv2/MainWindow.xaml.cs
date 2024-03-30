@@ -244,6 +244,35 @@ namespace PD2Launcherv2
             _localStorage.Update(StorageKey.DdrawOptions, currentDdrawOptions);
         }
 
+        private void NewsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count > 0 && e.AddedItems[0] is NewsItem selectedItem)
+            {
+                var uri = selectedItem.Link;
+                if (!string.IsNullOrWhiteSpace(uri))
+                {
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo(uri) { UseShellExecute = true });
+                    }
+                    catch (Exception ex)
+                    {
+                        // If there's an error opening the link, show an error message
+                        ShowErrorMessage($"Failed to open the link: {ex.Message}\nPlease check your internet connection or try again later.");
+                        Debug.WriteLine($"Failed to open link: {ex.Message}");
+                    }
+                }
+                // If the link is null or empty, do nothing
+
+                ((ListBox)sender).SelectedItem = null;
+            }
+        }
+
+        private void ShowErrorMessage(string message)
+        {
+            MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
         public void InitializeDefaultSettings(ILocalStorage localStorage)
         {
             _localStorage.InitializeIfNotExists<FileUpdateModel>(StorageKey.FileUpdateModel, new FileUpdateModel());

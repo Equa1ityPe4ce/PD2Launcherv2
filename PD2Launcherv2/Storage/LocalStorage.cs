@@ -16,7 +16,7 @@ namespace PD2Launcherv2.Storage
         {
             string filePath = Path.Combine(_storageDirectory, StorageFileName);
             if (!File.Exists(filePath)) return new AllSettings();
-
+            Debug.WriteLine(filePath);
             string json = File.ReadAllText(filePath);
             return JsonConvert.DeserializeObject<AllSettings>(json) ?? new AllSettings();
         }
