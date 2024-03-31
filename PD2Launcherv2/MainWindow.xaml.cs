@@ -206,6 +206,9 @@ namespace PD2Launcherv2
 
         private void MinimizeButton_Click(object sender, RoutedEventArgs e)
         {
+            // Force an unhandled exception for testing
+            int zero = 0;
+            int testException = 5 / zero;
             this.WindowState = WindowState.Minimized;
         }
 
@@ -297,35 +300,6 @@ namespace PD2Launcherv2
             Debug.WriteLine($"\n\n Saving window position: Left = {this.Left}, Top = {this.Top} \n\n");
 
             _localStorage.Update(StorageKey.WindowPosition, windowPosition);
-        }
-
-        private void EnsureWindowIsOnScreen()
-        {
-            try
-            {
-                var windowPosition = _localStorage.LoadSection<WindowPositionModel>(StorageKey.WindowPosition);
-                if (windowPosition != null)
-                {
-                    // Attempt to restore the window to its last saved position
-                    this.Left = windowPosition.Left;
-                    this.Top = windowPosition.Top;
-
-                    // Call the method to ensure it's visible on screen, 
-                    // it will adjust if the window is off-screen
-                    EnsureWindowIsVisible();
-                }
-                else
-                {
-                    // If there's no saved position, or loading failed, center on primary screen
-                    CenterWindowOnScreen();
-                }
-            }
-            catch (Exception ex)
-            {
-                // If any error occurs, log it, and center the window on the primary screen
-                Debug.WriteLine($"Error restoring window position: {ex.Message}");
-                CenterWindowOnScreen();
-            }
         }
 
         private void EnsureWindowIsVisible()

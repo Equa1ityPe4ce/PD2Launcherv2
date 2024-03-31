@@ -3,7 +3,9 @@ using PD2Launcherv2.Helpers;
 using PD2Launcherv2.Interfaces;
 using PD2Launcherv2.Storage;
 using PD2Launcherv2.ViewModels;
+using System.IO;
 using System.Net.Http;
+using System.Text;
 using System.Windows;
 
 namespace PD2Launcherv2
@@ -33,6 +35,10 @@ namespace PD2Launcherv2
             // Builds the service provider from the service collection
             _serviceProvider = services.BuildServiceProvider();
             ServiceProvider = _serviceProvider;
+
+            // Subscribe to unhandled exception events
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            this.DispatcherUnhandledException += App_DispatcherUnhandledException;
         }
 
         /// <summary>
@@ -73,6 +79,54 @@ namespace PD2Launcherv2
             // the application's main window.
             var mainWindow = _serviceProvider.GetService<MainWindow>();
             mainWindow?.Show();
+        }
+
+        // Handle non-UI thread exceptions
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            LogException(e.ExceptionObject as Exception);
+        }
+
+        // Handle UI thread exceptions
+        private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            LogException(e.Exception);
+            e.Handled = true; // Prevent application from crashing
+        }
+
+        private void LogException(Exception ex)
+        {
+            if (ex == null) return;
+
+            // Define the log file path. Consider using a more appropriate location.
+            string logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LauncherErrorLogs");
+            if (!Directory.Exists(logPath))
+            {
+                Directory.CreateDirectory(logPath);
+            }
+            string logFile = Path.Combine(logPath, $"ErrorLog_{DateTime.Now:yyyy-MM-dd}.txt");
+
+            // Prepare the log entry
+            var sb = new StringBuilder();
+            sb.AppendLine("==============================================================================");
+            sb.AppendLine($"Timestamp: {DateTime.Now}");
+            sb.AppendLine("Exception Message:");
+            sb.AppendLine(ex.Message);
+            sb.AppendLine("Stack Trace:");
+            sb.AppendLine(ex.StackTrace);
+
+            // Include inner exception details if available
+            if (ex.InnerException != null)
+            {
+                sb.AppendLine("Inner Exception Message:");
+                sb.AppendLine(ex.InnerException.Message);
+                sb.AppendLine("Inner Exception Stack Trace:");
+                sb.AppendLine(ex.InnerException.StackTrace);
+            }
+            sb.AppendLine("==============================================================================");
+
+            // Append the log entry to the file
+            File.AppendAllText(logFile, sb.ToString());
         }
     }
 }
