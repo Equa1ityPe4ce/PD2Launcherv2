@@ -10,5 +10,6 @@ namespace PD2Launcherv2.Models
         public Pd2AuthorList Pd2AuthorList { get; set; }
         public LauncherArgs LauncherArgs { get; set; }
         public News News { get; set; }
+        public WindowPositionModel WindowPosition { get; set; }
     }
 }

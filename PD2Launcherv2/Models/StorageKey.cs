@@ -8,6 +8,7 @@ namespace PD2Launcherv2.Models
         FileUpdateModel,
         Pd2AuthorList,
         SelectedAuthorAndFilter,
+        WindowPosition,
         News
     }
 }
