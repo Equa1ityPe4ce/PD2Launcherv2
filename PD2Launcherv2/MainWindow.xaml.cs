@@ -114,6 +114,12 @@ namespace PD2Launcherv2
         private async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("PlayButton_Click start");
+            // Check if Game.exe is already running
+            if (Process.GetProcessesByName("Game").Any())
+            {
+                MessageBox.Show("Game is already running.");
+                return;
+            }
             var selectedAuthorAndFilter = _localStorage.LoadSection<SelectedAuthorAndFilter>(StorageKey.SelectedAuthorAndFilter);
             if (selectedAuthorAndFilter?.selectedFilter != null)
             {
