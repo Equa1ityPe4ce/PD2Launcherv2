@@ -9,7 +9,7 @@
       DataContext="{Binding OptionsViewModel, Source={StaticResource ViewModelLocator}}">
 
     <Grid>
-        <Image Source="/Resources/Images/bg_plain.jpg" Stretch="Fill"/>
+        <Image Source="pack://application:,,,/Resources/Images/bg_plain.jpg" Stretch="Fill"/>
         <!-- Options controls -->
         <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}" FontFamily="{StaticResource BlizzHeavy}" Command="{Binding CloseCommand}" FontSize="25" Content="X" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Panel.ZIndex="99"/>
 

@@ -11,7 +11,7 @@
       DataContext="{Binding FiltersViewModel, Source={StaticResource ViewModelLocator}}">
 
     <Grid>
-        <Image Source="/Resources/Images/bg_plain.jpg" Stretch="Fill"/>
+        <Image Source="pack://application:,,,/Resources/Images/bg_plain.jpg" Stretch="Fill"/>
 
         <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}" FontFamily="{StaticResource BlizzHeavy}" Command="{Binding CloseCommand}" 
             FontSize="25" Content="X" />

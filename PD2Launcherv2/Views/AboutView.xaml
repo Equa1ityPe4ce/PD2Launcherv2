@@ -10,7 +10,7 @@
       DataContext="{Binding AboutViewModel, Source={StaticResource ViewModelLocator}}">
 
     <Grid>
-        <Image Source="/Resources/Images/bg_plain.jpg" Stretch="Fill"/>
+        <Image Source="pack://application:,,,/Resources/Images/bg_plain.jpg" Stretch="Fill"/>
 
         <!-- Your options controls go here -->
 

@@ -172,11 +172,9 @@
                              NormalImageSource="pack://application:,,,/Resources/Images/donate.jpg"
                              PressedImageSource="pack://application:,,,/Resources/Images/donate_pressed.jpg"
                              Click="DonateButton_Click"/>
-            <!-- Added Margin on the top for the StackPanel containing the text block -->
-            <StackPanel HorizontalAlignment="Right" Width="271" Height="50" Margin="0,5,10,0">
-                <!-- Adjust the "5" as needed for your desired spacing -->
+            <StackPanel HorizontalAlignment="Right" Width="271" Height="40" Margin="0,5,10,0">
                 <StackPanel.Background>
-                    <SolidColorBrush Color="Black" Opacity="0.4" />
+                    <SolidColorBrush Color="Black" Opacity="0.3" />
                 </StackPanel.Background>
                 <TextBlock 
             Text="Thanks for your support, we couldn't keep the servers around without this community!"

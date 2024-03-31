@@ -20,9 +20,9 @@
             <local:ViewModelLocator x:Key="ViewModelLocator"/>
 
             <!-- Font Family Resources -->
-            <FontFamily x:Key="BlizzHeavy">./Resources/Fonts/exocet-blizzard-heavy.otf#Exocet Blizzard OT Light Bold</FontFamily>
-            <FontFamily x:Key="BlizzLight">./Resources/Fonts/exocet-blizzard-light.ttf#Exocet Blizzard OT Light Regular</FontFamily>
-            <FontFamily x:Key="BlizzMedium">./Resources/Fonts/exocet-blizzard-medium.ttf#Exocet Blizzard OT Medium Regular</FontFamily>
+            <FontFamily x:Key="BlizzHeavy">pack://siteoforigin:,,,/Resources/Fonts/exocet-blizzard-heavy.otf#Exocet Blizzard OT Light Bold</FontFamily>
+            <FontFamily x:Key="BlizzLight">pack://siteoforigin:,,,/Resources/Fonts/exocet-blizzard-light.ttf#Exocet Blizzard OT Light Regular</FontFamily>
+            <FontFamily x:Key="BlizzMedium">pack://siteoforigin:,,,/Resources/Fonts/exocet-blizzard-medium.ttf#Exocet Blizzard OT Medium Regular</FontFamily>
 
         </ResourceDictionary>
     </Application.Resources>

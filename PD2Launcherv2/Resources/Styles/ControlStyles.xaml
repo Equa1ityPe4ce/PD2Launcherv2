@@ -167,7 +167,7 @@
                                   Width="10" Height="18">
                             <RepeatButton.ContentTemplate>
                                 <DataTemplate>
-                                    <Image Source="/Resources/Images/thin_prev.jpg"/>
+                                    <Image Source="pack://application:,,,/Resources/Images/thin_prev.jpg"/>
                                 </DataTemplate>
                             </RepeatButton.ContentTemplate>
                         </RepeatButton>
@@ -183,7 +183,7 @@
                                   Width="10" Height="18">
                             <RepeatButton.ContentTemplate>
                                 <DataTemplate>
-                                    <Image Source="/Resources/Images/thin_next.jpg"/>
+                                    <Image Source="pack://application:,,,/Resources/Images/thin_next.jpg"/>
                                 </DataTemplate>
                             </RepeatButton.ContentTemplate>
                         </RepeatButton>
@@ -418,7 +418,7 @@
                         <RepeatButton Grid.Row="0" Command="ScrollBar.LineUpCommand" Content="UP" Background="Black" Foreground="{StaticResource GoldBrush}" Width="18" Height="18">
                             <RepeatButton.ContentTemplate>
                                 <DataTemplate>
-                                    <Image Source="/Resources/Images/thin_prev.jpg"/>
+                                    <Image Source="pack://application:,,,/Resources/Images/thin_prev.jpg"/>
                                 </DataTemplate>
                             </RepeatButton.ContentTemplate>
                         </RepeatButton>
@@ -430,7 +430,7 @@
                         <RepeatButton Grid.Row="2" Command="ScrollBar.LineDownCommand" Content="DOWN" Background="Black" Foreground="{StaticResource GoldBrush}" Width="18" Height="18">
                             <RepeatButton.ContentTemplate>
                                 <DataTemplate>
-                                    <Image Source="/Resources/Images/thin_next.jpg"/>
+                                    <Image Source="pack://application:,,,/Resources/Images/thin_next.jpg"/>
                                 </DataTemplate>
                             </RepeatButton.ContentTemplate>
                         </RepeatButton>
