@@ -206,9 +206,6 @@ namespace PD2Launcherv2
 
         private void MinimizeButton_Click(object sender, RoutedEventArgs e)
         {
-            // Force an unhandled exception for testing
-            int zero = 0;
-            int testException = 5 / zero;
             this.WindowState = WindowState.Minimized;
         }
 
