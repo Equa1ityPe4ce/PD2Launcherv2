@@ -125,9 +125,17 @@ namespace PD2Launcherv2
             {
                 bool isUpdated = await _filterHelpers.CheckAndUpdateFilterAsync(selectedAuthorAndFilter);
             }
-            // Set the play button to the updating image immediately
-            var updatingImageUri = new Uri("pack://application:,,,/Resources/Images/updating_disabled.jpg");
-            PlayButton.NormalImageSource = new BitmapImage(updatingImageUri);
+
+            // Try catch here to help with the URI exceptions
+            try
+            {
+                var updatingImageUri = new Uri("pack://application:,,,/Resources/Images/updating_disabled.jpg");
+                PlayButton.NormalImageSource = new BitmapImage(updatingImageUri);
+            }
+            catch (UriFormatException ex)
+            {
+                Debug.WriteLine($"URI format exception: {ex.Message}. URI used: 'pack://application:,,,/Resources/Images/updating_disabled.jpg'");
+            }
 
             // Load or setup default file update model
             FileUpdateModel storeUpdate = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel) ?? new FileUpdateModel
@@ -143,8 +151,16 @@ namespace PD2Launcherv2
             await _fileUpdateHelpers.UpdateFilesCheck(_localStorage);
 
             // Optionally reset the play button image after updates are completed
-            var playImageUri = new Uri("pack://application:,,,/Resources/Images/play.jpg");
-            PlayButton.NormalImageSource = new BitmapImage(playImageUri);
+            try
+            {
+                var playImageUri = new Uri("pack://application:,,,/Resources/Images/play.jpg");
+                PlayButton.NormalImageSource = new BitmapImage(playImageUri);
+            }
+            catch (UriFormatException ex)
+            {
+                Debug.WriteLine($"URI format exception: {ex.Message}. URI used: 'pack://application:,,,/Resources/Images/play.jpg'");
+            }
+            
             _launchGameHelpers.LaunchGame(_localStorage);
             Debug.WriteLine("PlayButton_Click end");
         }
