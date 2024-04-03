@@ -23,6 +23,11 @@ namespace UpdateUtility
             string pd2LauncherPath = args.Length >= 1 ? args[0] : "PD2Launcher.exe";
             string tempLauncherPath = args.Length >= 2 ? args[1] : "TempLauncher.exe";
 
+            if (args.Length == 0 && File.Exists(pd2LauncherPath))
+            {
+                return;
+            }
+
             if (args.Length == 0 && !File.Exists(pd2LauncherPath))
             {
                 await DownloadFileAsync(launcherUrl, pd2LauncherPath);
@@ -56,26 +61,27 @@ namespace UpdateUtility
                         Console.WriteLine($"Error waiting for PD2Launcher to close: {ex.Message}");
                     }
                 }
-            }
 
-            // Continue with the update process if PD2Launcher.exe and TempLauncher.exe are specified and exist
-            try
-            {
-                Console.WriteLine("Attempting to update the launcher...");
 
-                if (File.Exists(pd2LauncherPath))
+                // Continue with the update process if PD2Launcher.exe and TempLauncher.exe are specified and exist
+                try
                 {
-                    File.Delete(pd2LauncherPath);
-                    Console.WriteLine("Previous version of PD2Launcher removed.");
-                }
+                    Console.WriteLine("Attempting to update the launcher...");
 
-                File.Move(tempLauncherPath, pd2LauncherPath);
-                Console.WriteLine("Launcher updated successfully.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Update failed: {ex.Message}");
-                return;
+                    if (File.Exists(pd2LauncherPath))
+                    {
+                        File.Delete(pd2LauncherPath);
+                        Console.WriteLine("Previous version of PD2Launcher removed.");
+                    }
+
+                    File.Move(tempLauncherPath, pd2LauncherPath);
+                    Console.WriteLine("Launcher updated successfully.");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Update failed: {ex.Message}");
+                    return;
+                }
             }
 
             //restart the launcher
