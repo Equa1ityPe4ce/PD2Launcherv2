@@ -100,10 +100,7 @@ namespace PD2Launcherv2
 
             // Define the log file path. Consider using a more appropriate location.
             string logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LauncherErrorLogs");
-            if (!Directory.Exists(logPath))
-            {
-                Directory.CreateDirectory(logPath);
-            }
+
             string logFile = Path.Combine(logPath, $"ErrorLog_{DateTime.Now:yyyy-MM-dd}.txt");
 
             // Prepare the log entry

@@ -111,6 +111,23 @@
         </Setter>
     </Style>
 
+    <Style x:Key="ImageFillProgressBarStyle" TargetType="{x:Type ProgressBar}">
+        <Setter Property="Foreground" Value="{StaticResource ShakoBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ProgressBar">
+                    <Grid>
+                        <Rectangle Name="PART_Track" Opacity="0.5" Fill="Transparent"/>
+                        <Rectangle Name="PART_Indicator" HorizontalAlignment="Left" Fill="{TemplateBinding Foreground}"/>
+                        <Grid>
+                            <Image Source="pack://application:,,,/Resources/Images/empty_button.png" Stretch="Fill"/>
+                        </Grid>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <!-- Close Button -->
     <Style x:Key="CloseButtonStyle" TargetType="Button">

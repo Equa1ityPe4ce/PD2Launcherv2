@@ -152,10 +152,18 @@
                     Background="Red"
                     Margin="0,10,165,0"
                     Visibility="Collapsed" />
-            <local:CustomImageButton x:Name="PlayButton" Width="270" Height="35" Margin="0,0,0,10"
-                                     NormalImageSource="pack://application:,,,/Resources/Images/play.jpg"
-                                     PressedImageSource="pack://application:,,,/Resources/Images/play_pressed.jpg"
-                                     Click="PlayButton_Click"/>
+            <Grid HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,10">
+                <local:CustomImageButton x:Name="PlayButton" Width="270" Height="35"
+                             NormalImageSource="pack://application:,,,/Resources/Images/play.jpg"
+                             PressedImageSource="pack://application:,,,/Resources/Images/play_pressed.jpg"
+                             Click="PlayButton_Click"/>
+
+                <ProgressBar x:Name="DownloadProgressBar" Height="35" Width="270"
+                             HorizontalAlignment="Center" VerticalAlignment="Center"
+                             Minimum="0" Maximum="100" Value="0"
+                             Style="{StaticResource ImageFillProgressBarStyle}" Visibility="Collapsed"/>
+            </Grid>
+
             <local:CustomImageButton x:Name="OptionsButton" Width="270" Height="35" Margin="0,0,0,10"
                                      NormalImageSource="pack://application:,,,/Resources/Images/options.jpg"
                                      PressedImageSource="pack://application:,,,/Resources/Images/options_pressed.jpg"

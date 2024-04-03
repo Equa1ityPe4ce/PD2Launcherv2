@@ -69,10 +69,11 @@ namespace PD2Launcherv2
             };
 
             // Don't try to update launcher in debug mode
-#if DEBUG
-#else
-            _fileUpdateHelpers?.UpdateLauncherCheck(_localStorage);
-#endif
+            //TEST
+//#if DEBUG
+//#else
+            CheckForUpdates();
+//#endif
         }
 
 
@@ -93,6 +94,55 @@ namespace PD2Launcherv2
                     MainFrame.Content = null;
                 }
             }
+        }
+
+        // trigger the update, in an async event handler
+        private async void CheckForUpdates()
+        {
+
+            var progressHandler = new Progress<double>(value =>
+            {
+                // Whenever progress.Report is called in DownloadFileAsync
+                Dispatcher.Invoke(() =>
+                {
+                    DownloadProgressBar.Visibility = Visibility.Visible;
+                    DownloadProgressBar.Value = value * 100; // Assuming value is reported as 0 to 1
+                });
+            });
+
+            // Switch to 'updating' image before starting the update process
+            try
+            {
+                var updatingImageUri = new Uri("pack://application:,,,/Resources/Images/updating_disabled.jpg");
+                PlayButton.NormalImageSource = new BitmapImage(updatingImageUri);
+            }
+            catch (UriFormatException ex)
+            {
+                Debug.WriteLine($"URI format exception: {ex.Message}. URI used: 'pack://application:,,,/Resources/Images/updating_disabled.jpg'");
+            }
+
+            Action onDownloadComplete = () =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    // Hide progress bar
+                    DownloadProgressBar.Visibility = Visibility.Collapsed;
+                    DownloadProgressBar.Visibility = Visibility.Hidden;
+                });
+            };
+
+            //switch back to the normal Play button image
+            try
+            {
+                var playImageUri = new Uri("pack://application:,,,/Resources/Images/play.jpg");
+                PlayButton.NormalImageSource = new BitmapImage(playImageUri);
+            }
+            catch (UriFormatException ex)
+            {
+                Debug.WriteLine($"URI format exception: {ex.Message}. URI used: 'pack://application:,,,/Resources/Images/play.jpg'");
+            }
+            // Trigger the update check and download process
+            await _fileUpdateHelpers.UpdateLauncherCheck(_localStorage, progressHandler, onDownloadComplete);
         }
 
         private void ClearNavigationStack()
@@ -148,20 +198,40 @@ namespace PD2Launcherv2
                 _localStorage.Update(StorageKey.FileUpdateModel, storeUpdate);
             }
 
-            await _fileUpdateHelpers.UpdateFilesCheck(_localStorage);
+            var progressHandler = new Progress<double>(value =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    DownloadProgressBar.Visibility = Visibility.Visible;
+                    DownloadProgressBar.Value = value * 100;
+                });
+            });
 
-            // Optionally reset the play button image after updates are completed
-            try
+            Action onDownloadComplete = () =>
             {
-                var playImageUri = new Uri("pack://application:,,,/Resources/Images/play.jpg");
-                PlayButton.NormalImageSource = new BitmapImage(playImageUri);
-            }
-            catch (UriFormatException ex)
-            {
-                Debug.WriteLine($"URI format exception: {ex.Message}. URI used: 'pack://application:,,,/Resources/Images/play.jpg'");
-            }
+                Dispatcher.Invoke(() =>
+                {
+                    DownloadProgressBar.Visibility = Visibility.Collapsed;
+                    // Reset the play button image after updates are completed
+                    try
+                    {
+                        var playImageUri = new Uri("pack://application:,,,/Resources/Images/play.jpg");
+                        PlayButton.NormalImageSource = new BitmapImage(playImageUri);
+                    }
+                    catch (UriFormatException ex)
+                    {
+                        Debug.WriteLine($"URI format exception: {ex.Message}. URI used: 'pack://application:,,,/Resources/Images/play.jpg'");
+                    }
+                    // Continue with launching the game or handling post-update logic
+                    DownloadProgressBar.Visibility = Visibility.Hidden;
+                    _launchGameHelpers.LaunchGame(_localStorage);
+                });
+            };
             
-            _launchGameHelpers.LaunchGame(_localStorage);
+            // Ensure you've modified UpdateFilesCheck to accept progress and completion action
+            await _fileUpdateHelpers.UpdateFilesCheck(_localStorage, progressHandler, onDownloadComplete);
+            DownloadProgressBar.Visibility = Visibility.Hidden;
+
             Debug.WriteLine("PlayButton_Click end");
         }
 

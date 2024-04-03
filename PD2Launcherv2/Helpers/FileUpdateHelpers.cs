@@ -3,6 +3,7 @@ using PD2Launcherv2.Interfaces;
 using PD2Launcherv2.Models;
 using ProjectDiablo2Launcherv2;
 using ProjectDiablo2Launcherv2.Models;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
@@ -21,6 +22,36 @@ namespace PD2Launcherv2.Helpers
         public FileUpdateHelpers(HttpClient httpClient)
         {
             _httpClient = httpClient;
+        }
+
+        public void StartUpdateProcess()
+        {
+            string launcherDirectory = Directory.GetCurrentDirectory();
+            string updateUtilityPath = Path.Combine(launcherDirectory, "UpdateUtility.exe");
+            string mainLauncherPath = Path.Combine(launcherDirectory, "PD2Launcher.exe");
+            string tempLauncherPath = Path.Combine(launcherDirectory, "TempLauncher.exe");
+            Debug.WriteLine(File.Exists(updateUtilityPath));
+            Debug.WriteLine($"\n\n\nupdateUtilityPath: {updateUtilityPath}");
+            Debug.WriteLine($"mainLauncherPath: {mainLauncherPath}");
+            Debug.WriteLine($"mainLauncherPath: {mainLauncherPath}");
+            Debug.WriteLine($"tempLauncherPath: {tempLauncherPath}\n\n\n");
+
+            if (File.Exists(updateUtilityPath) && File.Exists(tempLauncherPath))
+            {
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = updateUtilityPath,
+                    Arguments = $"\"{mainLauncherPath}\" \"{tempLauncherPath}\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                };
+
+                Process.Start(startInfo);
+            }
+            else
+            {
+                Debug.WriteLine("Update Utility or TempLauncher.exe not found.");
+            }
         }
 
         public async Task<List<CloudFileItem>> GetCloudFileMetadataAsync(string cloudFileBucket)
@@ -45,14 +76,28 @@ namespace PD2Launcherv2.Helpers
             }).ToList() ?? new List<CloudFileItem>();
         }
 
-        public async Task DownloadFileAsync(string mediaLink, string path)
+        public async Task DownloadFileAsync(string mediaLink, string path, IProgress<double> progress = null)
         {
             var response = await _httpClient.GetAsync(mediaLink, HttpCompletionOption.ResponseHeadersRead);
             response.EnsureSuccessStatusCode();
 
+            var totalBytes = response.Content.Headers.ContentLength ?? -1L; // Total download size
+            var totalBytesRead = 0L;
+            var buffer = new byte[8192]; // Buffer size
+
             await using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
+            await using (var stream = await response.Content.ReadAsStreamAsync())
             {
-                await response.Content.CopyToAsync(fileStream);
+                var bytesRead = 0;
+                while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                {
+                    await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
+                    totalBytesRead += bytesRead;
+
+                    // Report progress as a percentage of total download
+                    // this will report progress as a continuous stream of data
+                    progress?.Report(totalBytes != -1 ? (double)totalBytesRead / totalBytes : totalBytesRead);
+                }
             }
         }
 
@@ -77,7 +122,7 @@ namespace PD2Launcherv2.Helpers
             return localCrc == remoteCrc;
         }
 
-        public async Task UpdateFilesCheck(ILocalStorage _localStorage)
+        public async Task UpdateFilesCheck(ILocalStorage _localStorage, IProgress<double> progress, Action onDownloadComplete)
         {
             Debug.WriteLine("\nstart UpdateFilesCheck");
             var fileUpdateModel = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
@@ -90,47 +135,58 @@ namespace PD2Launcherv2.Helpers
 
             if (fileUpdateModel != null)
             {
-                var cloudFileItems = await GetCloudFileMetadataAsync(fileUpdateModel.Client);
-
                 try
                 {
+                    var cloudFileItems = await GetCloudFileMetadataAsync(fileUpdateModel.Client);
+                    int totalFiles = cloudFileItems.Count;
+                    int processedFiles = 0;
+
                     foreach (var cloudFile in cloudFileItems)
                     {
-                        if (cloudFile.Name.EndsWith("/")) // Skip directory markers
+                        if (cloudFile.Name.EndsWith("/"))
                         {
-                            var directPath = Path.Combine(fullUpdatePath, cloudFile.Name.TrimEnd('/'));
-                            Directory.CreateDirectory(directPath);
                             continue;
                         }
 
                         var localFilePath = Path.Combine(fullUpdatePath, cloudFile.Name);
                         var directoryPath = Path.GetDirectoryName(localFilePath);
-                        Directory.CreateDirectory(directoryPath); // Ensure directory for the file exists
+                        if (!Directory.Exists(directoryPath))
+                        {
+                            Directory.CreateDirectory(directoryPath);
+                        }
 
                         var installFilePath = Path.Combine(installPath, cloudFile.Name);
                         var installDirectoryPath = Path.GetDirectoryName(installFilePath);
-                        Directory.CreateDirectory(installDirectoryPath); // Ensure directory in parent folder
+                        if (!Directory.Exists(installDirectoryPath))
+                        {
+                            Directory.CreateDirectory(installDirectoryPath);
+                        }
 
                         bool shouldExclude = IsFileExcluded(cloudFile.Name) && File.Exists(installFilePath);
-
                         if (!shouldExclude && (!File.Exists(localFilePath) || !CompareCRC(localFilePath, cloudFile.Crc32c)))
                         {
                             Debug.WriteLine($"Updating file: {cloudFile.Name}");
                             await DownloadFileAsync(cloudFile.MediaLink, localFilePath);
                         }
 
-                        // Try to copy the file
                         if (!shouldExclude || !File.Exists(installFilePath))
                         {
                             File.Copy(localFilePath, installFilePath, true);
                         }
+
+                        processedFiles++;
+                        progress?.Report((double)processedFiles / totalFiles);
                     }
+
+                    onDownloadComplete?.Invoke();
                 }
-                catch (IOException ioEx)
+                catch (Exception ex)
                 {
-                    Debug.WriteLine($"Unable to copy file: {ioEx.Message}");
-                    // Throw a custom exception to be caught outside the loop
-                    ShowErrorMessage($"An error occurred while updating files: {ioEx.Message}\nPlease verify your game is closed and try again.");
+                    Debug.WriteLine($"An error occurred while updating files: {ex.Message}");
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        ShowErrorMessage($"An error occurred while updating files: {ex.Message}\nPlease verify your game is closed and try again.");
+                    });
                 }
             }
             else
@@ -146,11 +202,18 @@ namespace PD2Launcherv2.Helpers
             MessageBox.Show(message, "Error Updating Files", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        public async Task UpdateLauncherCheck(ILocalStorage _localStorage)
+        public async Task UpdateLauncherCheck(ILocalStorage _localStorage, IProgress<double> progress = null, Action onDownloadComplete = null)
         {
-            Debug.WriteLine("\nstart UpdateLauncherCheck");
+            Debug.WriteLine("\n\n\n\nstart UpdateLauncherCheck");
             var fileUpdateModel = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
             var installPath = Directory.GetCurrentDirectory();
+            var tempDownloadPath = Path.Combine(installPath, "TempLauncher.exe");
+
+            // Step 1: Check and delete existing TempLauncher.exe
+            if (File.Exists(tempDownloadPath))
+            {
+                File.Delete(tempDownloadPath);
+            }
 
             if (fileUpdateModel != null)
             {
@@ -158,51 +221,47 @@ namespace PD2Launcherv2.Helpers
 
                 foreach (var cloudFile in cloudFileItems)
                 {
-                    if (cloudFile.Name.EndsWith("/")) // Skip directory markers so I dont try to download a folder
+                    // Skip directory markers and non-launcher files
+                    if (cloudFile.Name.EndsWith("/") || cloudFile.Name != "PD2Launcher.exe")
                     {
-                        var directPath = Path.Combine(installPath, cloudFile.Name.TrimEnd('/'));
-                        Directory.CreateDirectory(directPath);
                         continue;
                     }
 
                     var localFilePath = Path.Combine(installPath, cloudFile.Name);
-                    var launcherNeedsUpdate = false;
-
-                    // Download and update the file if needed, and not excluded or does not exist
-                    if (!File.Exists(localFilePath) || !CompareCRC(localFilePath, cloudFile.Crc32c))
-                    {
-                        // Launcher update found
-                        if (cloudFile.Name == "PD2Launcher.exe")
-                        {
-                            // Update after downloading the updater.exe
-                            launcherNeedsUpdate = true;
-                        }
-                        else
-                        {
-                            Debug.WriteLine($"Updating file: {cloudFile.Name}");
-                            await DownloadFileAsync(cloudFile.MediaLink, localFilePath);
-                        }
-                    }
-
+                    var launcherNeedsUpdate = !File.Exists(localFilePath) || !CompareCRC(localFilePath, cloudFile.Crc32c);
+                    //TEST
+                    //launcherNeedsUpdate = true;
                     if (launcherNeedsUpdate)
                     {
-                        var updaterPath = Path.Combine(installPath, "updater.exe");
-                        if (File.Exists(updaterPath))
+                        // Step 2: Notify user about the update
+                        Application.Current.Dispatcher.Invoke(() =>
                         {
-                            MessageBox.Show("An update for the launcher was found!\nThe launcher will close and update now.", "Update Ready", MessageBoxButton.OK, MessageBoxImage.Information);
-                            // Launch the updater and kill current process
-                            var startInfo = new ProcessStartInfo
-                            {
-                                FileName = updaterPath,
-                                Arguments = "/l",
-                                WorkingDirectory = installPath
-                            };
+                            MessageBox.Show("A launcher update has been identified and is starting now.", "Update Ready", MessageBoxButton.OK, MessageBoxImage.Information);
+                        });
 
-                            if (Process.Start(startInfo) != null)
-                            {
-                                System.Environment.Exit(0);
-                            }
-                        }
+                        // Step 3: Download the update
+                        await DownloadFileAsync(cloudFile.MediaLink, tempDownloadPath, progress);
+
+                        // Step 4: Close launcher and initiate the update process
+                        await Application.Current.Dispatcher.Invoke(async () =>
+                        {
+                            // Notify user that the application will close for the update
+                            MessageBox.Show("The launcher will now close to apply an update.", "Update in Progress", MessageBoxButton.OK, MessageBoxImage.Information);
+
+                           // Start the update process
+                            StartUpdateProcess();
+
+                            // Close the application or hide the main window
+                            Application.Current.MainWindow?.Close();
+
+                            // Wait a moment for the main window to close properly
+                            await Task.Delay(1000); // Adjust this delay as needed
+
+                            // Optionally, invoke the onDownloadComplete action if you have any additional steps to run after this
+                            onDownloadComplete?.Invoke();
+                        });
+
+                        return; // Exit the method after initiating the update process
                     }
                 }
             }
@@ -213,6 +272,53 @@ namespace PD2Launcherv2.Helpers
             Debug.WriteLine("end UpdateLauncherCheck \n");
         }
 
+        public async Task DownloadLauncherUpdateAsync(string updateUrl, string tempDownloadPath, IProgress<double> progress = null)
+        {
+            // Delete existing TempLauncher.exe if it exists
+            if (File.Exists(tempDownloadPath))
+            {
+                File.Delete(tempDownloadPath);
+            }
+
+            // Inform the user - this should be done in the UI, not here
+            // MessageBox.Show("A launcher update has been identified and is starting now.");
+
+            using (var response = await _httpClient.GetAsync(updateUrl, HttpCompletionOption.ResponseHeadersRead))
+            {
+                response.EnsureSuccessStatusCode();
+                var totalBytes = response.Content.Headers.ContentLength ?? -1L;
+                var totalBytesRead = 0L;
+                var buffer = new byte[4096];
+                var isMoreToRead = true;
+
+                using (var fileStream = new FileStream(tempDownloadPath, FileMode.Create, FileAccess.Write, FileShare.None))
+                using (var stream = await response.Content.ReadAsStreamAsync())
+                {
+                    do
+                    {
+                        var bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+                        if (bytesRead == 0)
+                        {
+                            isMoreToRead = false;
+                            continue;
+                        }
+
+                        await fileStream.WriteAsync(buffer, 0, bytesRead);
+
+                        totalBytesRead += bytesRead;
+                        if (totalBytes > 0)
+                        {
+                            progress?.Report((double)totalBytesRead / totalBytes);
+                        }
+                    }
+                    while (isMoreToRead);
+                }
+            }
+
+            // Close launcher and initiate update process
+            // This would typically involve starting the secondary utility you created earlier
+        }
+
         private bool IsFileExcluded(string fileName)
         {
             return _excludedFiles.Any(excluded =>
@@ -220,6 +326,7 @@ namespace PD2Launcherv2.Helpers
                 excluded.Equals(fileName, StringComparison.OrdinalIgnoreCase) ||
                 (excluded.Contains("*") && new Regex("^" + Regex.Escape(excluded).Replace("\\*", ".*") + "$").IsMatch(fileName)));
         }
+
     }
 
     public class CloudFileItem

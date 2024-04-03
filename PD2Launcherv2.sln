@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentat
 		Storage.md = Storage.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateUtility", "UpdateUtility\UpdateUtility.csproj", "{328C643F-150A-4B16-9454-A2E48B1BCB67}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +26,10 @@ Global
 		{88501D78-990F-4F64-B002-B27FC3A65927}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88501D78-990F-4F64-B002-B27FC3A65927}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88501D78-990F-4F64-B002-B27FC3A65927}.Release|Any CPU.Build.0 = Release|Any CPU
+		{328C643F-150A-4B16-9454-A2E48B1BCB67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{328C643F-150A-4B16-9454-A2E48B1BCB67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{328C643F-150A-4B16-9454-A2E48B1BCB67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{328C643F-150A-4B16-9454-A2E48B1BCB67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
