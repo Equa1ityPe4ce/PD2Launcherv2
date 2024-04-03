@@ -69,11 +69,10 @@ namespace PD2Launcherv2
             };
 
             // Don't try to update launcher in debug mode
-            //TEST
-//#if DEBUG
-//#else
+#if DEBUG
+#else
             CheckForUpdates();
-//#endif
+#endif
         }
 
 
@@ -99,7 +98,6 @@ namespace PD2Launcherv2
         // trigger the update, in an async event handler
         private async void CheckForUpdates()
         {
-
             var progressHandler = new Progress<double>(value =>
             {
                 // Whenever progress.Report is called in DownloadFileAsync
@@ -109,17 +107,6 @@ namespace PD2Launcherv2
                     DownloadProgressBar.Value = value * 100; // Assuming value is reported as 0 to 1
                 });
             });
-
-            // Switch to 'updating' image before starting the update process
-            try
-            {
-                var updatingImageUri = new Uri("pack://application:,,,/Resources/Images/updating_disabled.jpg");
-                PlayButton.NormalImageSource = new BitmapImage(updatingImageUri);
-            }
-            catch (UriFormatException ex)
-            {
-                Debug.WriteLine($"URI format exception: {ex.Message}. URI used: 'pack://application:,,,/Resources/Images/updating_disabled.jpg'");
-            }
 
             Action onDownloadComplete = () =>
             {
@@ -131,9 +118,23 @@ namespace PD2Launcherv2
                 });
             };
 
+            // Switch to 'updating' image before starting the update process
+            try
+            {
+                var updatingImageUri = new Uri("pack://application:,,,/Resources/Images/updating_disabled.jpg");
+                Overlay.Visibility = Visibility.Visible;
+                PlayButton.NormalImageSource = new BitmapImage(updatingImageUri);
+            }
+            catch (UriFormatException ex)
+            {
+                Debug.WriteLine($"URI format exception: {ex.Message}. URI used: 'pack://application:,,,/Resources/Images/updating_disabled.jpg'");
+            }
+            // Trigger the update check and download process
+            await _fileUpdateHelpers.UpdateLauncherCheck(_localStorage, progressHandler, onDownloadComplete);
             //switch back to the normal Play button image
             try
             {
+                Overlay.Visibility = Visibility.Collapsed;
                 var playImageUri = new Uri("pack://application:,,,/Resources/Images/play.jpg");
                 PlayButton.NormalImageSource = new BitmapImage(playImageUri);
             }
@@ -141,8 +142,6 @@ namespace PD2Launcherv2
             {
                 Debug.WriteLine($"URI format exception: {ex.Message}. URI used: 'pack://application:,,,/Resources/Images/play.jpg'");
             }
-            // Trigger the update check and download process
-            await _fileUpdateHelpers.UpdateLauncherCheck(_localStorage, progressHandler, onDownloadComplete);
         }
 
         private void ClearNavigationStack()

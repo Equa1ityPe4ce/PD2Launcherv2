@@ -229,8 +229,6 @@ namespace PD2Launcherv2.Helpers
 
                     var localFilePath = Path.Combine(installPath, cloudFile.Name);
                     var launcherNeedsUpdate = !File.Exists(localFilePath) || !CompareCRC(localFilePath, cloudFile.Crc32c);
-                    //TEST
-                    //launcherNeedsUpdate = true;
                     if (launcherNeedsUpdate)
                     {
                         // Step 2: Notify user about the update
@@ -246,7 +244,7 @@ namespace PD2Launcherv2.Helpers
                         await Application.Current.Dispatcher.Invoke(async () =>
                         {
                             // Notify user that the application will close for the update
-                            MessageBox.Show("The launcher will now close to apply an update.", "Update in Progress", MessageBoxButton.OK, MessageBoxImage.Information);
+                            MessageBox.Show("The launcher will now close to apply an update please wait for launcher to reopen.", "Update in Progress", MessageBoxButton.OK, MessageBoxImage.Information);
 
                            // Start the update process
                             StartUpdateProcess();
