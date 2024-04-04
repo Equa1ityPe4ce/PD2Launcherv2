@@ -74,8 +74,6 @@ namespace PD2Launcherv2
             CheckForUpdates();
 #endif
         }
-
-
         private void OnNavigationMessageReceived(NavigationMessage message)
         {
             Overlay.Visibility = Visibility.Collapsed;

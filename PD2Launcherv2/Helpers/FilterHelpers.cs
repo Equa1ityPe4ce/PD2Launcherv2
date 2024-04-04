@@ -150,6 +150,8 @@ namespace PD2Launcherv2.Helpers
                 string targetFilterPath;
                 if (author.Equals("Local Filter", StringComparison.OrdinalIgnoreCase))
                 {
+                    Debug.WriteLine($"{filterName}");
+                    Debug.WriteLine($"{localPath}");
                     targetFilterPath = Path.Combine(localPath, filterName);
                 }
                 else
@@ -180,15 +182,48 @@ namespace PD2Launcherv2.Helpers
             }
         }
 
+        public bool ForceInstallLocalFilters()
+        {
+            var storedData = _localStorage.LoadSection<SelectedAuthorAndFilter>(StorageKey.SelectedAuthorAndFilter);
+            string installPath = Directory.GetCurrentDirectory();
+            string filtersBasePath = Path.Combine(installPath, "filters");
+            string localPath = Path.Combine(filtersBasePath, "local");
+            string defaultFilterPath = Path.Combine(installPath, "loot.filter");
+
+            string targetFilterPath;
+            if (storedData.selectedAuthor.Author.Equals("Local Filter", StringComparison.OrdinalIgnoreCase))
+            {
+                Debug.WriteLine($"{storedData.selectedFilter.Name}");
+                Debug.WriteLine($"{localPath}");
+                targetFilterPath = Path.Combine(localPath, storedData.selectedFilter.Name);
+                //update the local filter
+                File.Copy(targetFilterPath, defaultFilterPath, true);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> CheckAndUpdateFilterAsync(SelectedAuthorAndFilter selected)
         {
+            Debug.WriteLine("\n\nCheckAndUpdateFilterAsync start");
             try
             {
+                if (selected.selectedAuthor.Name == "Local Filter")
+                {
+
+                    return ForceInstallLocalFilters();
+                }
+
                 // Use GetFilterListAsync to ensure User-Agent is set and to handle request consistently
                 var filterListResponse = await GetFilterListAsync(selected.selectedAuthor.Url);
 
+                Debug.WriteLine($"filterListResponse.IsSuccessStatusCode: {filterListResponse.IsSuccessStatusCode}");
                 if (!filterListResponse.IsSuccessStatusCode)
                 {
+                    Debug.WriteLine($"inside if (!filterListResponse.IsSuccessStatusCode): {filterListResponse.IsSuccessStatusCode}");
                     return false;
                 }
 
@@ -198,11 +233,13 @@ namespace PD2Launcherv2.Helpers
                 var targetFilter = filters?.FirstOrDefault(f => f.Name.Equals(selected.selectedFilter.Name, StringComparison.OrdinalIgnoreCase));
                 if (targetFilter == null)
                 {
+                    Debug.WriteLine($"targetFilter was null");
                     return false;
                 }
 
                 if (targetFilter.Sha.Equals(selected.selectedFilter.Sha, StringComparison.OrdinalIgnoreCase))
                 {
+                    Debug.WriteLine("\n Sha is not different\n");
                     Debug.WriteLine("The filter is up-to-date.");
                     return true;
                 }
@@ -215,7 +252,7 @@ namespace PD2Launcherv2.Helpers
             }
             finally
             {
-                Debug.WriteLine("CheckAndUpdateFilterAsync end");
+                Debug.WriteLine("CheckAndUpdateFilterAsync end\n\n");
             }
         }
     }
