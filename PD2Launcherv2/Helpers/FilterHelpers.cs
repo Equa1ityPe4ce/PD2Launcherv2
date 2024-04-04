@@ -69,7 +69,7 @@ namespace PD2Launcherv2.Helpers
                 var eTag = storedData?.StorageETag ?? string.Empty;
 
                 var response = await GetAsync(FilterAuthorUrl, eTag);
-          
+
                 if (response.StatusCode == System.Net.HttpStatusCode.NotModified)
                 {
                     // Data has not changed; no need to update
@@ -134,7 +134,7 @@ namespace PD2Launcherv2.Helpers
             }
         }
 
-        public async Task<bool> ApplyLootFilterAsync(string author, string filterName, string downloadUrl)
+        public async Task<bool> ApplyLootFilterAsync(string author, string filterName, string downloadUrl, bool updateNeeded)
         {
             try
             {
@@ -150,15 +150,13 @@ namespace PD2Launcherv2.Helpers
                 string targetFilterPath;
                 if (author.Equals("Local Filter", StringComparison.OrdinalIgnoreCase))
                 {
-                    Debug.WriteLine($"{filterName}");
-                    Debug.WriteLine($"{localPath}");
                     targetFilterPath = Path.Combine(localPath, filterName);
                 }
                 else
                 {
                     targetFilterPath = Path.Combine(onlinePath, filterName);
                     // Directly download the filter file for online sources if it does not exist
-                    if (!File.Exists(targetFilterPath))
+                    if (updateNeeded || !File.Exists(targetFilterPath))
                     {
                         bool downloadSuccess = await DownloadFileAsync(downloadUrl, targetFilterPath);
                         if (!downloadSuccess)
@@ -213,37 +211,37 @@ namespace PD2Launcherv2.Helpers
             {
                 if (selected.selectedAuthor.Name == "Local Filter")
                 {
-
+                    // For local filters, no need to check for updates.
                     return ForceInstallLocalFilters();
                 }
 
-                // Use GetFilterListAsync to ensure User-Agent is set and to handle request consistently
                 var filterListResponse = await GetFilterListAsync(selected.selectedAuthor.Url);
-
-                Debug.WriteLine($"filterListResponse.IsSuccessStatusCode: {filterListResponse.IsSuccessStatusCode}");
                 if (!filterListResponse.IsSuccessStatusCode)
                 {
-                    Debug.WriteLine($"inside if (!filterListResponse.IsSuccessStatusCode): {filterListResponse.IsSuccessStatusCode}");
                     return false;
                 }
 
                 var filterListContent = await filterListResponse.Content.ReadAsStringAsync();
                 var filters = JsonConvert.DeserializeObject<List<FilterFile>>(filterListContent);
-
                 var targetFilter = filters?.FirstOrDefault(f => f.Name.Equals(selected.selectedFilter.Name, StringComparison.OrdinalIgnoreCase));
+
                 if (targetFilter == null)
                 {
-                    Debug.WriteLine($"targetFilter was null");
+                    Debug.WriteLine("Target filter was not found.");
                     return false;
                 }
 
-                if (targetFilter.Sha.Equals(selected.selectedFilter.Sha, StringComparison.OrdinalIgnoreCase))
+                bool updateNeeded = !targetFilter.Sha.Equals(selected.selectedFilter.Sha, StringComparison.OrdinalIgnoreCase);
+                if (updateNeeded)
                 {
-                    Debug.WriteLine("\n Sha is not different\n");
+                    // Directly apply the filter if an update is needed.
+                    return await ApplyLootFilterAsync(selected.selectedAuthor.Name, selected.selectedFilter.Name, targetFilter.DownloadUrl, true);
+                }
+                else
+                {
                     Debug.WriteLine("The filter is up-to-date.");
                     return true;
                 }
-                return await ApplyLootFilterAsync(selected.selectedAuthor.Name, selected.selectedFilter.Name, targetFilter.DownloadUrl);
             }
             catch (Exception ex)
             {

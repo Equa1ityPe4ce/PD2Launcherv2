@@ -224,7 +224,7 @@ namespace PD2Launcherv2.ViewModels
             SaveFilterToStorage();
             if (SelectedFilter != null && SelectedAuthor != null)
             {
-                bool success = await _filterHelpers.ApplyLootFilterAsync(SelectedAuthor.Name, SelectedFilter.Name, SelectedFilter.DownloadUrl);
+                bool success = await _filterHelpers.ApplyLootFilterAsync(SelectedAuthor.Name, SelectedFilter.Name, SelectedFilter.DownloadUrl,true);
 
                 if (success)
                 {
