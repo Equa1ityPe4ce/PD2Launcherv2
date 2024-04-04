@@ -104,7 +104,7 @@ namespace PD2Launcherv2
                 Dispatcher.Invoke(() =>
                 {
                     DownloadProgressBar.Visibility = Visibility.Visible;
-                    DownloadProgressBar.Value = value * 100; // Assuming value is reported as 0 to 1
+                    DownloadProgressBar.Value = value * 100;
                 });
             });
 
@@ -122,7 +122,6 @@ namespace PD2Launcherv2
             try
             {
                 var updatingImageUri = new Uri("pack://application:,,,/Resources/Images/updating_disabled.jpg");
-                Overlay.Visibility = Visibility.Visible;
                 PlayButton.NormalImageSource = new BitmapImage(updatingImageUri);
             }
             catch (UriFormatException ex)
@@ -134,7 +133,6 @@ namespace PD2Launcherv2
             //switch back to the normal Play button image
             try
             {
-                Overlay.Visibility = Visibility.Collapsed;
                 var playImageUri = new Uri("pack://application:,,,/Resources/Images/play.jpg");
                 PlayButton.NormalImageSource = new BitmapImage(playImageUri);
             }
