@@ -222,11 +222,27 @@ namespace PD2Launcherv2
                     _launchGameHelpers.LaunchGame(_localStorage);
                 });
             };
-            
-            // Ensure you've modified UpdateFilesCheck to accept progress and completion action
-            await _fileUpdateHelpers.UpdateFilesCheck(_localStorage, progressHandler, onDownloadComplete);
-            DownloadProgressBar.Visibility = Visibility.Hidden;
-
+            LauncherArgs launcherArgs = _localStorage.LoadSection<LauncherArgs>(StorageKey.LauncherArgs);
+            if (launcherArgs.diableAutoUpdate)
+            {
+                try
+                {
+                    var playImageUri = new Uri("pack://application:,,,/Resources/Images/play.jpg");
+                    PlayButton.NormalImageSource = new BitmapImage(playImageUri);
+                }
+                catch (UriFormatException ex)
+                {
+                    Debug.WriteLine($"URI format exception: {ex.Message}. URI used: 'pack://application:,,,/Resources/Images/play.jpg'");
+                }
+                MessageBox.Show("No autoupdate will occur and launching game","Auto Update was disabled", MessageBoxButton.OK, MessageBoxImage.Information);
+                _launchGameHelpers.LaunchGame(_localStorage);
+            }
+            else
+            {
+                // Ensure you've modified UpdateFilesCheck to accept progress and completion action
+                await _fileUpdateHelpers.UpdateFilesCheck(_localStorage, progressHandler, onDownloadComplete);
+                DownloadProgressBar.Visibility = Visibility.Hidden;
+            }
             Debug.WriteLine("PlayButton_Click end");
         }
 

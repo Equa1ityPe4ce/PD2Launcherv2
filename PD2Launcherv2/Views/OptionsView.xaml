@@ -69,6 +69,14 @@
                           FontSize="12" Margin="10,10,10,0"/>
                 </GroupBox>
 
+                <GroupBox Header="Auto Update" Margin="10" FontWeight="Bold" BorderThickness="0" 
+                          FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldBrush}" 
+                          FontSize="14">
+                    <CheckBox x:Name="DisableAutoUpdate" Content="Disable Automatic Updates" Style="{StaticResource CustomCheckBoxStyle}" 
+                              FontFamily="{StaticResource BlizzMedium}" Foreground="{StaticResource GoldDarkerBrush}" IsChecked="{Binding AutoUpdate, Mode=TwoWay}"
+                              FontSize="12" Margin="10,10,10,0"/>
+                </GroupBox>
+
                 <StackPanel Visibility="{Binding DDrawControlsVisible}">
                     <TextBlock Text="Mode" FontFamily="{StaticResource BlizzMedium}" Style="{StaticResource OptionsTextBlockHeaderStyle}"/>
                     <ComboBox x:Name="Mode" ItemsSource="{Binding OptionsModePicker}" SelectedValue="{Binding SelectedMode, Mode=TwoWay}"

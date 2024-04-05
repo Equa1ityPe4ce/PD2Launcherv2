@@ -502,6 +502,21 @@ namespace PD2Launcherv2.ViewModels
             }
         }
 
+        private bool _autoUpdate;
+        public bool AutoUpdate
+        {
+            get => _autoUpdate;
+            set
+            {
+                if (_autoUpdate != value)
+                {
+                    Debug.WriteLine($"Set _autoUpdate {value}");
+                    _autoUpdate = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         private bool _sndBkg;
         public bool SndBkg
         {
@@ -582,10 +597,13 @@ namespace PD2Launcherv2.ViewModels
                 IsDdrawSelected = launcherArgs.graphics;
                 SkipToBnet = launcherArgs.skiptobnet;
                 SndBkg = launcherArgs.sndbkg;
+                AutoUpdate = launcherArgs.diableAutoUpdate;
             }
+            //TEST
             Debug.WriteLine($"launcherArgs.graphics {launcherArgs.graphics}");
             Debug.WriteLine($"launcherArgs.skiptobnet {launcherArgs.skiptobnet}");
             Debug.WriteLine($"launcherArgs.sndbkg {launcherArgs.sndbkg}");
+            Debug.WriteLine($"launcherArgs.diableAutoUpdate; {launcherArgs.diableAutoUpdate}");
             Debug.WriteLine("end LoadLauncherArgs\n");
         }
 
@@ -598,11 +616,14 @@ namespace PD2Launcherv2.ViewModels
                 graphics = IsDdrawSelected,
                 skiptobnet = SkipToBnet,
                 sndbkg = SndBkg,
+                diableAutoUpdate = AutoUpdate,
             };
             _localStorage.Update(StorageKey.LauncherArgs, launcherArgs);
+            //TEST
             Debug.WriteLine($"launcherArgs.graphics {launcherArgs.graphics}");
             Debug.WriteLine($"launcherArgs.skiptobnet {launcherArgs.skiptobnet}");
             Debug.WriteLine($"launcherArgs.sndbkg {launcherArgs.sndbkg}");
+            Debug.WriteLine($"launcherArgs.diableAutoUpdate {launcherArgs.diableAutoUpdate}");
             Debug.WriteLine("end UpdateLauncherArgsStorage\n");
         }
 
