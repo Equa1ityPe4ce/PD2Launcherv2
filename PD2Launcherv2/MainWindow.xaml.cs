@@ -235,7 +235,6 @@ namespace PD2Launcherv2
                 {
                     Debug.WriteLine($"URI format exception: {ex.Message}. URI used: 'pack://application:,,,/Resources/Images/play.jpg'");
                 }
-                MessageBox.Show("No autoupdate will occur and launching game","Auto Update was disabled", MessageBoxButton.OK, MessageBoxImage.Information);
                 _launchGameHelpers.LaunchGame(_localStorage);
             }
             else
