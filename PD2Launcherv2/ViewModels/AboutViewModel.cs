@@ -42,7 +42,8 @@ namespace PD2Launcherv2.ViewModels
                 FilePath = "Live"
             };
             _localStorage.Update(StorageKey.FileUpdateModel, fileUpdateModel);
-            Messenger.Default.Send(new ConfigurationChangeMessage { IsBeta = false });
+            var launcherArgs = _localStorage.LoadSection<LauncherArgs>(StorageKey.LauncherArgs);
+            Messenger.Default.Send(new ConfigurationChangeMessage { IsBeta = false , IsDisableUpdates = launcherArgs.disableAutoUpdate});
             Debug.WriteLine("end ProdBucketAssign\n");
             Messenger.Default.Send(new NavigationMessage { Action = NavigationAction.GoBack });
         }
@@ -56,7 +57,9 @@ namespace PD2Launcherv2.ViewModels
                 FilePath = "Beta"
             };
             _localStorage.Update(StorageKey.FileUpdateModel, fileUpdateModel);
-            Messenger.Default.Send(new ConfigurationChangeMessage { IsBeta = true });
+            var launcherArgs = _localStorage.LoadSection<LauncherArgs>(StorageKey.LauncherArgs);
+
+            Messenger.Default.Send(new ConfigurationChangeMessage { IsBeta = true , IsDisableUpdates = launcherArgs.disableAutoUpdate });
             Debug.WriteLine("end BetaBucketAssign \n");
             Messenger.Default.Send(new NavigationMessage { Action = NavigationAction.GoBack });
         }

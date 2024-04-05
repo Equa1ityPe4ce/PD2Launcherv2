@@ -8,6 +8,8 @@ using ProjectDiablo2Launcherv2;
 using System.Windows;
 using PD2Launcherv2.Models;
 using System.Diagnostics;
+using PD2Launcherv2.Messages;
+using System.Collections.Generic;
 
 namespace PD2Launcherv2.ViewModels
 {
@@ -513,6 +515,9 @@ namespace PD2Launcherv2.ViewModels
                     Debug.WriteLine($"Set _autoUpdate {value}");
                     _autoUpdate = value;
                     OnPropertyChanged();
+                    var fileUpdateMode = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
+                    bool amIBeta = fileUpdateMode.FilePath.Equals("Beta");
+                    Messenger.Default.Send(new ConfigurationChangeMessage { IsDisableUpdates = value, IsBeta = amIBeta });
                 }
             }
         }
@@ -597,13 +602,13 @@ namespace PD2Launcherv2.ViewModels
                 IsDdrawSelected = launcherArgs.graphics;
                 SkipToBnet = launcherArgs.skiptobnet;
                 SndBkg = launcherArgs.sndbkg;
-                AutoUpdate = launcherArgs.diableAutoUpdate;
+                AutoUpdate = launcherArgs.disableAutoUpdate;
             }
             //TEST
             Debug.WriteLine($"launcherArgs.graphics {launcherArgs.graphics}");
             Debug.WriteLine($"launcherArgs.skiptobnet {launcherArgs.skiptobnet}");
             Debug.WriteLine($"launcherArgs.sndbkg {launcherArgs.sndbkg}");
-            Debug.WriteLine($"launcherArgs.diableAutoUpdate; {launcherArgs.diableAutoUpdate}");
+            Debug.WriteLine($"launcherArgs.diableAutoUpdate; {launcherArgs.disableAutoUpdate}");
             Debug.WriteLine("end LoadLauncherArgs\n");
         }
 
@@ -616,14 +621,14 @@ namespace PD2Launcherv2.ViewModels
                 graphics = IsDdrawSelected,
                 skiptobnet = SkipToBnet,
                 sndbkg = SndBkg,
-                diableAutoUpdate = AutoUpdate,
+                disableAutoUpdate = AutoUpdate,
             };
             _localStorage.Update(StorageKey.LauncherArgs, launcherArgs);
             //TEST
             Debug.WriteLine($"launcherArgs.graphics {launcherArgs.graphics}");
             Debug.WriteLine($"launcherArgs.skiptobnet {launcherArgs.skiptobnet}");
             Debug.WriteLine($"launcherArgs.sndbkg {launcherArgs.sndbkg}");
-            Debug.WriteLine($"launcherArgs.diableAutoUpdate {launcherArgs.diableAutoUpdate}");
+            Debug.WriteLine($"launcherArgs.diableAutoUpdate {launcherArgs.disableAutoUpdate}");
             Debug.WriteLine("end UpdateLauncherArgsStorage\n");
         }
 

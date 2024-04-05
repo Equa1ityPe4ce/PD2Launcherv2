@@ -139,19 +139,33 @@
 
         <!-- Bottom left buttons -->
         <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10">
-            <Button x:Name="BetaNotification" 
-                    Content="BETA"
-                    Focusable="False"
-                    HorizontalAlignment="Center" 
-                    VerticalAlignment="Top" 
-                    FontFamily="{StaticResource BlizzHeavy}"
-                    FontSize="14"
-                    Height="16"
-                    Width="100"
-                    Foreground="Black" 
-                    Background="Red"
-                    Margin="0,10,165,0"
-                    Visibility="Collapsed" />
+            <StackPanel Orientation="Horizontal">
+                <Button x:Name="BetaNotification" 
+                        Content="BETA"
+                        Focusable="False"
+                        HorizontalAlignment="Center" 
+                        VerticalAlignment="Top" 
+                        FontFamily="{StaticResource BlizzHeavy}"
+                        FontSize="14"
+                        Height="16"
+                        Width="100"
+                        Foreground="Black" 
+                        Background="Red"
+                        Margin="0,0,70,0"
+                        Visibility="Hidden" />
+                <Button x:Name="UpdatesNotification" 
+                        Content="No Updates"
+                        Focusable="False"
+                        HorizontalAlignment="Right" 
+                        VerticalAlignment="Top" 
+                        FontFamily="{StaticResource BlizzHeavy}"
+                        FontSize="12"
+                        Height="16"
+                        Width="100"
+                        Foreground="Black" 
+                        Background="Red"
+                        Visibility="Hidden" />
+            </StackPanel>
             <Grid HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,10">
                 <local:CustomImageButton x:Name="PlayButton" Width="270" Height="35"
                              NormalImageSource="pack://application:,,,/Resources/Images/play.jpg"

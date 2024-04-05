@@ -29,6 +29,7 @@ namespace PD2Launcherv2
         private readonly DDrawHelpers _dDrawHelpers;
         public List<NewsItem> NewsItems { get; set; }
         public bool IsBeta { get; private set; }
+        public bool IsDisableUpdates { get; private set; }
         public ICommand OpenOptionsCommand { get; private set; }
         public ICommand OpenLootCommand { get; private set; }
         public ICommand OpenAboutCommand { get; private set; }
@@ -223,7 +224,7 @@ namespace PD2Launcherv2
                 });
             };
             LauncherArgs launcherArgs = _localStorage.LoadSection<LauncherArgs>(StorageKey.LauncherArgs);
-            if (launcherArgs.diableAutoUpdate)
+            if (launcherArgs.disableAutoUpdate)
             {
                 try
                 {
@@ -317,16 +318,20 @@ namespace PD2Launcherv2
         {
             // Assuming _localStorage has already been initialized
             var fileUpdateModel = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
+            var launcherArgs = _localStorage.LoadSection<LauncherArgs>(StorageKey.LauncherArgs);
             IsBeta = fileUpdateModel?.FilePath == "Beta";
+            IsDisableUpdates = launcherArgs?.disableAutoUpdate == true;
 
-            // Directly setting the Visibility of BetaNotification
+            // Directly setting the Visibility of Notifications
             BetaNotification.Visibility = IsBeta ? Visibility.Visible : Visibility.Collapsed;
+            UpdatesNotification.Visibility = IsDisableUpdates ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void OnConfigurationChanged(ConfigurationChangeMessage message)
         {
             // Update UI based on the message content
             BetaNotification.Visibility = message.IsBeta ? Visibility.Visible : Visibility.Collapsed;
+            UpdatesNotification.Visibility = message.IsDisableUpdates ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
