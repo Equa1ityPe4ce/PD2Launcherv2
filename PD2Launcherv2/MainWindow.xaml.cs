@@ -183,6 +183,8 @@ namespace PD2Launcherv2
                 {
                     // Wait for the update process to complete,
                     await _fileUpdateHelpers.UpdateFilesCheck(_localStorage, new Progress<double>(UpdateProgress), () => { });
+                    Debug.WriteLine("made it out of the update check");
+                    await _fileUpdateHelpers.SyncFilesFromEnvToRoot(_localStorage);
                 }
                 _launchGameHelpers.LaunchGame(_localStorage);
             }
