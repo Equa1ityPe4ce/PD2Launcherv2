@@ -3,6 +3,7 @@ using PD2Launcherv2.Helpers;
 using PD2Launcherv2.Interfaces;
 using PD2Launcherv2.Storage;
 using PD2Launcherv2.ViewModels;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Text;
@@ -109,15 +110,25 @@ namespace PD2Launcherv2
         {
             if (ex == null) return;
 
-            // Define the log file path. Consider using a more appropriate location.
             string logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory);
 
-            string logFile = Path.Combine(logPath, $"pd2launcher_error__{DateTime.Now:yyyy-MM-dd}.txt");
+            string logFile = Path.Combine(logPath, $"pd2launcher_error__{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.txt");
+
+            // Use StackTrace to get more detailed info about where the exception occurred
+            var stackTrace = new StackTrace(ex, true);
+            var frame = stackTrace.GetFrames()?.FirstOrDefault();
+            var method = frame?.GetMethod();
+            var declaringType = method?.DeclaringType;
+            var methodName = method?.Name;
 
             // Prepare the log entry
             var sb = new StringBuilder();
             sb.AppendLine("==============================================================================");
             sb.AppendLine($"Timestamp: {DateTime.Now}");
+            sb.AppendLine("Exception Class:");
+            sb.AppendLine(declaringType?.FullName ?? "N/A");
+            sb.AppendLine("Exception Method:");
+            sb.AppendLine($"{methodName ?? "N/A"}");
             sb.AppendLine("Exception Message:");
             sb.AppendLine(ex.Message);
             sb.AppendLine("Stack Trace:");
