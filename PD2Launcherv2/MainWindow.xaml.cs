@@ -161,7 +161,6 @@ namespace PD2Launcherv2
         private async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("PlayButton_Click start");
-            // Initial UI state changes to indicate operation start
             UpdateUIForOperationStart();
 
             try
@@ -176,20 +175,14 @@ namespace PD2Launcherv2
                 if (selectedAuthorAndFilter?.selectedFilter != null)
                 {
                     bool isUpdated = await _filterHelpers.CheckAndUpdateFilterAsync(selectedAuthorAndFilter);
-                    // Depending on 'isUpdated', you might want to take different actions
                 }
 
                 // Your existing update logic here...
                 LauncherArgs launcherArgs = _localStorage.LoadSection<LauncherArgs>(StorageKey.LauncherArgs);
                 if (!launcherArgs.disableAutoUpdate)
                 {
-                    // Async operation with progress and completion handlers
-                    await _fileUpdateHelpers.UpdateFilesCheck(_localStorage, new Progress<double>(UpdateProgress), onDownloadComplete);
-                }
-                else
-                {
-                    // If auto-update is disabled, launch the game directly
-                    _launchGameHelpers.LaunchGame(_localStorage);
+                    // Wait for the update process to complete,
+                    await _fileUpdateHelpers.UpdateFilesCheck(_localStorage, new Progress<double>(UpdateProgress), () => { });
                 }
                 _launchGameHelpers.LaunchGame(_localStorage);
             }
@@ -209,7 +202,6 @@ namespace PD2Launcherv2
 
         private void UpdateUIForOperationStart()
         {
-            // Code to change the Play button to an "Updating..." state or similar
             try
             {
                 var updatingImageUri = new Uri("pack://application:,,,/Resources/Images/updating_disabled.jpg");

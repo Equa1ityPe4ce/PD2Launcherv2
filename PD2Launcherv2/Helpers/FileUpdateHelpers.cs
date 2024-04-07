@@ -121,6 +121,28 @@ namespace PD2Launcherv2.Helpers
             return localCrc == remoteCrc;
         }
 
+        public async Task<bool> TryDownloadFileAsync(string mediaLink, string path, int maxRetries = 3, IProgress<double> progress = null)
+        {
+            int attempts = 0;
+            while (attempts < maxRetries)
+            {
+                try
+                {
+                    await DownloadFileAsync(mediaLink, path, progress);
+                    return true;
+                }
+                catch (HttpRequestException ex)
+                {
+                    Debug.WriteLine($"Download failed: {ex.Message}, Attempt {attempts + 1} of {maxRetries}");
+                    attempts++;
+                    await Task.Delay(2000); // Wait before retrying
+                }
+            }
+            return false;
+        }
+
+
+
         public async Task UpdateFilesCheck(ILocalStorage _localStorage, IProgress<double> progress, Action onDownloadComplete)
         {
             Debug.WriteLine("\nstart UpdateFilesCheck");
@@ -128,12 +150,12 @@ namespace PD2Launcherv2.Helpers
             if (fileUpdateModel == null)
             {
                 Debug.WriteLine("FileUpdateModel is not set or directory does not exist.");
-                return; // Early return if the fileUpdateModel is not available
+                return; //exist if storage is borked
             }
 
             var installPath = Directory.GetCurrentDirectory();
             var fullUpdatePath = Path.Combine(installPath, fileUpdateModel.FilePath);
-            Directory.CreateDirectory(fullUpdatePath); // CreateDirectory is safe to call even if the directory exists
+            Directory.CreateDirectory(fullUpdatePath); // Ensures the directory exists
 
             try
             {
@@ -143,51 +165,45 @@ namespace PD2Launcherv2.Helpers
 
                 foreach (var cloudFile in cloudFileItems)
                 {
-                    try
+                    if (cloudFile.Name.EndsWith("/")) continue; // Skip directory placeholders
+
+                    var localFilePath = Path.Combine(fullUpdatePath, cloudFile.Name);
+                    var directoryPath = Path.GetDirectoryName(localFilePath);
+                    Directory.CreateDirectory(directoryPath);
+
+                    bool shouldExclude = IsFileExcluded(cloudFile.Name) && File.Exists(localFilePath);
+                    bool isDownloadedSuccessfully = false;
+
+                    if (!shouldExclude && (!File.Exists(localFilePath) || !CompareCRC(localFilePath, cloudFile.Crc32c)))
                     {
-                        if (cloudFile.Name.EndsWith("/"))
+                        Debug.WriteLine($"Trying to download: {cloudFile.Name}");
+                        Debug.WriteLine($"to this path: {localFilePath}");
+                        isDownloadedSuccessfully = await TryDownloadFileAsync(cloudFile.MediaLink, localFilePath, 3, progress);
+
+                        Debug.WriteLine($"crc check: {CompareCRC(localFilePath, cloudFile.Crc32c)}");
+                        if (isDownloadedSuccessfully && !CompareCRC(localFilePath, cloudFile.Crc32c))
                         {
-                            continue; // Skip directory placeholders
+                            Debug.WriteLine($"CRC check failed after download: {cloudFile.Name}");
+                            isDownloadedSuccessfully = false;
                         }
-
-                        var localFilePath = Path.Combine(fullUpdatePath, cloudFile.Name);
-                        var directoryPath = Path.GetDirectoryName(localFilePath);
-                        Directory.CreateDirectory(directoryPath); // Ensure the directory exists
-
-                        var installFilePath = Path.Combine(installPath, cloudFile.Name);
-                        var installDirectoryPath = Path.GetDirectoryName(installFilePath);
-                        Directory.CreateDirectory(installDirectoryPath); // Ensure the install directory exists
-
-                        bool shouldExclude = IsFileExcluded(cloudFile.Name) && File.Exists(installFilePath);
-                        if (!shouldExclude && (!File.Exists(localFilePath) || !CompareCRC(localFilePath, cloudFile.Crc32c)))
-                        {
-                            Debug.WriteLine($"Updating file: {cloudFile.Name}");
-                            await DownloadFileAsync(cloudFile.MediaLink, localFilePath);
-                        }
-
-                        if (!shouldExclude || !File.Exists(installFilePath))
-                        {
-                            File.Copy(localFilePath, installFilePath, true);
-                        }
-
-                        processedFiles++;
-                        progress?.Report((double)processedFiles / totalFiles);
                     }
-                    catch (Exception fileEx)
+
+                    if (isDownloadedSuccessfully || (shouldExclude && File.Exists(localFilePath)))
                     {
-                        Debug.WriteLine($"An error occurred while processing {cloudFile.Name}: {fileEx.Message}");
+                        // Logic to handle file after successful download or if it's excluded but already exists
+                        File.Copy(localFilePath, Path.Combine(installPath, cloudFile.Name), true);
                     }
+
+                    processedFiles++;
+                    progress?.Report((double)processedFiles / totalFiles);
                 }
 
-                onDownloadComplete?.Invoke(); // Invoke completion action outside of the loop
+                onDownloadComplete?.Invoke();
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"An error occurred while updating files: {ex.Message}");
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    ShowErrorMessage($"An error occurred while updating files: {ex.Message}\nPlease verify your game is closed and try again.");
-                });
+                Application.Current.Dispatcher.Invoke(() => ShowErrorMessage($"An error occurred while updating files: {ex.Message}\nPlease verify your game is closed and try again."));
             }
 
             Debug.WriteLine("end UpdateFilesCheck \n");
