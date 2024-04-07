@@ -15,7 +15,7 @@
         <!--Logo in the center -->
         <Image xmlns:gif="http://wpfanimatedgif.codeplex.com"
        gif:ImageBehavior.AnimatedSource="pack://application:,,,/Resources/Images/logo.gif" Stretch="None" 
-               HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,5,0"/>
+               HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,5,0" MouseLeftButtonDown="BackgroundImage_MouseLeftButtonDown"/>
 
         <Grid>
             <Grid.RowDefinitions>
