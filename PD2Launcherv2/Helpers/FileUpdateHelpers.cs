@@ -165,77 +165,56 @@ namespace PD2Launcherv2.Helpers
             if (fileUpdateModel == null)
             {
                 Debug.WriteLine("FileUpdateModel is not set or directory does not exist.");
-                return; //exist if storage is borked
+                return;
             }
 
             var installPath = Directory.GetCurrentDirectory();
             var fullUpdatePath = Path.Combine(installPath, fileUpdateModel.FilePath);
-            Directory.CreateDirectory(fullUpdatePath); // Ensures the directory exists
+            Directory.CreateDirectory(fullUpdatePath);
 
             try
             {
                 var cloudFileItems = await GetCloudFileMetadataAsync(fileUpdateModel.Client);
-                int totalFiles = cloudFileItems.Count;
                 int processedFiles = 0;
 
                 foreach (var cloudFile in cloudFileItems)
                 {
-                    if (cloudFile.Name.EndsWith("/")) continue; // Skip directory placeholders
+                    if (cloudFile.Name.EndsWith("/")) continue; // Skip directories
 
-                    // Normalize the directory separator for the current platform
                     var normalizedPath = cloudFile.Name.Replace("/", Path.DirectorySeparatorChar.ToString());
                     var localFilePath = Path.Combine(fullUpdatePath, normalizedPath);
 
-                    // Create the directory for the file if it doesn't exist
                     var directoryPath = Path.GetDirectoryName(localFilePath);
                     if (directoryPath != null) Directory.CreateDirectory(directoryPath);
 
-                    bool shouldExclude = IsFileExcluded(cloudFile.Name) && File.Exists(localFilePath);
-                    bool isDownloadedSuccessfully = false;
+                    bool shouldExclude = IsFileExcluded(cloudFile.Name);
+                    bool localFileExists = File.Exists(localFilePath);
 
-                    if (!shouldExclude && (!File.Exists(localFilePath) || !CompareCRC(localFilePath, cloudFile.Crc32c)))
+                    if (shouldExclude && !localFileExists)
                     {
-                        Debug.WriteLine($"Trying to download: {cloudFile.Name}");
-                        Debug.WriteLine($"to this path: {localFilePath}");
-                        isDownloadedSuccessfully = await TryDownloadFileAsync(cloudFile.MediaLink, localFilePath, 3, progress);
-
-                        Debug.WriteLine($"crc check: {CompareCRC(localFilePath, cloudFile.Crc32c)}");
-                        if (isDownloadedSuccessfully && !CompareCRC(localFilePath, cloudFile.Crc32c))
-                        {
-                            Debug.WriteLine($"CRC check failed after download: {cloudFile.Name}");
-                            isDownloadedSuccessfully = false;
-                        }
+                        // For excluded files, download only if they do not exist.
+                        await TryDownloadFileAsync(cloudFile.MediaLink, localFilePath, 3, progress);
+                    }
+                    else if (!shouldExclude && (!localFileExists || !CompareCRC(localFilePath, cloudFile.Crc32c)))
+                    {
+                        // For non-excluded files, download if they don't exist or CRC check fails.
+                        await TryDownloadFileAsync(cloudFile.MediaLink, localFilePath, 3, progress);
                     }
 
-                    if (isDownloadedSuccessfully || (shouldExclude && File.Exists(localFilePath)))
+                    // For copying logic, ensure it's consistent with the conditions above.
+                    if ((shouldExclude && !localFileExists) || (!shouldExclude && (!localFileExists || !CompareCRC(localFilePath, cloudFile.Crc32c))))
                     {
-                        // Calculate the relative path of directory
-                        var relativeFilePath = Path.GetRelativePath(fullUpdatePath, localFilePath);
-
-                        // Construct the destination path by combining the install path with the relative file path
-                        var destinationFilePath = Path.Combine(installPath, relativeFilePath);
-
-                        // Ensure the directory for the destination file exists
+                        var destinationFilePath = Path.Combine(installPath, normalizedPath);
                         var destinationDirectory = Path.GetDirectoryName(destinationFilePath);
                         if (destinationDirectory != null && !Directory.Exists(destinationDirectory))
                         {
                             Directory.CreateDirectory(destinationDirectory);
                         }
-
-                        Debug.WriteLine($"Copying file from '{localFilePath}' to '{destinationFilePath}'");
-                        try
-                        {
-                            // Copy the file from the "Live" directory back to the appropriate location
-                            File.Copy(localFilePath, destinationFilePath, true);
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.WriteLine($"Error copying file from '{localFilePath}' to '{destinationFilePath}': {ex}");
-                        }
+                        File.Copy(localFilePath, destinationFilePath, true);
                     }
 
                     processedFiles++;
-                    progress?.Report((double)processedFiles / totalFiles);
+                    progress?.Report((double)processedFiles / cloudFileItems.Count);
                 }
 
                 onDownloadComplete?.Invoke();
@@ -245,13 +224,11 @@ namespace PD2Launcherv2.Helpers
                 Debug.WriteLine($"An error occurred while updating files: {ex.Message}");
                 Application.Current.Dispatcher.Invoke(() => ShowErrorMessage($"An error occurred while updating files: {ex.Message}\nPlease verify your game is closed and try again."));
             }
-
             Debug.WriteLine("end UpdateFilesCheck \n");
         }
 
         public async Task SyncFilesFromEnvToRoot(ILocalStorage localStorage)
         {
-            // Load the file update model to determine the specific environment folder.
             FileUpdateModel fileUpdate = localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
             if (fileUpdate == null)
             {
@@ -259,34 +236,31 @@ namespace PD2Launcherv2.Helpers
                 return;
             }
 
-            // Get the installation and environment-specific paths.
             var installPath = Directory.GetCurrentDirectory();
             var envPath = Path.Combine(installPath, fileUpdate.FilePath);
 
-            // Check if the environment directory exists before proceeding.
             if (!Directory.Exists(envPath))
             {
                 Debug.WriteLine($"{envPath} directory does not exist, skipping sync.");
                 return;
             }
 
-            // Enumerate all files within the environment folder, including in subdirectories.
             var filesInEnv = Directory.EnumerateFiles(envPath, "*.*", SearchOption.AllDirectories);
 
             foreach (var sourceFilePath in filesInEnv)
             {
-                // Calculate the relative path to handle nested directories correctly.
                 var relativePath = Path.GetRelativePath(envPath, sourceFilePath).Replace(Path.DirectorySeparatorChar, '/');
+                var destinationFilePath = Path.Combine(installPath, relativePath.Replace('/', Path.DirectorySeparatorChar));
 
-                // Check if the current file is in the list of excluded files.
-                if (IsFileExcluded(relativePath))
+                var isExcluded = IsFileExcluded(relativePath);
+                var destinationExists = File.Exists(destinationFilePath);
+
+                // For excluded files, only copy if they do not exist in the destination.
+                if (isExcluded && destinationExists)
                 {
-                    Debug.WriteLine($"Skipping excluded file: {sourceFilePath}");
+                    Debug.WriteLine($"Excluded file exists, skipping: {sourceFilePath}");
                     continue;
                 }
-
-                // Construct the destination path for the file in the root directory.
-                var destinationFilePath = Path.Combine(installPath, relativePath.Replace('/', Path.DirectorySeparatorChar));
 
                 // Ensure the directory for the destination file exists.
                 var destinationDirectory = Path.GetDirectoryName(destinationFilePath);
@@ -295,11 +269,11 @@ namespace PD2Launcherv2.Helpers
                     Directory.CreateDirectory(destinationDirectory);
                 }
 
-                // Copy the file if it doesn't exist at the destination or if the CRC values don't match.
-                if (!File.Exists(destinationFilePath) || !CompareLocalFilesCRC(sourceFilePath, destinationFilePath))
+                // Copy the file if it doesn't exist at the destination or if the CRC values don't match (for non-excluded files).
+                if (!destinationExists || (!isExcluded && !CompareLocalFilesCRC(sourceFilePath, destinationFilePath)))
                 {
                     File.Copy(sourceFilePath, destinationFilePath, true);
-                    Debug.WriteLine($"Copied or updated file from '{sourceFilePath}' to '{destinationFilePath}' based on CRC check.");
+                    Debug.WriteLine($"Copied or updated file from '{sourceFilePath}' to '{destinationFilePath}'.");
                 }
             }
         }
