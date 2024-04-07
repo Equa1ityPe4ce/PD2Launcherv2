@@ -100,6 +100,23 @@ namespace PD2Launcherv2.Helpers
             }
         }
 
+        /**
+        * Compare the CRC of two local files.
+        */
+        public bool CompareLocalFilesCRC(string sourceFilePath, string destinationFilePath)
+        {
+            // First, check if both files exist to avoid FileNotFoundException
+            if (!File.Exists(sourceFilePath) || !File.Exists(destinationFilePath))
+            {
+                return false; // One or both files do not exist, so they can't be compared
+            }
+
+            uint crcSource = Crc32CFromFile(sourceFilePath);
+            uint crcDestination = Crc32CFromFile(destinationFilePath);
+
+            return crcSource == crcDestination;
+        }
+
         public uint Crc32CFromFile(string filePath)
         {
             using var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
@@ -234,43 +251,55 @@ namespace PD2Launcherv2.Helpers
 
         public async Task SyncFilesFromEnvToRoot(ILocalStorage localStorage)
         {
+            // Load the file update model to determine the specific environment folder.
             FileUpdateModel fileUpdate = localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
-            var installPath = Directory.GetCurrentDirectory();
-            var livePath = Path.Combine(installPath, fileUpdate.FilePath);
-
-            // Ensure the Live directory exists
-            if (!Directory.Exists(livePath))
+            if (fileUpdate == null)
             {
-                Debug.WriteLine($"{livePath} directory does not exist, skipping sync.");
+                Debug.WriteLine("FileUpdateModel is not set.");
                 return;
             }
 
-            var filesInLive = Directory.EnumerateFiles(livePath, "*.*", SearchOption.AllDirectories);
+            // Get the installation and environment-specific paths.
+            var installPath = Directory.GetCurrentDirectory();
+            var envPath = Path.Combine(installPath, fileUpdate.FilePath);
 
-            foreach (var sourceFilePath in filesInLive)
+            // Check if the environment directory exists before proceeding.
+            if (!Directory.Exists(envPath))
             {
-                // Calculate relative path from Live to handle nested directories correctly
-                var relativePath = Path.GetRelativePath(livePath, sourceFilePath);
+                Debug.WriteLine($"{envPath} directory does not exist, skipping sync.");
+                return;
+            }
 
-                // Skip excluded files
-                if (IsFileExcluded(relativePath.Replace(Path.DirectorySeparatorChar, '/')))
+            // Enumerate all files within the environment folder, including in subdirectories.
+            var filesInEnv = Directory.EnumerateFiles(envPath, "*.*", SearchOption.AllDirectories);
+
+            foreach (var sourceFilePath in filesInEnv)
+            {
+                // Calculate the relative path to handle nested directories correctly.
+                var relativePath = Path.GetRelativePath(envPath, sourceFilePath).Replace(Path.DirectorySeparatorChar, '/');
+
+                // Check if the current file is in the list of excluded files.
+                if (IsFileExcluded(relativePath))
                 {
+                    Debug.WriteLine($"Skipping excluded file: {sourceFilePath}");
                     continue;
                 }
 
-                var destinationFilePath = Path.Combine(installPath, relativePath);
+                // Construct the destination path for the file in the root directory.
+                var destinationFilePath = Path.Combine(installPath, relativePath.Replace('/', Path.DirectorySeparatorChar));
 
-                if (!File.Exists(destinationFilePath))
+                // Ensure the directory for the destination file exists.
+                var destinationDirectory = Path.GetDirectoryName(destinationFilePath);
+                if (destinationDirectory != null && !Directory.Exists(destinationDirectory))
                 {
-                    // Ensure destination directory exists
-                    var destinationDirectory = Path.GetDirectoryName(destinationFilePath);
-                    if (destinationDirectory != null && !Directory.Exists(destinationDirectory))
-                    {
-                        Directory.CreateDirectory(destinationDirectory);
-                    }
+                    Directory.CreateDirectory(destinationDirectory);
+                }
 
+                // Copy the file if it doesn't exist at the destination or if the CRC values don't match.
+                if (!File.Exists(destinationFilePath) || !CompareLocalFilesCRC(sourceFilePath, destinationFilePath))
+                {
                     File.Copy(sourceFilePath, destinationFilePath, true);
-                    Debug.WriteLine($"Copied missing file from '{sourceFilePath}' to '{destinationFilePath}'");
+                    Debug.WriteLine($"Copied or updated file from '{sourceFilePath}' to '{destinationFilePath}' based on CRC check.");
                 }
             }
         }
