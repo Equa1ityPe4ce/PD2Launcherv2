@@ -41,7 +41,7 @@
         <Setter Property="FontSize" Value="18"/>
         <Style.Triggers>
         <Trigger Property="IsMouseOver" Value="True">
-            <Setter Property="Foreground" Value="{StaticResource GoldLighterBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource WhiteBrush}" />
         </Trigger>
         </Style.Triggers>
     </Style>
@@ -112,7 +112,7 @@
     </Style>
 
     <Style x:Key="ImageFillProgressBarStyle" TargetType="{x:Type ProgressBar}">
-        <Setter Property="Foreground" Value="{StaticResource ShakoBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource GoldBrush}" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Template">
             <Setter.Value>

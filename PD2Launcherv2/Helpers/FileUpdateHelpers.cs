@@ -125,41 +125,38 @@ namespace PD2Launcherv2.Helpers
         {
             Debug.WriteLine("\nstart UpdateFilesCheck");
             var fileUpdateModel = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
-            var installPath = Directory.GetCurrentDirectory();
-            var fullUpdatePath = Path.Combine(installPath, fileUpdateModel.FilePath);
-            if (!Directory.Exists(fullUpdatePath))
+            if (fileUpdateModel == null)
             {
-                Directory.CreateDirectory(fullUpdatePath);
+                Debug.WriteLine("FileUpdateModel is not set or directory does not exist.");
+                return; // Early return if the fileUpdateModel is not available
             }
 
-            if (fileUpdateModel != null)
-            {
-                try
-                {
-                    var cloudFileItems = await GetCloudFileMetadataAsync(fileUpdateModel.Client);
-                    int totalFiles = cloudFileItems.Count;
-                    int processedFiles = 0;
+            var installPath = Directory.GetCurrentDirectory();
+            var fullUpdatePath = Path.Combine(installPath, fileUpdateModel.FilePath);
+            Directory.CreateDirectory(fullUpdatePath); // CreateDirectory is safe to call even if the directory exists
 
-                    foreach (var cloudFile in cloudFileItems)
+            try
+            {
+                var cloudFileItems = await GetCloudFileMetadataAsync(fileUpdateModel.Client);
+                int totalFiles = cloudFileItems.Count;
+                int processedFiles = 0;
+
+                foreach (var cloudFile in cloudFileItems)
+                {
+                    try
                     {
                         if (cloudFile.Name.EndsWith("/"))
                         {
-                            continue;
+                            continue; // Skip directory placeholders
                         }
 
                         var localFilePath = Path.Combine(fullUpdatePath, cloudFile.Name);
                         var directoryPath = Path.GetDirectoryName(localFilePath);
-                        if (!Directory.Exists(directoryPath))
-                        {
-                            Directory.CreateDirectory(directoryPath);
-                        }
+                        Directory.CreateDirectory(directoryPath); // Ensure the directory exists
 
                         var installFilePath = Path.Combine(installPath, cloudFile.Name);
                         var installDirectoryPath = Path.GetDirectoryName(installFilePath);
-                        if (!Directory.Exists(installDirectoryPath))
-                        {
-                            Directory.CreateDirectory(installDirectoryPath);
-                        }
+                        Directory.CreateDirectory(installDirectoryPath); // Ensure the install directory exists
 
                         bool shouldExclude = IsFileExcluded(cloudFile.Name) && File.Exists(installFilePath);
                         if (!shouldExclude && (!File.Exists(localFilePath) || !CompareCRC(localFilePath, cloudFile.Crc32c)))
@@ -176,22 +173,23 @@ namespace PD2Launcherv2.Helpers
                         processedFiles++;
                         progress?.Report((double)processedFiles / totalFiles);
                     }
-
-                    onDownloadComplete?.Invoke();
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"An error occurred while updating files: {ex.Message}");
-                    Application.Current.Dispatcher.Invoke(() =>
+                    catch (Exception fileEx)
                     {
-                        ShowErrorMessage($"An error occurred while updating files: {ex.Message}\nPlease verify your game is closed and try again.");
-                    });
+                        Debug.WriteLine($"An error occurred while processing {cloudFile.Name}: {fileEx.Message}");
+                    }
                 }
+
+                onDownloadComplete?.Invoke(); // Invoke completion action outside of the loop
             }
-            else
+            catch (Exception ex)
             {
-                Debug.WriteLine("FileUpdateModel is not set or directory does not exist.");
+                Debug.WriteLine($"An error occurred while updating files: {ex.Message}");
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    ShowErrorMessage($"An error occurred while updating files: {ex.Message}\nPlease verify your game is closed and try again.");
+                });
             }
+
             Debug.WriteLine("end UpdateFilesCheck \n");
         }
 

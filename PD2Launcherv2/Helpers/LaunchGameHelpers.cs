@@ -4,6 +4,7 @@ using PD2Launcherv2.Models;
 using ProjectDiablo2Launcherv2.Models;
 using System.Diagnostics;
 using System.IO;
+using System.Windows;
 
 namespace PD2Launcherv2.Helpers
 {
@@ -14,6 +15,13 @@ namespace PD2Launcherv2.Helpers
             var fileUpdateModel = localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
 
             string diabloIIExePath = Path.Combine(Directory.GetCurrentDirectory(), "Game.exe");
+            if (!File.Exists(diabloIIExePath))
+            {
+                Debug.WriteLine("Game.exe not found.");
+                // Update UI or notify user accordingly
+                MessageBox.Show("could not find game.exe", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
             LauncherArgs launcherArgs = localStorage.LoadSection<LauncherArgs>(StorageKey.LauncherArgs);
 

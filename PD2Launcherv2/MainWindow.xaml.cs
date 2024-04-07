@@ -7,6 +7,7 @@ using PD2Launcherv2.Messages;
 using PD2Launcherv2.Models;
 using PD2Launcherv2.Views;
 using ProjectDiablo2Launcherv2.Models;
+using System;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
@@ -160,71 +161,72 @@ namespace PD2Launcherv2
         private async void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             Debug.WriteLine("PlayButton_Click start");
-            // Check if Game.exe is already running
-            if (Process.GetProcessesByName("Game").Any())
-            {
-                MessageBox.Show("Game is already running.");
-                return;
-            }
-            var selectedAuthorAndFilter = _localStorage.LoadSection<SelectedAuthorAndFilter>(StorageKey.SelectedAuthorAndFilter);
-            if (selectedAuthorAndFilter?.selectedFilter != null)
-            {
-                bool isUpdated = await _filterHelpers.CheckAndUpdateFilterAsync(selectedAuthorAndFilter);
-            }
+            // Initial UI state changes to indicate operation start
+            UpdateUIForOperationStart();
 
-            // Try catch here to help with the URI exceptions
+            try
+            {
+                if (Process.GetProcessesByName("Game").Any())
+                {
+                    MessageBox.Show("Game is already running.");
+                    return;
+                }
+
+                var selectedAuthorAndFilter = _localStorage.LoadSection<SelectedAuthorAndFilter>(StorageKey.SelectedAuthorAndFilter);
+                if (selectedAuthorAndFilter?.selectedFilter != null)
+                {
+                    bool isUpdated = await _filterHelpers.CheckAndUpdateFilterAsync(selectedAuthorAndFilter);
+                    // Depending on 'isUpdated', you might want to take different actions
+                }
+
+                // Your existing update logic here...
+                LauncherArgs launcherArgs = _localStorage.LoadSection<LauncherArgs>(StorageKey.LauncherArgs);
+                if (!launcherArgs.disableAutoUpdate)
+                {
+                    // Async operation with progress and completion handlers
+                    await _fileUpdateHelpers.UpdateFilesCheck(_localStorage, new Progress<double>(UpdateProgress), onDownloadComplete);
+                }
+                else
+                {
+                    // If auto-update is disabled, launch the game directly
+                    _launchGameHelpers.LaunchGame(_localStorage);
+                }
+                _launchGameHelpers.LaunchGame(_localStorage);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Exception occurred during PlayButton_Click: {ex.Message}");
+                ShowErrorMessage($"An error occurred: {ex.Message}");
+                // Additional exception handling logic can go here
+            }
+            finally
+            {
+                // Reset UI to the default "Play" state regardless of the operation outcome
+                ResetUI();
+                Debug.WriteLine("PlayButton_Click end");
+            }
+        }
+
+        private void UpdateUIForOperationStart()
+        {
+            // Code to change the Play button to an "Updating..." state or similar
             try
             {
                 var updatingImageUri = new Uri("pack://application:,,,/Resources/Images/updating_disabled.jpg");
                 PlayButton.NormalImageSource = new BitmapImage(updatingImageUri);
+                DownloadProgressBar.Visibility = Visibility.Visible;
+                DownloadProgressBar.Value = 0;
             }
             catch (UriFormatException ex)
             {
-                Debug.WriteLine($"URI format exception: {ex.Message}. URI used: 'pack://application:,,,/Resources/Images/updating_disabled.jpg'");
+                Debug.WriteLine($"URI format exception: {ex.Message}");
             }
+        }
 
-            // Load or setup default file update model
-            FileUpdateModel storeUpdate = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel) ?? new FileUpdateModel
-            {
-                Client = "https://storage.googleapis.com/storage/v1/b/pd2-client-files/o",
-                FilePath = "Live"
-            };
-            if (storeUpdate.Client is null)
-            {
-                _localStorage.Update(StorageKey.FileUpdateModel, storeUpdate);
-            }
-
-            var progressHandler = new Progress<double>(value =>
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    DownloadProgressBar.Visibility = Visibility.Visible;
-                    DownloadProgressBar.Value = value * 100;
-                });
-            });
-
-            Action onDownloadComplete = () =>
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    DownloadProgressBar.Visibility = Visibility.Collapsed;
-                    // Reset the play button image after updates are completed
-                    try
-                    {
-                        var playImageUri = new Uri("pack://application:,,,/Resources/Images/play.jpg");
-                        PlayButton.NormalImageSource = new BitmapImage(playImageUri);
-                    }
-                    catch (UriFormatException ex)
-                    {
-                        Debug.WriteLine($"URI format exception: {ex.Message}. URI used: 'pack://application:,,,/Resources/Images/play.jpg'");
-                    }
-                    // Continue with launching the game or handling post-update logic
-                    DownloadProgressBar.Visibility = Visibility.Hidden;
-                    _launchGameHelpers.LaunchGame(_localStorage);
-                });
-            };
-            LauncherArgs launcherArgs = _localStorage.LoadSection<LauncherArgs>(StorageKey.LauncherArgs);
-            if (launcherArgs.disableAutoUpdate)
+        private void ResetUI()
+        {
+            // Code to reset the Play button and hide the progress bar
+            Dispatcher.Invoke(() =>
             {
                 try
                 {
@@ -233,17 +235,27 @@ namespace PD2Launcherv2
                 }
                 catch (UriFormatException ex)
                 {
-                    Debug.WriteLine($"URI format exception: {ex.Message}. URI used: 'pack://application:,,,/Resources/Images/play.jpg'");
+                    Debug.WriteLine($"URI format exception: {ex.Message}");
                 }
-                _launchGameHelpers.LaunchGame(_localStorage);
-            }
-            else
-            {
-                // Ensure you've modified UpdateFilesCheck to accept progress and completion action
-                await _fileUpdateHelpers.UpdateFilesCheck(_localStorage, progressHandler, onDownloadComplete);
                 DownloadProgressBar.Visibility = Visibility.Hidden;
-            }
-            Debug.WriteLine("PlayButton_Click end");
+            });
+        }
+
+        private void UpdateProgress(double value)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                DownloadProgressBar.Value = value * 100;
+            });
+        }
+
+        private void onDownloadComplete()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                // Actions to take when the download is complete, before resetting UI
+                _launchGameHelpers.LaunchGame(_localStorage);
+            });
         }
 
         private void OptionsButton_Click(object sender, RoutedEventArgs e)
