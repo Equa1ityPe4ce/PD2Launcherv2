@@ -72,7 +72,6 @@ namespace PD2Launcherv2
 
             // Don't try to update launcher in debug mode
             //TEST
-            CheckForUpdates();
 #if DEBUG
 #else
             CheckForUpdates();

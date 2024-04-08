@@ -604,11 +604,6 @@ namespace PD2Launcherv2.ViewModels
                 SndBkg = launcherArgs.sndbkg;
                 AutoUpdate = launcherArgs.disableAutoUpdate;
             }
-            //TEST
-            Debug.WriteLine($"launcherArgs.graphics {launcherArgs.graphics}");
-            Debug.WriteLine($"launcherArgs.skiptobnet {launcherArgs.skiptobnet}");
-            Debug.WriteLine($"launcherArgs.sndbkg {launcherArgs.sndbkg}");
-            Debug.WriteLine($"launcherArgs.diableAutoUpdate; {launcherArgs.disableAutoUpdate}");
             Debug.WriteLine("end LoadLauncherArgs\n");
         }
 
@@ -624,11 +619,6 @@ namespace PD2Launcherv2.ViewModels
                 disableAutoUpdate = AutoUpdate,
             };
             _localStorage.Update(StorageKey.LauncherArgs, launcherArgs);
-            //TEST
-            Debug.WriteLine($"launcherArgs.graphics {launcherArgs.graphics}");
-            Debug.WriteLine($"launcherArgs.skiptobnet {launcherArgs.skiptobnet}");
-            Debug.WriteLine($"launcherArgs.sndbkg {launcherArgs.sndbkg}");
-            Debug.WriteLine($"launcherArgs.diableAutoUpdate {launcherArgs.disableAutoUpdate}");
             Debug.WriteLine("end UpdateLauncherArgsStorage\n");
         }
 
