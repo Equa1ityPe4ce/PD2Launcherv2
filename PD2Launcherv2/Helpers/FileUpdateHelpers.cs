@@ -302,7 +302,9 @@ namespace PD2Launcherv2.Helpers
                     if (cloudFile.Name == "PD2Launcher.exe")
                     {
                         var launcherNeedsUpdate = !File.Exists(localFilePath) || !CompareCRC(localFilePath, cloudFile.Crc32c);
-                        if (launcherNeedsUpdate)
+                        //TEST
+                        if (true)
+                            //if (launcherNeedsUpdate)
                         {
                             await HandleLauncherUpdate(cloudFile.MediaLink, progress, onDownloadComplete);
                             // Exit the loop and method after handling the launcher update
