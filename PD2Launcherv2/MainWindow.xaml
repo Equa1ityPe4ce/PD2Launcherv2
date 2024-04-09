@@ -189,7 +189,7 @@
         </StackPanel>
 
         <!-- Bottom right buttons -->
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10,20,0,0">
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10,20,0,7.5">
             <local:CustomImageButton x:Name="DonateButton" Width="270" Height="35" Margin="10,1,10,0"
                              NormalImageSource="pack://application:,,,/Resources/Images/donate.jpg"
                              PressedImageSource="pack://application:,,,/Resources/Images/donate_pressed.jpg"
