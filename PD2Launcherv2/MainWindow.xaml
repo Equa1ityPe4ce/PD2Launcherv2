@@ -188,6 +188,14 @@
                                      Command="{Binding OpenLootCommand}"/>
         </StackPanel>
 
+        <!-- Bottom center buttons -->
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,5">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Reset Countdown Timer: " FontSize="12" Foreground="{StaticResource BlackBrush}" Background="HotPink"/>
+                <TextBlock x:Name="CountdownTimerTextBlock" Text="{Binding CountdownTimer}" FontSize="12" Foreground="{StaticResource BlackBrush}" Background="White"/>
+            </StackPanel>
+        </StackPanel>
+
         <!-- Bottom right buttons -->
         <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="10,20,0,0">
             <local:CustomImageButton x:Name="DonateButton" Width="270" Height="35" Margin="10,1,10,0"

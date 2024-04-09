@@ -9,6 +9,7 @@ namespace PD2Launcherv2.Models
         Pd2AuthorList,
         SelectedAuthorAndFilter,
         WindowPosition,
+        ResetInfo,
         News
     }
 }

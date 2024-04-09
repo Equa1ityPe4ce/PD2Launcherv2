@@ -42,6 +42,8 @@ namespace PD2Launcherv2.Storage
                     settings.News = value as News; break;
                 case StorageKey.WindowPosition:
                     settings.WindowPosition = value as WindowPositionModel; break;
+                case StorageKey.ResetInfo:
+                    settings.ResetInfo = value as ResetInfo; break;
             }
 
             // Check if the directory exists; if not, create it
@@ -68,6 +70,7 @@ namespace PD2Launcherv2.Storage
                 StorageKey.SelectedAuthorAndFilter => settings.SelectedAuthorAndFilter as T,
                 StorageKey.WindowPosition => settings.WindowPosition as T,
                 StorageKey.News => settings.News as T,
+                StorageKey.ResetInfo => settings.ResetInfo as T,
                 _ => default,
             };
         }

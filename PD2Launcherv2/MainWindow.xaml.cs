@@ -8,20 +8,23 @@ using PD2Launcherv2.Models;
 using PD2Launcherv2.Views;
 using ProjectDiablo2Launcherv2.Models;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using System.Windows.Threading;
 
 namespace PD2Launcherv2
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
         private readonly ILocalStorage _localStorage;
         private readonly FileUpdateHelpers _fileUpdateHelpers;
         private readonly FilterHelpers _filterHelpers;
@@ -329,6 +332,9 @@ namespace PD2Launcherv2
             News theNews = _localStorage.LoadSection<News>(StorageKey.News);
             NewsItems = theNews?.news ?? new List<NewsItem>();
             NewsListBox.ItemsSource = NewsItems;
+            await _newsHelpers.FetchResetInfoAsync(_localStorage);
+            var resetInfo = _localStorage.LoadSection<ResetInfo>(StorageKey.ResetInfo);
+            StartCountdownTimer(resetInfo.ResetData.ResetTime);
         }
 
         private void LoadAndUpdateDDrawOptions()
@@ -439,6 +445,49 @@ namespace PD2Launcherv2
             _localStorage.InitializeIfNotExists<Pd2AuthorList>(StorageKey.Pd2AuthorList, new Pd2AuthorList());
             _localStorage.InitializeIfNotExists<News>(StorageKey.News, new News());
             _localStorage.InitializeIfNotExists<WindowPositionModel>(StorageKey.WindowPosition, new WindowPositionModel());
+        }
+
+        private string _countdownTimer;
+        public string CountdownTimer
+        {
+            get => _countdownTimer;
+            set
+            {
+                _countdownTimer = value;
+                OnPropertyChanged(nameof(CountdownTimer));
+            }
+        }
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void StartCountdownTimer(DateTime endTimeUtc)
+        {
+            var timer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
+
+            timer.Tick += (sender, args) =>
+            {
+                var timeLeft = endTimeUtc - DateTime.UtcNow;
+                if (timeLeft.TotalSeconds > 0)
+                {
+                    CountdownTimer = $"{timeLeft.Days}d {timeLeft.Hours}h {timeLeft.Minutes}m {timeLeft.Seconds}s";
+                }
+                else if (timeLeft.TotalSeconds > -3600) // Continue displaying timer for 1 hour post countdown
+                {
+                    CountdownTimer = "00:00:00";
+                }
+                else
+                {
+                    CountdownTimer = string.Empty;
+                    timer.Stop();
+                }
+            };
+
+            timer.Start();
         }
     }
 }
