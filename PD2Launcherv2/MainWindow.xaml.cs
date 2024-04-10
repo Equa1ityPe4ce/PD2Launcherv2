@@ -10,6 +10,7 @@ using ProjectDiablo2Launcherv2.Models;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -31,8 +32,32 @@ namespace PD2Launcherv2
         private readonly LaunchGameHelpers _launchGameHelpers;
         private readonly NewsHelpers _newsHelpers;
         private readonly DDrawHelpers _dDrawHelpers;
+        private bool _isBeta;
+        public bool IsBeta
+        {
+            get => _isBeta;
+            set
+            {
+                if (_isBeta != value)
+                {
+                    _isBeta = value;
+                    Debug.WriteLine($"IsBeta changing to: {value}");
+                    OnPropertyChanged(nameof(IsBeta));
+                    OnPropertyChanged(nameof(StatusImageSource));
+                }
+            }
+        }
+
+        public string StatusImageSource
+        {
+            get
+            {
+                return IsBeta ? "pack://application:,,,/Resources/Images/btn_beta.jpg" :
+                                "pack://application:,,,/Resources/Images/btn_live.jpg";
+            }
+        }
+
         public List<NewsItem> NewsItems { get; set; }
-        public bool IsBeta { get; private set; }
         public bool IsDisableUpdates { get; private set; }
         public ICommand OpenOptionsCommand { get; private set; }
         public ICommand OpenLootCommand { get; private set; }
@@ -301,6 +326,7 @@ namespace PD2Launcherv2
                 Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
             }
         }
+
         private void LoadConfiguration()
         {
             // Assuming _localStorage has already been initialized
@@ -310,14 +336,14 @@ namespace PD2Launcherv2
             IsDisableUpdates = launcherArgs?.disableAutoUpdate == true;
 
             // Directly setting the Visibility of Notifications
-            BetaNotification.Visibility = IsBeta ? Visibility.Visible : Visibility.Collapsed;
             UpdatesNotification.Visibility = IsDisableUpdates ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void OnConfigurationChanged(ConfigurationChangeMessage message)
         {
+            IsBeta = message.IsBeta;
             // Update UI based on the message content
-            BetaNotification.Visibility = message.IsBeta ? Visibility.Visible : Visibility.Collapsed;
+            OnPropertyChanged(nameof(IsBeta));;
             UpdatesNotification.Visibility = message.IsDisableUpdates ? Visibility.Visible : Visibility.Collapsed;
         }
 
@@ -328,13 +354,20 @@ namespace PD2Launcherv2
 
         private async Task InitializeAsync()
         {
+            // Fetch and store the latest news from the repository
             await _newsHelpers.FetchAndStoreNewsAsync(_localStorage);
+            // Fetch and store the latest reset info from the repository
+            await _newsHelpers.FetchResetInfoAsync(_localStorage); 
+
+            // Load the stored news
             News theNews = _localStorage.LoadSection<News>(StorageKey.News);
-            NewsItems = theNews?.news ?? new List<NewsItem>();
-            NewsListBox.ItemsSource = NewsItems;
-            await _newsHelpers.FetchResetInfoAsync(_localStorage);
-            var resetInfo = _localStorage.LoadSection<ResetInfo>(StorageKey.ResetInfo);
-            StartCountdownTimer(resetInfo.ResetData.ResetTime);
+            List<NewsItem> newsItems = theNews?.news ?? new List<NewsItem>();
+
+            // Check and append reset news item if the reset time is in the future
+            AppendResetNewsItemIfApplicable(newsItems);
+
+            // Set the modified list as the item source for the UI
+            NewsListBox.ItemsSource = newsItems;
         }
 
         private void LoadAndUpdateDDrawOptions()
@@ -447,47 +480,47 @@ namespace PD2Launcherv2
             _localStorage.InitializeIfNotExists<WindowPositionModel>(StorageKey.WindowPosition, new WindowPositionModel());
         }
 
-        private string _countdownTimer;
-        public string CountdownTimer
-        {
-            get => _countdownTimer;
-            set
-            {
-                _countdownTimer = value;
-                OnPropertyChanged(nameof(CountdownTimer));
-            }
-        }
         protected void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private void StartCountdownTimer(DateTime endTimeUtc)
+        private async Task FetchAndHandleResetInfoAsync()
         {
-            var timer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromSeconds(1)
-            };
+            await _newsHelpers.FetchResetInfoAsync(_localStorage);
+        }
 
-            timer.Tick += (sender, args) =>
+        private void AppendResetNewsItemIfApplicable(List<NewsItem> newsItems)
+        {
+            var resetInfo = _localStorage.LoadSection<ResetInfo>(StorageKey.ResetInfo);
+            if (resetInfo != null && resetInfo.ResetData != null)
             {
-                var timeLeft = endTimeUtc - DateTime.UtcNow;
-                if (timeLeft.TotalSeconds > 0)
+                var resetTimeUtc = resetInfo.ResetData.ResetTime;
+                // Check if the reset time is in the future
+                if (resetTimeUtc > DateTime.UtcNow)
                 {
-                    CountdownTimer = $"{timeLeft.Days}d {timeLeft.Hours}h {timeLeft.Minutes}m {timeLeft.Seconds}s";
-                }
-                else if (timeLeft.TotalSeconds > -3600) // Continue displaying timer for 1 hour post countdown
-                {
-                    CountdownTimer = "00:00:00";
-                }
-                else
-                {
-                    CountdownTimer = string.Empty;
-                    timer.Stop();
-                }
-            };
+                    // Convert UTC reset time to local time
+                    var resetTimeLocal = resetTimeUtc.ToLocalTime();
 
-            timer.Start();
+                    // Format the local reset time
+                    string formattedLocalResetTime = resetTimeLocal.ToString("MMMM dd 'at' hh:mm tt", CultureInfo.InvariantCulture);
+
+                    // Append or insert the local reset time into the summary
+                    string updatedSummary = $"{resetInfo.ResetData.ResetSummary} {formattedLocalResetTime}).";
+
+                    var resetNewsItem = new NewsItem
+                    {
+                        Date = resetTimeUtc.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture),
+                        Title = resetInfo.ResetData.ResetTitle,
+                        Summary = updatedSummary,
+                        Content = resetInfo.ResetData.ResetContent ?? "Check out the details for the upcoming season reset.",
+                        Link = resetInfo.ResetData.ResetLink
+                    };
+
+                    // Prepend the reset news item to the list
+                    newsItems.Insert(0, resetNewsItem);
+                }
+            }
         }
     }
 }

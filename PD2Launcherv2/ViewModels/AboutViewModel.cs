@@ -7,7 +7,6 @@ using PD2Launcherv2.Messages;
 using PD2Launcherv2.Models;
 using ProjectDiablo2Launcherv2.Models;
 using System.Diagnostics;
-using System.Net.Http;
 
 namespace PD2Launcherv2.ViewModels
 {
@@ -16,7 +15,6 @@ namespace PD2Launcherv2.ViewModels
         public string cloudFileBucket { get; set; }
         public string folderPath { get; set; }
         private readonly ILocalStorage _localStorage;
-        private readonly FileUpdateHelpers _fileUpdateHelpers;
 
         public RelayCommand ProdBucket { get; private set; }
         public RelayCommand BetaBucket { get; private set; }
@@ -24,7 +22,6 @@ namespace PD2Launcherv2.ViewModels
         public AboutViewModel(ILocalStorage localStorage)
         {
             _localStorage = localStorage;
-            _fileUpdateHelpers = new FileUpdateHelpers(new HttpClient());
 
             ProdBucket = new RelayCommand(ProdBucketAssign);
             BetaBucket = new RelayCommand(BetaBucketAssign);

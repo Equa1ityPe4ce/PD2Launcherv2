@@ -22,6 +22,8 @@
     <None Remove="Resources\Icons\icon.png" />
     <None Remove="Resources\Images\bg.jpg" />
     <None Remove="Resources\Images\bg_plain.jpg" />
+    <None Remove="Resources\Images\btn_beta.jpg" />
+    <None Remove="Resources\Images\btn_live.jpg" />
     <None Remove="Resources\Images\btn_more.jpg" />
     <None Remove="Resources\Images\btn_more_pressed.jpg" />
     <None Remove="Resources\Images\checkbox_checked.png" />
@@ -67,6 +69,8 @@
     <Resource Include="Resources\Icons\icon.png" />
     <Resource Include="Resources\Images\bg.jpg" />
     <Resource Include="Resources\Images\bg_plain.jpg" />
+    <Resource Include="Resources\Images\btn_beta.jpg" />
+    <Resource Include="Resources\Images\btn_live.jpg" />
     <Resource Include="Resources\Images\btn_more.jpg" />
     <Resource Include="Resources\Images\btn_more_pressed.jpg" />
     <Resource Include="Resources\Images\checkbox_checked.png" />

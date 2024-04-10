@@ -101,7 +101,7 @@ namespace PD2Launcherv2.Helpers
         public async Task<ResetInfo> FetchResetInfoAsync(ILocalStorage _localStorage)
         {
             Debug.WriteLine("\n\n Start FetchResetInfoAsync");
-            string resetUrl = "https://raw.githubusercontent.com/PritchardJasonR/news/main/reset.json";
+            string resetUrl = "https://raw.githubusercontent.com/Project-Diablo-2/news/main/reset.json";
 
             // Load the current reset info data, if available
             var currentResetInfoData = _localStorage.LoadSection<ResetInfo>(StorageKey.ResetInfo);
@@ -146,6 +146,23 @@ namespace PD2Launcherv2.Helpers
                 return null;
             }
             Debug.WriteLine("FetchResetInfoAsync end\n\n");
+        }
+
+        public void InsertResetNewsItemIfApplicable(ILocalStorage _localStorage, List<NewsItem> newsItems)
+        {
+            var resetInfo = _localStorage.LoadSection<ResetInfo>(StorageKey.ResetInfo);
+            if (resetInfo != null && resetInfo.ResetData != null && resetInfo.ResetData.ResetTime > DateTime.UtcNow)
+            {
+                var resetNewsItem = new NewsItem
+                {
+                    Date = resetInfo.ResetData.ResetTime.ToString("MMMM dd, yyyy", CultureInfo.InvariantCulture),
+                    Title = resetInfo.ResetData.ResetTitle,
+                    Summary = resetInfo.ResetData.ResetSummary,
+                    Content = resetInfo.ResetData.ResetContent,
+                    Link = resetInfo.ResetData.ResetLink
+                };
+                newsItems.Insert(0, resetNewsItem);
+            }
         }
     }
 }

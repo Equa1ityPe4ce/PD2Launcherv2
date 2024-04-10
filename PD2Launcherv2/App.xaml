@@ -16,6 +16,7 @@
                 <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             </Style>
             <conv:InverseBooleanConverter x:Key="InverseBool"/>
+            <conv:BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
             <conv:StringToIntConverter x:Key="StringToIntConverter"/>
             <local:ViewModelLocator x:Key="ViewModelLocator"/>
 
