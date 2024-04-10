@@ -196,11 +196,11 @@
                 <Image x:Name="StatusNotification" Stretch="Fill" Height="20" Width="65" Margin="0,0,10,2.5"
                        Source="{Binding StatusImageSource}"/>
                 <local:CustomImageButton x:Name="AboutButton" Width="25" Height="25" Margin="0,-1,10,0"
-                             NormalImageSource="pack://application:,,,/Resources/Images/btn_more.jpg"
-                             PressedImageSource="pack://application:,,,/Resources/Images/btn_more_pressed.jpg"
+                             NormalImageSource="pack://application:,,,/Resources/Images/btn_switch.jpg"
+                             PressedImageSource="pack://application:,,,/Resources/Images/btn_switch_pressed.jpg"
                              Command="{Binding OpenAboutCommand}"/>
             </StackPanel>
-            <TextBlock Text="v 2.1.3" HorizontalAlignment="Right" Margin="0,0,10,0"
+            <TextBlock Text="v 2.1.4" HorizontalAlignment="Right" Margin="0,0,10,0"
            Foreground="{StaticResource SoftWhite}"
            FontFamily="{StaticResource BlizzMedium}"/>
 
