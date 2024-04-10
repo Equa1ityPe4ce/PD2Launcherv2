@@ -42,18 +42,37 @@ namespace PD2Launcherv2
                 {
                     _isBeta = value;
                     Debug.WriteLine($"IsBeta changing to: {value}");
+                    BetaVisibility = value ? Visibility.Visible : Visibility.Collapsed;
                     OnPropertyChanged(nameof(IsBeta));
-                    OnPropertyChanged(nameof(StatusImageSource));
                 }
             }
         }
 
-        public string StatusImageSource
+        private Visibility _betaVisibility = Visibility.Collapsed;
+        public Visibility BetaVisibility
         {
-            get
+            get => _betaVisibility;
+            set
             {
-                return IsBeta ? "pack://application:,,,/Resources/Images/btn_beta.jpg" :
-                                "pack://application:,,,/Resources/Images/btn_live.jpg";
+                if (_betaVisibility != value)
+                {
+                    _betaVisibility = value;
+                    OnPropertyChanged(nameof(BetaVisibility));
+                }
+            }
+        }
+
+        private Visibility _updatesNotificationVisibility = Visibility.Collapsed;
+        public Visibility UpdatesNotificationVisibility
+        {
+            get => _updatesNotificationVisibility;
+            set
+            {
+                if (_updatesNotificationVisibility != value)
+                {
+                    _updatesNotificationVisibility = value;
+                    OnPropertyChanged(nameof(UpdatesNotificationVisibility));
+                }
             }
         }
 
@@ -329,22 +348,21 @@ namespace PD2Launcherv2
 
         private void LoadConfiguration()
         {
-            // Assuming _localStorage has already been initialized
             var fileUpdateModel = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
             var launcherArgs = _localStorage.LoadSection<LauncherArgs>(StorageKey.LauncherArgs);
             IsBeta = fileUpdateModel?.FilePath == "Beta";
             IsDisableUpdates = launcherArgs?.disableAutoUpdate == true;
 
-            // Directly setting the Visibility of Notifications
-            UpdatesNotification.Visibility = IsDisableUpdates ? Visibility.Visible : Visibility.Collapsed;
+            // Use property to control visibility
+            UpdatesNotificationVisibility = IsDisableUpdates ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void OnConfigurationChanged(ConfigurationChangeMessage message)
         {
             IsBeta = message.IsBeta;
-            // Update UI based on the message content
-            OnPropertyChanged(nameof(IsBeta));;
-            UpdatesNotification.Visibility = message.IsDisableUpdates ? Visibility.Visible : Visibility.Collapsed;
+            OnPropertyChanged(nameof(IsBeta));
+            // Use property to control visibility
+            UpdatesNotificationVisibility = message.IsDisableUpdates ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)

@@ -152,7 +152,7 @@
                         Width="100"
                         Foreground="Black" 
                         Background="Red"
-                        Visibility="Hidden" />
+                        Visibility="{Binding UpdatesNotificationVisibility}" />
             </StackPanel>
             <Grid HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,10">
                 <local:CustomImageButton x:Name="PlayButton" Width="270" Height="35"
@@ -193,8 +193,9 @@
                            FontFamily="{StaticResource BlizzLight}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,10,0">
-                <Image x:Name="StatusNotification" Stretch="Fill" Height="20" Width="65" Margin="0,0,10,2.5"
-                       Source="{Binding StatusImageSource}"/>
+                <Image x:Name="BetaNotification" Stretch="Fill" Height="20" Width="65" Margin="0,0,10,2.5"
+                               Source="pack://application:,,,/Resources/Images/btn_beta.jpg"
+                               Visibility="{Binding BetaVisibility}"/>
                 <local:CustomImageButton x:Name="AboutButton" Width="25" Height="25" Margin="0,-1,10,0"
                              NormalImageSource="pack://application:,,,/Resources/Images/btn_switch.jpg"
                              PressedImageSource="pack://application:,,,/Resources/Images/btn_switch_pressed.jpg"
