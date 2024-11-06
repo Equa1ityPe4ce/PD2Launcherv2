@@ -8,6 +8,7 @@ using PD2Launcherv2.Models;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
+using System.Windows;
 using System.Windows.Input;
 
 namespace PD2Launcherv2.ViewModels
@@ -19,10 +20,12 @@ namespace PD2Launcherv2.ViewModels
         public RelayCommand SaveFilterCommand { get; private set; }
         public RelayCommand OpenAuthorsPageCommand { get; private set; }
         public RelayCommand OpenHelpPageCommand { get; private set; }
-        private WebView2 _filterWebView2;
+        public RelayCommand CopyToLocalCommand { get; private set; }
+        public RelayCommand FilterPreviewICommand { get; private set; }
         public ICommand OpenFilterBirdCommand { get; }
         public ICommand CloseFilterPreviewCommand { get; }
-        public RelayCommand FilterPreviewICommand { get; private set; } 
+        
+        private WebView2 _filterWebView2;
 
         private bool _isWebViewVisible;
         public bool IsWebViewVisible
@@ -118,6 +121,7 @@ namespace PD2Launcherv2.ViewModels
             FilterPreviewICommand = new RelayCommand(OpenFilterPreviewIExecute);
             OpenFilterBirdCommand = new RelayCommand(OpenFilterBird);
             CloseFilterPreviewCommand = new RelayCommand(CloseFilterPreview);
+            CopyToLocalCommand = new RelayCommand(CopyFilterToLocalExecute);
             IsWebViewVisible = false;
         }
 
@@ -126,6 +130,16 @@ namespace PD2Launcherv2.ViewModels
             Debug.WriteLine("Initializing FiltersViewModel...");
             await FetchAndStoreFilterAuthorsAsync();
             SelectStoredAuthorAndFilter();
+        }
+
+        private void CheckLocalFilterTooltip()
+        {
+            // Show tooltip if the selected filter is local
+            if (SelectedAuthor?.Name == "Local Filter")
+            {
+                // Show tooltip
+                MessageBox.Show("Note: Local filters do not receive automatic updates.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
 
         public void SetWebView2(WebView2 webView2)
@@ -295,6 +309,33 @@ namespace PD2Launcherv2.ViewModels
             }
 
         }
+                    
+
+        private async void CopyFilterToLocalExecute()
+        {
+            if (SelectedFilter == null || SelectedAuthor == null) return;
+
+            try
+            {
+                // if local path doesn't exist create it
+                string localPath = Path.Combine(Directory.GetCurrentDirectory(), "filters", "local", SelectedFilter.Name);
+                Directory.CreateDirectory(Path.GetDirectoryName(localPath) ?? string.Empty);
+
+                // find the Filter and turn the filter into a string
+                var filterContent = await _filterHelpers.FetchFilterContentAsyncForFilterBird(SelectedFilter.DownloadUrl);
+
+                // save the filter string as a file
+                await File.WriteAllTextAsync(localPath, filterContent);
+                
+                //navigate user to Local filter section
+                SelectedAuthor = AuthorsList.FirstOrDefault(author => author.Name == "Local Filter");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error copying filter to local storage: " + ex.Message);
+            }
+        }
+
         private void SaveFilterToStorage()
         {
             if (SelectedAuthor != null && SelectedFilter != null)
@@ -319,6 +360,13 @@ namespace PD2Launcherv2.ViewModels
             SaveFilterToStorage();
             if (SelectedFilter != null && SelectedAuthor != null)
             {
+                // Show a warning message if the filter is local
+                if (SelectedAuthor.Name == "Local Filter")
+                {
+                    MessageBox.Show("Applying Local Filter: Note that a local filter will not receive automatic updates unless you manually update it.",
+                                    "Local Filter Warning", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+
                 bool success = await _filterHelpers.ApplyLootFilterAsync(SelectedAuthor.Name, SelectedFilter.Name, SelectedFilter.DownloadUrl,true);
 
                 if (success)
