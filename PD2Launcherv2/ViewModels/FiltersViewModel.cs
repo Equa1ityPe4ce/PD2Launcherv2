@@ -309,30 +309,45 @@ namespace PD2Launcherv2.ViewModels
             }
 
         }
-                    
+
 
         private async void CopyFilterToLocalExecute()
         {
-            if (SelectedFilter == null || SelectedAuthor == null) return;
-
-            try
+            if (SelectedFilter == null || SelectedAuthor == null)
             {
-                // if local path doesn't exist create it
-                string localPath = Path.Combine(Directory.GetCurrentDirectory(), "filters", "local", SelectedFilter.Name);
-                Directory.CreateDirectory(Path.GetDirectoryName(localPath) ?? string.Empty);
-
-                // find the Filter and turn the filter into a string
-                var filterContent = await _filterHelpers.FetchFilterContentAsyncForFilterBird(SelectedFilter.DownloadUrl);
-
-                // save the filter string as a file
-                await File.WriteAllTextAsync(localPath, filterContent);
-                
-                //navigate user to Local filter section
-                SelectedAuthor = AuthorsList.FirstOrDefault(author => author.Name == "Local Filter");
+                MessageBox.Show("Please select a filter to copy.", "No Filter Selected", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
             }
-            catch (Exception ex)
+
+            // Confirm copy action with a warning message
+            var result = MessageBox.Show("Applying Local Filter: Note that a local filter will not receive automatic updates unless you manually update it.\n\n" +
+                                         "Do you want to proceed with copying this filter to local storage?",
+                                         "Copy Filter to Local", MessageBoxButton.OKCancel, MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.OK)
             {
-                Debug.WriteLine("Error copying filter to local storage: " + ex.Message);
+                try
+                {
+                    // try to create the local filter path if it doesnt exist
+                    string localPath = Path.Combine(Directory.GetCurrentDirectory(), "filters", "local", SelectedFilter.Name);
+                    Directory.CreateDirectory(Path.GetDirectoryName(localPath) ?? string.Empty);
+
+                    // turn filter into a string
+                    var filterContent = await _filterHelpers.FetchFilterContentAsyncForFilterBird(SelectedFilter.DownloadUrl);
+
+                    // Save the filter string to local path
+                    await File.WriteAllTextAsync(localPath, filterContent);
+
+                    // navigate to local filters page
+                    SelectedAuthor = AuthorsList.FirstOrDefault(author => author.Name == "Local Filter");
+
+                    Debug.WriteLine("Filter copied to local storage and 'Local Filter' selected.");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to copy filter to local storage: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Debug.WriteLine("Error copying filter to local storage: " + ex.Message);
+                }
             }
         }
 
@@ -360,13 +375,6 @@ namespace PD2Launcherv2.ViewModels
             SaveFilterToStorage();
             if (SelectedFilter != null && SelectedAuthor != null)
             {
-                // Show a warning message if the filter is local
-                if (SelectedAuthor.Name == "Local Filter")
-                {
-                    MessageBox.Show("Applying Local Filter: Note that a local filter will not receive automatic updates unless you manually update it.",
-                                    "Local Filter Warning", MessageBoxButton.OK, MessageBoxImage.Information);
-                }
-
                 bool success = await _filterHelpers.ApplyLootFilterAsync(SelectedAuthor.Name, SelectedFilter.Name, SelectedFilter.DownloadUrl,true);
 
                 if (success)
