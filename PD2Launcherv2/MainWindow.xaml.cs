@@ -495,13 +495,16 @@ namespace PD2Launcherv2
 
         public void InitializeDefaultSettings(ILocalStorage localStorage)
         {
-            _localStorage.InitializeIfNotExists<FileUpdateModel>(StorageKey.FileUpdateModel, new FileUpdateModel());
-            _localStorage.InitializeIfNotExists<DdrawOptions>(StorageKey.DdrawOptions, new DdrawOptions());
-            _localStorage.InitializeIfNotExists<LauncherArgs>(StorageKey.LauncherArgs, new LauncherArgs());
-            _localStorage.InitializeIfNotExists<SelectedAuthorAndFilter>(StorageKey.SelectedAuthorAndFilter, new SelectedAuthorAndFilter());
-            _localStorage.InitializeIfNotExists<Pd2AuthorList>(StorageKey.Pd2AuthorList, new Pd2AuthorList());
-            _localStorage.InitializeIfNotExists<News>(StorageKey.News, new News());
-            _localStorage.InitializeIfNotExists<WindowPositionModel>(StorageKey.WindowPosition, new WindowPositionModel());
+            _localStorage.InitializeIfNotExists(StorageKey.FileUpdateModel, new FileUpdateModel());
+            _localStorage.InitializeIfNotExists(StorageKey.DdrawOptions, new DdrawOptions());
+            _localStorage.InitializeIfNotExists(StorageKey.LauncherArgs, new LauncherArgs());
+            _localStorage.InitializeIfNotExists(StorageKey.SelectedAuthorAndFilter, new SelectedAuthorAndFilter());
+            _localStorage.InitializeIfNotExists(StorageKey.Pd2AuthorList, new Pd2AuthorList());
+            _localStorage.InitializeIfNotExists(StorageKey.News, new News());
+            _localStorage.InitializeIfNotExists(StorageKey.WindowPosition, new WindowPositionModel());
+            _localStorage.InitializeIfNotExists(StorageKey.ResetInfo, new ResetInfo());
+
+            Debug.WriteLine("Default settings initialized if missing.");
         }
 
         protected void OnPropertyChanged(string propertyName)

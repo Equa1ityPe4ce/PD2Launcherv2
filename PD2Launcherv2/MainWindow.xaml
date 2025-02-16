@@ -201,7 +201,7 @@
                              PressedImageSource="pack://application:,,,/Resources/Images/btn_switch_pressed.jpg"
                              Command="{Binding OpenAboutCommand}"/>
             </StackPanel>
-            <TextBlock Text="v 2.1.10" HorizontalAlignment="Right" Margin="0,0,10,0"
+            <TextBlock Text="v 2.11.1" HorizontalAlignment="Right" Margin="0,0,10,0"
            Foreground="{StaticResource SoftWhite}"
            FontFamily="{StaticResource BlizzMedium}"/>
 
