@@ -21,6 +21,7 @@ namespace PD2Launcherv2.Helpers
         public FileUpdateHelpers(HttpClient httpClient)
         {
             _httpClient = httpClient;
+            _httpClient.Timeout = TimeSpan.FromMinutes(3);
         }
 
         public void StartUpdateProcess()
@@ -55,49 +56,81 @@ namespace PD2Launcherv2.Helpers
 
         public async Task<List<CloudFileItem>> GetCloudFileMetadataAsync(string cloudFileBucket)
         {
-            var response = await _httpClient.GetAsync(cloudFileBucket);
-            response.EnsureSuccessStatusCode();
-            Debug.WriteLine($"code: {response.StatusCode}");
+            int maxRetries = 3;
+            int delayBetweenRetries = 2000; //2 sec's
 
-            var content = await response.Content.ReadAsStringAsync();
-
-            var options = new JsonSerializerOptions
+            for (int attempt = 1; attempt <= maxRetries; attempt++)
             {
-                PropertyNameCaseInsensitive = true
-            };
-            var json = JsonSerializer.Deserialize<CloudFilesResponse>(content, options);
-
-            return json?.Items.Select(i => new CloudFileItem
-            {
-                Name = i.Name,
-                MediaLink = i.MediaLink,
-                Crc32c = i.Crc32c,
-            }).ToList() ?? new List<CloudFileItem>();
-        }
-
-        public async Task DownloadFileAsync(string mediaLink, string path, IProgress<double> progress = null)
-        {
-            var response = await _httpClient.GetAsync(mediaLink, HttpCompletionOption.ResponseHeadersRead);
-            response.EnsureSuccessStatusCode();
-
-            var totalBytes = response.Content.Headers.ContentLength ?? -1L; // Total download size
-            var totalBytesRead = 0L;
-            var buffer = new byte[8192]; // Buffer size
-
-            await using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
-            await using (var stream = await response.Content.ReadAsStreamAsync())
-            {
-                var bytesRead = 0;
-                while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                try
                 {
-                    await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
-                    totalBytesRead += bytesRead;
+                    var response = await _httpClient.GetAsync(cloudFileBucket);
+                    response.EnsureSuccessStatusCode();
 
-                    // Report progress as a percentage of total download
-                    // this will report progress as a continuous stream of data
-                    progress?.Report(totalBytes != -1 ? (double)totalBytesRead / totalBytes : totalBytesRead);
+                    var content = await response.Content.ReadAsStringAsync();
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    var json = JsonSerializer.Deserialize<CloudFilesResponse>(content, options);
+
+                    return json?.Items.Select(i => new CloudFileItem
+                    {
+                        Name = i.Name,
+                        MediaLink = i.MediaLink,
+                        Crc32c = i.Crc32c,
+                    }).ToList() ?? new List<CloudFileItem>();
+                }
+                catch (HttpRequestException ex) when (attempt < maxRetries)
+                {
+                    Debug.WriteLine($"[Retry {attempt}/{maxRetries}] HTTP request failed: {ex.Message}. Retrying...");
+                    await Task.Delay(delayBetweenRetries);
                 }
             }
+
+            Debug.WriteLine("Failed to retrieve cloud metadata after retries.");
+            return new List<CloudFileItem>();
+        }
+
+        private async Task<bool> DownloadFileAsync(string fileUrl, string destinationPath, IProgress<double> progress)
+        {
+            // add retries for s10 Time out bugs from people having shitty internet
+            int maxRetries = 3;
+            int delayBetweenRetries = 2000; // 2 seconds
+
+            for (int attempt = 1; attempt <= maxRetries; attempt++)
+            {
+                try
+                {
+                    using var response = await _httpClient.GetAsync(fileUrl, HttpCompletionOption.ResponseHeadersRead);
+                    response.EnsureSuccessStatusCode();
+
+                    using var stream = await response.Content.ReadAsStreamAsync();
+                    using var fileStream = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
+
+                    var buffer = new byte[8192];
+                    int bytesRead;
+                    double totalRead = 0;
+                    long totalBytes = response.Content.Headers.ContentLength ?? -1;
+
+                    while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                    {
+                        await fileStream.WriteAsync(buffer, 0, bytesRead);
+                        totalRead += bytesRead;
+
+                        if (totalBytes > 0)
+                        {
+                            progress.Report(totalRead / totalBytes);
+                        }
+                    }
+
+                    return true; // Success
+                }
+                catch (HttpRequestException ex) when (attempt < maxRetries)
+                {
+                    Debug.WriteLine($"[Retry {attempt}/{maxRetries}] Failed to download {fileUrl}: {ex.Message}. Retrying...");
+                    await Task.Delay(delayBetweenRetries);
+                }
+            }
+
+            Debug.WriteLine($"Failed to download {fileUrl} after retries.");
+            return false;
         }
 
         /**
@@ -342,6 +375,7 @@ namespace PD2Launcherv2.Helpers
             Debug.WriteLine("end UpdateLauncherCheck \n");
         }
 
+        //Include s10 bug fix for: "new version" popup can get stuck behind the launcher itself
         private async Task HandleLauncherUpdate(string launcherMediaLink, IProgress<double> progress, Action onDownloadComplete)
         {
             var installPath = Directory.GetCurrentDirectory();
@@ -349,14 +383,16 @@ namespace PD2Launcherv2.Helpers
 
             Application.Current.Dispatcher.Invoke(() =>
             {
-                MessageBox.Show("A launcher update has been identified, select OK to start update.", "Update Ready", MessageBoxButton.OK, MessageBoxImage.Information);
+                Window? ownerWindow = Application.Current.MainWindow;
+                MessageBox.Show(ownerWindow, "A launcher update has been identified, select OK to start update.", "Update Ready", MessageBoxButton.OK, MessageBoxImage.Information);
             });
 
             await DownloadFileAsync(launcherMediaLink, tempDownloadPath, progress);
 
             Application.Current.Dispatcher.Invoke(() =>
             {
-                MessageBox.Show("The launcher will now close to apply an update. Please wait for the launcher to reopen.", "Update in Progress", MessageBoxButton.OK, MessageBoxImage.Information);
+                Window? ownerWindow = Application.Current.MainWindow;
+                MessageBox.Show(ownerWindow, "The launcher will now close to apply an update. Please wait for the launcher to reopen.", "Update in Progress", MessageBoxButton.OK, MessageBoxImage.Information);
                 StartUpdateProcess();
                 Application.Current.MainWindow?.Close();
             });
