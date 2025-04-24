@@ -16,23 +16,49 @@
 
         <Button x:Name="CloseButton" Style="{StaticResource CloseButtonStyle}" FontFamily="{StaticResource BlizzHeavy}" Command="{Binding CloseCommand}" 
             FontSize="25" Content="X" />
-        <TextBlock x:Name="About" Text="About" FontSize="25"  
+        <TextBlock x:Name="About" Text="Environment Switching" FontSize="25"  
                    VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,20,0,0"
                    Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzHeavy}">
         </TextBlock>
 
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Text="Switch To" FontSize="16" FontFamily="{StaticResource BlizzHeavy}" Foreground="{StaticResource GoldBrush}" TextAlignment="Center"></TextBlock>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,70,0,0">
+            <TextBlock Text="SWITCH TO" FontSize="16" FontFamily="{StaticResource BlizzHeavy}" 
+               Foreground="{StaticResource GoldBrush}" TextAlignment="Center" Margin="0,0,0,10"/>
 
-            <Button x:Name="PRODBucket" Content="Live" Style="{StaticResource CustomColorChangeButton}"
-                    Width="200" Height="35" Margin="10" Foreground="Black"
-                    Command="{Binding ProdBucket}" FontFamily="{StaticResource BlizzHeavy}">
-            </Button>
+            <Button Content="LIVE" Style="{StaticResource CustomColorChangeButton}" Width="200" Height="35" Margin="5"
+            Foreground="Black" Command="{Binding ProdBucket}" FontFamily="{StaticResource BlizzHeavy}" />
 
-            <Button x:Name="BetaBucket" Content="Beta" Style="{StaticResource CustomColorChangeButton}"
-                    Width="200" Height="35" Margin="10" Foreground="Black"
-                    Command="{Binding BetaBucket}" FontFamily="{StaticResource BlizzHeavy}">
-            </Button>
+            <Button Content="BETA" Style="{StaticResource CustomColorChangeButton}" Width="200" Height="35" Margin="5"
+            Foreground="Black" Command="{Binding BetaBucket}" FontFamily="{StaticResource BlizzHeavy}" />
+        </StackPanel>
+
+        <Button Content="!" x:Name="CustomUnlockButton" 
+                PreviewMouseLeftButtonDown="CustomUnlockButton_MouseDown" PreviewMouseLeftButtonUp="CustomUnlockButton_MouseUp" MouseLeave="CustomUnlockButton_MouseLeave"
+                Style="{StaticResource CustomColorChangeButton}" Width="20" Height="20" FontSize="9" 
+                HorizontalAlignment="Right" Margin="0,0,0,0" VerticalAlignment="Bottom"
+                FontFamily="{StaticResource BlizzHeavy}"/>
+
+        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,20" Width="220" 
+                    Visibility="{Binding ShowCustomEnv, Converter={StaticResource BoolToVisConverter}}">
+
+            <Border BorderBrush="{StaticResource GoldBrush}" BorderThickness="1" CornerRadius="5" Padding="8">
+                <StackPanel>
+                    <TextBlock Text="CUSTOM" FontSize="10" FontFamily="{StaticResource BlizzHeavy}" 
+                   Foreground="{StaticResource GoldBrush}" TextAlignment="Center" Margin="0,0,0,6"/>
+
+                    <TextBlock Text="Should you be doing this?" FontSize="9" Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzHeavy}"/>
+                    <TextBox x:Name="CustomClientUrlTextBox" Width="200" Margin="0,2,0,6" Padding="3" FontSize="10"
+                 Text="{Binding CustomClientUrl, UpdateSourceTrigger=PropertyChanged}" FontFamily="{StaticResource BlizzHeavy}" />
+
+                    <Button x:Name="SetCustomEnvButton" Content="SET CUSTOM" Style="{StaticResource CustomColorChangeButton}" Width="200" Height="30"
+                FontSize="11" Command="{Binding CustomBucket}" FontFamily="{StaticResource BlizzHeavy}" />
+
+                    <TextBlock Text="WARNING" Foreground="Red" FontSize="8" Margin="0,6,0,0" FontFamily="{StaticResource BlizzHeavy}" />
+                    <TextBlock Text="Do not enter anything here unless you've received instructions from the developers."
+                   TextWrapping="Wrap" FontSize="9" Margin="0,6,0,0" Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzHeavy}" />
+                </StackPanel>
+            </Border>
+
         </StackPanel>
     </Grid>
 </Page>

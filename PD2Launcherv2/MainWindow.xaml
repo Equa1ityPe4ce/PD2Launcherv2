@@ -196,8 +196,13 @@
                 <Image x:Name="BetaNotification" Stretch="Fill" Height="20" Width="65" Margin="0,0,10,2.5"
                                Source="pack://application:,,,/Resources/Images/btn_beta.jpg"
                                Visibility="{Binding BetaVisibility}"/>
+
+                <Button Content="Cust." Background="HotPink" Foreground="Black" 
+                        Width="50" Height="15" Margin="5" 
+                        FontFamily="{StaticResource BlizzHeavy}" Visibility="{Binding CustomVisibility}"/>
+                
                 <local:CustomImageButton x:Name="AboutButton" Width="25" Height="25" Margin="0,-1,10,0"
-                             NormalImageSource="pack://application:,,,/Resources/Images/btn_switch.jpg"
+                                         NormalImageSource="pack://application:,,,/Resources/Images/btn_switch.jpg"
                              PressedImageSource="pack://application:,,,/Resources/Images/btn_switch_pressed.jpg"
                              Command="{Binding OpenAboutCommand}"/>
             </StackPanel>

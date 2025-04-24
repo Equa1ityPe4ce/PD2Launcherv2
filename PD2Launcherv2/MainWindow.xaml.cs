@@ -48,7 +48,6 @@ namespace PD2Launcherv2
                 }
             }
         }
-
         private Visibility _betaVisibility = Visibility.Collapsed;
         public Visibility BetaVisibility
         {
@@ -59,6 +58,36 @@ namespace PD2Launcherv2
                 {
                     _betaVisibility = value;
                     OnPropertyChanged(nameof(BetaVisibility));
+                }
+            }
+        }
+
+        private bool _isCustom;
+        public bool IsCustom
+        {
+            get => _isCustom;
+            set
+            {
+                if (_isCustom != value)
+                {
+                    _isCustom = value;
+                    Debug.WriteLine($"IsCustom changing to: {value}");
+                    CustomVisibility = value ? Visibility.Visible : Visibility.Collapsed;
+                    OnPropertyChanged(nameof(IsCustom));
+                }
+            }
+        }
+
+        private Visibility _customVisibility = Visibility.Collapsed;
+        public Visibility CustomVisibility
+        {
+            get => _customVisibility;
+            set
+            {
+                if (_customVisibility != value)
+                {
+                    _customVisibility = value;
+                    OnPropertyChanged(nameof(CustomVisibility));
                 }
             }
         }
@@ -357,6 +386,7 @@ namespace PD2Launcherv2
             var fileUpdateModel = _localStorage.LoadSection<FileUpdateModel>(StorageKey.FileUpdateModel);
             var launcherArgs = _localStorage.LoadSection<LauncherArgs>(StorageKey.LauncherArgs);
             IsBeta = fileUpdateModel?.FilePath == "Beta";
+            IsCustom = fileUpdateModel?.FilePath == "Custom";
             IsDisableUpdates = launcherArgs?.disableAutoUpdate == true;
 
             // Use property to control visibility
@@ -367,6 +397,8 @@ namespace PD2Launcherv2
         {
             IsBeta = message.IsBeta;
             OnPropertyChanged(nameof(IsBeta));
+            IsCustom = message.IsCustom;
+            OnPropertyChanged(nameof(IsCustom));
             // Use property to control visibility
             UpdatesNotificationVisibility = message.IsDisableUpdates ? Visibility.Visible : Visibility.Collapsed;
         }
