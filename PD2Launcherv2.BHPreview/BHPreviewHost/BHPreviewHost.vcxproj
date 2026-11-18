@@ -80,6 +80,7 @@
     <ClCompile Include="src\Log.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\MockGame.cpp" />
+    <ClCompile Include="src\ModCatalog.cpp" />
     <ClCompile Include="src\PeShell.cpp" />
     <ClCompile Include="src\SelfTest.cpp" />
     <ClCompile Include="src\World.cpp" />
@@ -93,6 +94,7 @@
     <ClInclude Include="src\Log.h" />
     <ClInclude Include="src\MockGame.h" />
     <ClInclude Include="src\MockTypes.h" />
+    <ClInclude Include="src\ModCatalog.h" />
     <ClInclude Include="src\PeShell.h" />
     <ClInclude Include="src\SelfTest.h" />
     <ClInclude Include="src\World.h" />

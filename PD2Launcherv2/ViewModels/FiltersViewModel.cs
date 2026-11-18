@@ -1,4 +1,4 @@
-﻿using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using PD2Launcherv2.Enums;
 using PD2Launcherv2.Helpers;
@@ -22,14 +22,31 @@ namespace PD2Launcherv2.ViewModels
         public RelayCommand OpenHelpPageCommand { get; private set; }
         public RelayCommand CopyToLocalCommand { get; private set; }
         public ICommand OpenFilterPreviewCommand { get; }
-        public ICommand RefreshFilterPreviewCommand { get; }
         public ICommand CloseFilterPreviewCommand { get; }
+        public ICommand ToggleItemBuilderCommand { get; }
+        public ICommand AddBuiltItemCommand { get; }
+        public ICommand RemovePreviewItemCommand { get; }
 
         // Filter preview: the installed BH.dll evaluates every item inside a simulated game
         // (see PD2Launcherv2.BHPreview), so the preview cannot drift from what BH does in game.
         private readonly BhPreviewService _bhPreview = new();
         private BhCatalog? _bhCatalog;
         private string? _previewFilterKey;
+        private bool _previewRefreshPending;
+        // Settings changes refresh the preview once the user stops typing.
+        private readonly System.Windows.Threading.DispatcherTimer _previewRefreshTimer =
+            new() { Interval = TimeSpan.FromMilliseconds(500) };
+        // Items the user built and kept, shown above the default list.
+        private readonly List<BhSavedPreviewItem> _savedItems = BhPreviewSavedItems.Load();
+
+        public BhItemBuilder ItemBuilder { get; } = new();
+
+        private bool _isItemBuilderOpen;
+        public bool IsItemBuilderOpen
+        {
+            get => _isItemBuilderOpen;
+            set { _isItemBuilderOpen = value; OnPropertyChanged(); }
+        }
 
         private bool _isPreviewVisible;
         public bool IsPreviewVisible
@@ -51,8 +68,9 @@ namespace PD2Launcherv2.ViewModels
         public bool IsPreviewBusy
         {
             get => _isPreviewBusy;
-            set { _isPreviewBusy = value; OnPropertyChanged(); }
+            set { _isPreviewBusy = value; OnPropertyChanged(); OnPropertyChanged(nameof(IsPreviewIdle)); }
         }
+        public bool IsPreviewIdle => !_isPreviewBusy;
 
         private bool _showHiddenItems = true;
         public bool ShowHiddenItems
@@ -67,22 +85,22 @@ namespace PD2Launcherv2.ViewModels
         public int PreviewDifficulty
         {
             get => _previewDifficulty;
-            set { _previewDifficulty = value; OnPropertyChanged(); }
+            set { _previewDifficulty = value; OnPropertyChanged(); SchedulePreviewRefresh(); }
         }
 
         private string _previewCharacterLevel = "90";
         public string PreviewCharacterLevel
         {
             get => _previewCharacterLevel;
-            set { _previewCharacterLevel = value; OnPropertyChanged(); }
+            set { _previewCharacterLevel = value; OnPropertyChanged(); SchedulePreviewRefresh(); }
         }
 
         /// <summary>Empty = the filter level saved in the user's BH.json.</summary>
-        private string _previewFilterLevel = "";
+        private string _previewFilterLevel = "1";
         public string PreviewFilterLevel
         {
             get => _previewFilterLevel;
-            set { _previewFilterLevel = value; OnPropertyChanged(); }
+            set { _previewFilterLevel = value; OnPropertyChanged(); SchedulePreviewRefresh(); }
         }
 
         private List<FilterAuthor> _authorsList;
@@ -166,8 +184,11 @@ namespace PD2Launcherv2.ViewModels
             OpenAuthorsPageCommand = new RelayCommand(OpenAuthorsPageExecute);
             OpenHelpPageCommand = new RelayCommand(OpenHelpPageExecute);
             OpenFilterPreviewCommand = new RelayCommand(OpenFilterPreview);
-            RefreshFilterPreviewCommand = new RelayCommand(RefreshFilterPreview);
             CloseFilterPreviewCommand = new RelayCommand(CloseFilterPreview);
+            ToggleItemBuilderCommand = new RelayCommand(() => IsItemBuilderOpen = !IsItemBuilderOpen);
+            AddBuiltItemCommand = new RelayCommand(AddBuiltItem);
+            RemovePreviewItemCommand = new RelayCommand<BhPreviewRow>(RemovePreviewItem);
+            _previewRefreshTimer.Tick += (_, _) => { _previewRefreshTimer.Stop(); RefreshFilterPreview(); };
             CopyToLocalCommand = new RelayCommand(CopyFilterToLocalExecute);
             IsPreviewVisible = false;
         }
@@ -219,9 +240,42 @@ namespace PD2Launcherv2.ViewModels
             RefreshFilterPreview();
         }
 
+        private void SchedulePreviewRefresh()
+        {
+            if (!IsPreviewVisible) return;
+            _previewRefreshTimer.Stop();
+            _previewRefreshTimer.Start();
+        }
+
+        /// <summary>Keeps the built item at the top of every preview until it is removed.</summary>
+        private void AddBuiltItem()
+        {
+            var item = ItemBuilder.Build(out var error);
+            if (item == null)
+            {
+                PreviewStatus = error ?? "";
+                return;
+            }
+            _savedItems.Insert(0, item);
+            BhPreviewSavedItems.Save(_savedItems);
+            RefreshFilterPreview();
+        }
+
+        private void RemovePreviewItem(BhPreviewRow? row)
+        {
+            if (row?.Source == null) return;
+            if (_savedItems.Remove(row.Source)) BhPreviewSavedItems.Save(_savedItems);
+            PreviewRows.Remove(row);
+        }
+
         private async void RefreshFilterPreview()
         {
-            if (!IsPreviewVisible || SelectedFilter == null || IsPreviewBusy) return;
+            if (!IsPreviewVisible || SelectedFilter == null) return;
+            if (IsPreviewBusy)
+            {
+                _previewRefreshPending = true; // run again with the latest settings when done
+                return;
+            }
             IsPreviewBusy = true;
             try
             {
@@ -230,7 +284,7 @@ namespace PD2Launcherv2.ViewModels
                 var filterKey = $"{SelectedAuthor?.Name}/{SelectedFilter.Name}";
                 if (!_bhPreview.IsRunning || _previewFilterKey != filterKey || _bhPreview.FilterLevel != filterLevel)
                 {
-                    PreviewStatus = "Starting BH...";
+                    PreviewStatus = "Loading the filter...";
                     var filterPath = await PreviewFilterFileAsync();
                     if (filterPath == null)
                     {
@@ -244,11 +298,18 @@ namespace PD2Launcherv2.ViewModels
                         return;
                     }
                     _previewFilterKey = filterKey;
-                    _bhCatalog ??= await _bhPreview.CatalogAsync();
+                    if (_bhCatalog == null)
+                    {
+                        _bhCatalog = await _bhPreview.CatalogAsync();
+                        ItemBuilder.SetCatalog(_bhCatalog);
+                    }
                 }
 
-                PreviewStatus = "Evaluating items...";
-                var specs = BhPreviewSamples.Build(_bhCatalog ?? new BhCatalog());
+                PreviewStatus = "Checking items...";
+                var custom = _savedItems.ToList();
+                foreach (var c in custom) c.Spec.Label = c.Label;
+                int customCount = custom.Count;
+                var specs = custom.Select(c => c.Spec).Concat(BhPreviewSamples.Build(_bhCatalog ?? new BhCatalog())).ToList();
                 var response = await _bhPreview.EvaluateAsync(specs, world);
                 if (response.Error != null)
                 {
@@ -259,12 +320,14 @@ namespace PD2Launcherv2.ViewModels
                 int hidden = 0;
                 for (int i = 0; i < specs.Count && i < response.Items.Count; i++)
                 {
-                    var row = new BhPreviewRow(specs[i], response.Items[i]);
-                    if (row.Hidden) hidden++;
-                    if (row.Hidden && !ShowHiddenItems) continue;
+                    bool isCustom = i < customCount;
+                    var row = new BhPreviewRow(specs[i], response.Items[i], isCustom ? custom[i] : null);
+                    if (row.Hidden && !isCustom) hidden++;
+                    // Items the user asked about are always shown, hidden or not.
+                    if (row.Hidden && !ShowHiddenItems && !isCustom) continue;
                     PreviewRows.Add(row);
                 }
-                PreviewStatus = $"{specs.Count} items, {hidden} hidden by this filter. Rendered by your installed BH.dll.";
+                PreviewStatus = $"{specs.Count - customCount} items, {hidden} hidden by this filter.";
             }
             catch (Exception ex)
             {
@@ -274,12 +337,19 @@ namespace PD2Launcherv2.ViewModels
             finally
             {
                 IsPreviewBusy = false;
+                if (_previewRefreshPending)
+                {
+                    _previewRefreshPending = false;
+                    RefreshFilterPreview();
+                }
             }
         }
 
         private void CloseFilterPreview()
         {
             IsPreviewVisible = false;
+            _previewRefreshTimer.Stop();
+            _previewRefreshPending = false;
             PreviewRows.Clear();
             _bhPreview.Stop();
             _previewFilterKey = null;

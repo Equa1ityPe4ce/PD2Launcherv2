@@ -14,6 +14,81 @@
     <Page.Resources>
         <converters:NullToBooleanConverter x:Key="NullToBooleanConverter"/>
         <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+        <!-- Item builder -->
+        <Style x:Key="BuilderLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource SoftWhite}"/>
+            <Setter Property="FontFamily" Value="{StaticResource BlizzLight}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="10,0,5,0"/>
+        </Style>
+        <Style x:Key="BuilderCombo" TargetType="ComboBox" BasedOn="{StaticResource CustomComboBoxStyle}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontFamily" Value="{StaticResource BlizzMedium}"/>
+            <Setter Property="Background" Value="Black"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Padding" Value="5,0,0,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="MaxDropDownHeight" Value="260"/>
+            <Setter Property="ItemsPanel">
+                <Setter.Value>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel/>
+                    </ItemsPanelTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- Same look, but typed into: the base search (type the start of a name). -->
+        <Style x:Key="BuilderEditableCombo" TargetType="ComboBox" BasedOn="{StaticResource BuilderCombo}">
+            <Setter Property="IsEditable" Value="True"/>
+            <Setter Property="IsTextSearchEnabled" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"/>
+                            <TextBox x:Name="PART_EditableTextBox" Margin="4,0,20,0" VerticalAlignment="Center"
+                                     Background="Transparent" BorderThickness="0" Foreground="{TemplateBinding Foreground}"
+                                     CaretBrush="{StaticResource GoldBrush}" FontFamily="{TemplateBinding FontFamily}"
+                                     FontSize="{TemplateBinding FontSize}"/>
+                            <ToggleButton HorizontalAlignment="Right" Width="20" Focusable="False" Cursor="Hand"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="Transparent">
+                                            <Path Data="M0,0 L8,0 L4,5 Z" Fill="{StaticResource GoldBrush}"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" AllowsTransparency="True"
+                                   Focusable="False" PopupAnimation="Slide">
+                                <Grid MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Border Background="Black" BorderThickness="1" BorderBrush="{StaticResource GoldBrush}"/>
+                                    <ScrollViewer Margin="4" CanContentScroll="True">
+                                        <ScrollViewer.Resources>
+                                            <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource CustomVerticalScrollBar}"/>
+                                        </ScrollViewer.Resources>
+                                        <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Contained"/>
+                                    </ScrollViewer>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="BuilderCheck" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource SoftWhite}"/>
+            <Setter Property="FontFamily" Value="{StaticResource BlizzLight}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="12,0,0,0"/>
+        </Style>
     </Page.Resources>
 
     <Grid>
@@ -171,7 +246,9 @@
                              Background="Black" Foreground="{StaticResource SoftWhite}" BorderBrush="{StaticResource GoldBrush}"/>
                     <TextBlock Text="Difficulty" VerticalAlignment="Center" Margin="14,0,6,0"
                                Foreground="{StaticResource SoftWhite}" FontFamily="{StaticResource BlizzLight}" FontSize="12"/>
-                    <ComboBox ItemsSource="{Binding PreviewDifficulties}" SelectedIndex="{Binding PreviewDifficulty}" Width="90"/>
+                    <ComboBox ItemsSource="{Binding PreviewDifficulties}" SelectedIndex="{Binding PreviewDifficulty}"
+                              Style="{StaticResource CustomComboBoxStyle}" Width="100" Margin="0" Padding="6,0,0,0"
+                              FontSize="12" Background="Black" VerticalAlignment="Center"/>
                     <TextBlock Text="Filter level" VerticalAlignment="Center" Margin="14,0,6,0"
                                ToolTip="Leave empty to use the filter level saved in your BH settings."
                                Foreground="{StaticResource SoftWhite}" FontFamily="{StaticResource BlizzLight}" FontSize="12"/>
@@ -179,13 +256,117 @@
                              Background="Black" Foreground="{StaticResource SoftWhite}" BorderBrush="{StaticResource GoldBrush}"/>
                     <CheckBox Content="Show hidden" IsChecked="{Binding ShowHiddenItems}" VerticalAlignment="Center" Margin="14,0,0,0"
                               Foreground="{StaticResource SoftWhite}" FontFamily="{StaticResource BlizzLight}" FontSize="12"/>
-                    <Button Content="Refresh" Style="{StaticResource CustomColorChangeButton}" Command="{Binding RefreshFilterPreviewCommand}"
-                            FontFamily="{StaticResource BlizzMedium}" FocusVisualStyle="{x:Null}" FontSize="12" Margin="14,0,0,0"/>
                 </StackPanel>
 
-                <TextBlock DockPanel.Dock="Bottom" Text="{Binding PreviewStatus}" Margin="0,6,0,0" TextWrapping="Wrap"
-                           Foreground="{StaticResource SoftWhite}" FontFamily="{StaticResource BlizzLight}" FontSize="11"/>
+                <!-- Build any item to check against the filter. The builder takes room from the
+                     list while it is open. -->
+                <Button DockPanel.Dock="Top" HorizontalAlignment="Center" Margin="0,0,0,8"
+                        Style="{StaticResource CustomColorChangeButton}" Command="{Binding ToggleItemBuilderCommand}"
+                        FontFamily="{StaticResource BlizzMedium}" FocusVisualStyle="{x:Null}" FontSize="12">
+                    <Button.Content>
+                        <TextBlock>
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="Build an item"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsItemBuilderOpen}" Value="True">
+                                            <Setter Property="Text" Value="Hide item builder"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Button.Content>
+                </Button>
 
+                <Border DockPanel.Dock="Top" Margin="0,0,0,8" Padding="8,6" Background="#E6000000"
+                        BorderBrush="{StaticResource GoldBrush}" BorderThickness="1"
+                        DataContext="{Binding ItemBuilder}"
+                        Visibility="{Binding DataContext.IsItemBuilderOpen, RelativeSource={RelativeSource AncestorType=Page}, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,2">
+                            <TextBlock Text="Base" Style="{StaticResource BuilderLabel}" Margin="0,0,5,0"/>
+                            <ComboBox Style="{StaticResource BuilderEditableCombo}" Width="230"
+                                      ItemsSource="{Binding Bases}" SelectedItem="{Binding SelectedBase}"
+                                      DisplayMemberPath="DisplayName" TextSearch.TextPath="DisplayName"/>
+                            <TextBlock Text="Rarity" Style="{StaticResource BuilderLabel}"/>
+                            <ComboBox Style="{StaticResource BuilderCombo}" Width="90"
+                                      ItemsSource="{Binding Qualities}" SelectedItem="{Binding Quality}"/>
+                            <ComboBox Style="{StaticResource BuilderCombo}" Width="200" Margin="8,0,0,0"
+                                      ItemsSource="{Binding NamedChoices}" SelectedItem="{Binding SelectedNamed}" DisplayMemberPath="Name"
+                                      Visibility="{Binding HasNamedChoice, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,2">
+                            <TextBlock Text="Item level" Style="{StaticResource BuilderLabel}" Margin="0,0,5,0"/>
+                            <TextBox Text="{Binding ItemLevel, UpdateSourceTrigger=PropertyChanged}" Width="34" VerticalAlignment="Center"
+                                     Background="Black" Foreground="{StaticResource SoftWhite}" BorderBrush="{StaticResource GoldBrush}"/>
+                            <TextBlock Text="Sockets" Style="{StaticResource BuilderLabel}"/>
+                            <ComboBox Style="{StaticResource BuilderCombo}" Width="46"
+                                      ItemsSource="{Binding SocketChoices}" SelectedItem="{Binding Sockets}"/>
+                            <CheckBox Content="Identified" IsChecked="{Binding Identified}" Style="{StaticResource BuilderCheck}"/>
+                            <CheckBox Content="Ethereal" IsChecked="{Binding Ethereal}" Style="{StaticResource BuilderCheck}"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,2"
+                                    Visibility="{Binding HasAutoMods, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <TextBlock Text="Auto mod" Style="{StaticResource BuilderLabel}" Margin="0,0,5,0"/>
+                            <ComboBox Style="{StaticResource BuilderCombo}" Width="280"
+                                      ItemsSource="{Binding AutoModChoices}" SelectedItem="{Binding SelectedAutoMod}" DisplayMemberPath="Text"/>
+                            <TextBlock Text="Roll" Style="{StaticResource BuilderLabel}"/>
+                            <Slider Minimum="0" Maximum="100" Value="{Binding AutoModRoll}" Width="90" VerticalAlignment="Center"
+                                    IsSnapToTickEnabled="True" TickFrequency="5"/>
+                            <TextBlock Text="{Binding RolledAutoModText}" Style="{StaticResource BuilderLabel}"
+                                       Foreground="{StaticResource GoldBrush}" MaxWidth="170" TextTrimming="CharacterEllipsis"
+                                       ToolTip="{Binding RolledAutoModText}"/>
+                        </StackPanel>
+                        <StackPanel Visibility="{Binding HasStaffMods, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <StackPanel Orientation="Horizontal" Margin="0,4,0,2">
+                                <TextBlock Text="Staff mods" Style="{StaticResource BuilderLabel}" Margin="0,0,5,0"/>
+                                <ComboBox Style="{StaticResource BuilderCombo}" Width="40"
+                                          ItemsSource="{Binding Bonuses}" SelectedItem="{Binding ClassSkills}"/>
+                                <TextBlock Text="{Binding ClassSkillsText}" Style="{StaticResource BuilderLabel}" Margin="5,0,0,0"/>
+                                <ComboBox Style="{StaticResource BuilderCombo}" Width="40" Margin="14,0,0,0"
+                                          ItemsSource="{Binding Bonuses}" SelectedItem="{Binding TabBonus}"/>
+                                <ComboBox Style="{StaticResource BuilderCombo}" Width="230" Margin="5,0,0,0"
+                                          ItemsSource="{Binding TabChoices}" SelectedItem="{Binding Tab}" DisplayMemberPath="Text"/>
+                            </StackPanel>
+                            <ItemsControl ItemsSource="{Binding SkillSlots}" Margin="0,4,0,2">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,14,0">
+                                            <ComboBox Style="{StaticResource BuilderCombo}" Width="40"
+                                                      ItemsSource="{Binding DataContext.Bonuses, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                      SelectedItem="{Binding Bonus}"/>
+                                            <ComboBox Style="{StaticResource BuilderCombo}" Width="150" Margin="5,0,0,0"
+                                                      ItemsSource="{Binding DataContext.SkillChoices, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                      SelectedItem="{Binding Skill}" DisplayMemberPath="Name"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,6,0,0">
+                            <Button Content="Add to my list" Style="{StaticResource CustomColorChangeButton}"
+                                    Command="{Binding DataContext.AddBuiltItemCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                    ToolTip="Keep this item at the top of every filter preview."
+                                    FontFamily="{StaticResource BlizzMedium}" FocusVisualStyle="{x:Null}" FontSize="12"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Grid DockPanel.Dock="Bottom" Margin="0,6,0,0">
+                    <TextBlock Text="{Binding PreviewStatus}" TextWrapping="Wrap" Margin="0,0,110,0"
+                               Visibility="{Binding IsPreviewIdle, Converter={StaticResource BooleanToVisibilityConverter}}"
+                               Foreground="{StaticResource SoftWhite}" FontFamily="{StaticResource BlizzLight}" FontSize="11"/>
+                    <TextBlock Text="By HiimMark" HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                               Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzMedium}" FontSize="12"/>
+                </Grid>
+
+                <Grid>
                 <Border Background="Black" BorderBrush="{StaticResource GoldBrush}" BorderThickness="2">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <ScrollViewer.Resources>
@@ -195,11 +376,39 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid Margin="0,2">
+                                        <Grid.Style>
+                                            <Style TargetType="Grid">
+                                                <Style.Triggers>
+                                                    <!-- Items the user built stand out. -->
+                                                    <DataTrigger Binding="{Binding IsCustom}" Value="True">
+                                                        <Setter Property="Background" Value="#22A78E65"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Grid.Style>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="240"/>
                                             <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="{Binding Label}" Foreground="Gray" FontSize="11"
+                                        <Button Grid.Column="2" Content="&#xE74D;" FontFamily="Segoe MDL2 Assets" FontSize="13"
+                                                ToolTip="Remove from my list" Cursor="Hand" Margin="6,0,4,0" VerticalAlignment="Center"
+                                                Command="{Binding DataContext.RemovePreviewItemCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+                                                CommandParameter="{Binding}"
+                                                Visibility="{Binding IsCustom, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <TextBlock x:Name="Icon" Text="{TemplateBinding Content}" FontFamily="{TemplateBinding FontFamily}"
+                                                               FontSize="{TemplateBinding FontSize}" Foreground="{StaticResource GoldBrush}" Background="Transparent"/>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="Icon" Property="Foreground" Value="IndianRed"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+                                        <TextBlock Grid.Column="0" Text="{Binding Label}" Foreground="{Binding LabelBrush}" FontSize="11"
                                                    VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                         <StackPanel Grid.Column="1" ToolTip="{Binding Description}" ToolTipService.IsEnabled="{Binding HasDescription}">
                                             <ItemsControl ItemsSource="{Binding NameLines}"
@@ -233,6 +442,35 @@
                         </ItemsControl>
                     </ScrollViewer>
                 </Border>
+
+                    <!-- Shown while BH loads the filter or checks the items. -->
+                    <Grid Background="#CC000000" Margin="2"
+                          Visibility="{Binding IsPreviewBusy, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Grid Width="96" Height="96" HorizontalAlignment="Center">
+                                <Ellipse Stroke="#33A78E65" StrokeThickness="8"/>
+                                <Ellipse Stroke="{StaticResource GoldBrush}" StrokeThickness="8"
+                                         StrokeDashArray="7 30" StrokeDashCap="Round" RenderTransformOrigin="0.5,0.5">
+                                    <Ellipse.RenderTransform>
+                                        <RotateTransform/>
+                                    </Ellipse.RenderTransform>
+                                    <Ellipse.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                                     From="0" To="360" Duration="0:0:1.1" RepeatBehavior="Forever"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Ellipse.Triggers>
+                                </Ellipse>
+                            </Grid>
+                            <TextBlock Text="{Binding PreviewStatus}" Margin="0,18,0,0" HorizontalAlignment="Center"
+                                       Foreground="{StaticResource GoldBrush}" FontFamily="{StaticResource BlizzHeavy}" FontSize="22"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
             </DockPanel>
             <Button Content="X" FontSize="30"
                     Style="{StaticResource CloseButtonStyle}" FontFamily="{StaticResource BlizzHeavy}"

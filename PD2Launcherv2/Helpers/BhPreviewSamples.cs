@@ -9,6 +9,10 @@ namespace PD2Launcherv2.Helpers
     /// </summary>
     public static class BhPreviewSamples
     {
+        // Every rare is shown at this item level, high enough for the affix-level rules filters
+        // apply to end-game rares.
+        private const int RareItemLevel = 87;
+
         private static readonly string[] Gems =
         {
             "gcv", "gfv", "gsv", "gzv", "gpv", "gcy", "gfy", "gsy", "gly", "gpy", "gcb", "gfb", "gsb", "glb", "gpb",
@@ -56,7 +60,8 @@ namespace PD2Launcherv2.Helpers
             foreach (var name in Uniques)
             {
                 var u = catalog.Uniques.FirstOrDefault(x => x.Name == name);
-                if (u != null) Add(u.Code, $"{u.Name} (unique)", s => { s.Quality = "unique"; s.FileIndex = u.Index; });
+                // Unidentified, as a unique drops: that is the name the filter sees on the ground.
+                if (u != null) Add(u.Code, $"{u.Name} (unique, unidentified)", s => { s.Quality = "unique"; s.FileIndex = u.Index; s.Flags = new() { }; });
             }
             foreach (var name in Sets)
             {
@@ -70,7 +75,7 @@ namespace PD2Launcherv2.Helpers
                 if (!byCode.TryGetValue(code, out var item)) continue;
                 Add(code, $"{item.Name} (magic)", s => s.Quality = "magic");
                 if (code != "cm1" && code != "cm2" && code != "cm3")
-                    Add(code, $"{item.Name} (rare)", s => s.Quality = "rare");
+                    Add(code, $"{item.Name} (rare)", s => { s.Quality = "rare"; s.ItemLevel = RareItemLevel; });
             }
 
             // Popular bases, plain and in the variants filters key on.
@@ -84,7 +89,7 @@ namespace PD2Launcherv2.Helpers
                 if (sockets > 0)
                     Add(code, $"{item.Name} ({sockets} sockets)", s => s.Sockets = sockets);
                 Add(code, $"{item.Name} (magic)", s => s.Quality = "magic");
-                Add(code, $"{item.Name} (rare, unidentified)", s => { s.Quality = "rare"; s.Flags = new() { }; });
+                Add(code, $"{item.Name} (rare, unidentified)", s => { s.Quality = "rare"; s.Flags = new() { }; s.ItemLevel = RareItemLevel; });
             }
             return specs;
         }

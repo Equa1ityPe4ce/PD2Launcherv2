@@ -1,5 +1,6 @@
 #include "BHDriver.h"
 #include "Log.h"
+#include "ModCatalog.h"
 
 #include <chrono>
 #include <filesystem>
@@ -337,9 +338,11 @@ json BHDriver::Catalog() {
         while (!typeCode.empty() && typeCode.back() == ' ') typeCode.pop_back();
         const char* group = i < tables->nWeaponsTxtRecordCount ? "weapon"
                           : i < tables->nWeaponsTxtRecordCount + tables->nArmorTxtRecordCount ? "armor" : "misc";
-        items.push_back({ { "code", code }, { "name", ToUtf8(data_.LocaleText(t->wnamestr)) },
-                          { "type", typeCode }, { "group", group }, { "level", t->blevel },
-                          { "levelRequirement", t->blevelreq }, { "maxSockets", t->bgemsockets } });
+        json item = { { "code", code }, { "name", ToUtf8(data_.LocaleText(t->wnamestr)) },
+                      { "type", typeCode }, { "group", group }, { "level", t->blevel },
+                      { "levelRequirement", t->blevelreq }, { "maxSockets", t->bgemsockets } };
+        item.update(BaseModInfo(data_, i));
+        items.push_back(item);
     }
     // Unique and set rows, so callers can preview named items by name.
     auto codeOf = [](const char* c) {
@@ -358,7 +361,9 @@ json BHDriver::Catalog() {
         const wchar_t* name = data_.LocaleTextByKey(std::string(r->szName, strnlen(r->szName, sizeof(r->szName))));
         runewords.push_back({ { "index", i }, { "name", name ? ToUtf8(name) : std::string(r->szRuneName, strnlen(r->szRuneName, sizeof(r->szRuneName))) } });
     }
-    return json{ { "items", items }, { "uniques", uniques }, { "sets", sets }, { "runewords", runewords } };
+    json catalog = { { "items", items }, { "uniques", uniques }, { "sets", sets }, { "runewords", runewords } };
+    catalog.update(BuildModCatalog(data_));
+    return catalog;
 }
 
 json BHDriver::Describe() const {
