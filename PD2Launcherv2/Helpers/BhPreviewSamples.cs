@@ -43,6 +43,8 @@ namespace PD2Launcherv2.Helpers
                 if (!byCode.ContainsKey(code)) return;
                 var spec = new BhPreviewItemSpec { Code = code, Label = label };
                 configure?.Invoke(spec);
+                // Magic, rare, set and unique items are shown unidentified, as they drop.
+                if (spec.Flags == null && spec.Quality is "magic" or "rare" or "set" or "unique") spec.Flags = new();
                 specs.Add(spec);
             }
 
