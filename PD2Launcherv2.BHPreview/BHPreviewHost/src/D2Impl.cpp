@@ -253,6 +253,24 @@ int __stdcall Common_10957_GetStaffMods(UnitAny* item) {
     D2ItemTypesTxt* type = t ? Data().ItemType(t->nType) : nullptr;
     return type ? type->nStaffMods : 0;
 }
+// Weapon damage as the tooltip shows it: the item's own damage stat if it carries one,
+// otherwise the base damage from Weapons.txt for that grip (none if the weapon has no such grip).
+int WeaponDamage(UnitAny* item, bool twoHanded, bool max) {
+    int stat = twoHanded ? (max ? STAT_SECONDARYMAXIMUMDAMAGE : STAT_SECONDARYMINIMUMDAMAGE)
+                         : (max ? STAT_MAXIMUMDAMAGE : STAT_MINIMUMDAMAGE);
+    if (int v = Wld().UnitStat(item, stat, 0)) return v;
+    ItemsTxt* t = TxtOf(item);
+    if (!t) return 0;
+    if (twoHanded) return t->b2handed || t->b1or2handed ? (max ? t->b2handmaxdam : t->b2handmindam) : 0;
+    return t->b2handed && !t->b1or2handed ? 0 : (max ? t->bmaxdam : t->bmindam);
+}
+int __stdcall Common_10823_GetMinDamageStat(UnitAny* item, int twoHanded) { return WeaponDamage(item, twoHanded != 0, false); }
+int __stdcall Common_10925_GetMaxDamageStat(UnitAny* item, int twoHanded) { return WeaponDamage(item, twoHanded != 0, true); }
+// Only a barbarian may swing a one-or-two-handed weapon in one hand.
+int __stdcall Common_10364_Is1Or2Handed(UnitAny* player, UnitAny* item) {
+    ItemsTxt* t = TxtOf(item);
+    return player && player->dwTxtFileNo == 4 && t && t->b1or2handed;
+}
 UnitAny* __stdcall Common_NoItem(Inventory*) { return nullptr; }
 UnitAny* __stdcall Common_NoItemAtLoc(Inventory*, int) { return nullptr; }
 BOOL __stdcall Common_UnitCanDualWield(UnitAny*) { return FALSE; }
@@ -334,6 +352,9 @@ const std::vector<ImplEntry>& GameImplementations() {
         MakeImpl("D2COMMON_11144_GetQuiverType", &Common_11144_GetQuiverType),
         MakeImpl("D2COMMON_11147_UnitIsItem", &Common_11147_UnitIsItem),
         MakeImpl("D2COMMON_10957_GetStaffMods", &Common_10957_GetStaffMods),
+        MakeImpl("D2COMMON_10823_GetMinDamageStat", &Common_10823_GetMinDamageStat),
+        MakeImpl("D2COMMON_10925_GetMaxDamageStat", &Common_10925_GetMaxDamageStat),
+        MakeImpl("D2COMMON_10364_Is1Or2Handed", &Common_10364_Is1Or2Handed),
         MakeImpl("D2COMMON_GetCursorItem", &Common_NoItem),
         MakeImpl("D2COMMON_GetLeftHandWeapon", &Common_NoItem),
         MakeImpl("D2COMMON_10061_INVENTORY_GetLeftHandWeapon", &Common_NoItem),

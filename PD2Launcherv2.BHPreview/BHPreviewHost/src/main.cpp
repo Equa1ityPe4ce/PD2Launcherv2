@@ -29,6 +29,13 @@ using nlohmann::json;
 
 namespace {
 
+// A crash on one of BH's own threads cannot be caught by the driver's SEH wrappers; log
+// where it happened before the process dies.
+LONG WINAPI LogCrash(EXCEPTION_POINTERS* info) {
+    mock::LogException(info, "CRASH");
+    return EXCEPTION_CONTINUE_SEARCH;
+}
+
 void WriteLine(const json& j) {
     std::string line = j.dump(-1, ' ', false, json::error_handler_t::replace);
     fwrite(line.data(), 1, line.size(), stdout);
@@ -41,6 +48,7 @@ void WriteLine(const json& j) {
 int wmain(int argc, wchar_t** argv) {
     _setmode(_fileno(stdout), _O_BINARY);
     _setmode(_fileno(stdin), _O_BINARY);
+    SetUnhandledExceptionFilter(LogCrash);
 
     if (argc == 3 && std::wstring(argv[1]) == L"--selftest") return mock::RunSelfTest(argv[2]);
 

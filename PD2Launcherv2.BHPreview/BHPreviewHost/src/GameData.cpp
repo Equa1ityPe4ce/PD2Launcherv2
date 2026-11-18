@@ -85,10 +85,20 @@ bool GameData::LoadTbl(const GameFiles& files, const char* file, int indexBase, 
         DWORD len = nodes[n].stringLength;
         if (off >= raw.size()) continue;
         len = std::min<DWORD>(len, (DWORD)(raw.size() - off));
+        DWORD n8 = 0;
+        while (n8 < len && raw[off + n8]) n8++;
+        // The game decodes table strings as UTF-8 (PD2's tables store the 'ÿ' colour-code
+        // marker as C3 BF). A string that is not valid UTF-8 is widened byte by byte, which
+        // keeps a raw 0xFF marker intact.
+        const char* src = reinterpret_cast<const char*>(raw.data() + off);
         std::wstring s;
-        s.reserve(len);
-        // The game widens each byte as-is (so 0xFF stays the 'ÿ' colour-code marker).
-        for (DWORD k = 0; k < len && raw[off + k]; k++) s.push_back((wchar_t)raw[off + k]);
+        int wide = n8 ? MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, src, (int)n8, nullptr, 0) : 0;
+        if (wide > 0) {
+            s.resize(wide);
+            MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, src, (int)n8, s.data(), wide);
+        } else {
+            for (DWORD k = 0; k < n8; k++) s.push_back((wchar_t)(uint8_t)src[k]);
+        }
         DWORD keyOff = nodes[n].keyOffset;
         if (keyOff < raw.size()) {
             const char* key = reinterpret_cast<const char*>(raw.data() + keyOff);

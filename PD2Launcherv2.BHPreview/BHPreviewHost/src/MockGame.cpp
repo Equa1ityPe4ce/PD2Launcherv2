@@ -303,6 +303,7 @@ void MockGame::InitializeVariables(const GameState& state) {
     // Variables the mock owns.
     set("D2COMMON_sgptDataTable", (uint32_t)Ctx().data->DataTable());
     set("D2CLIENT_PlayerUnit", (uint32_t)Ctx().world->Player());
+    set("D2LAUNCH_BnData", (uint32_t)Ctx().world->BnData());
     // Everything else starts at zero unless the request says otherwise.
     for (auto& [name, value] : state.variables) {
         if (Symbol(name)) set(name.c_str(), value);
@@ -340,6 +341,12 @@ uint64_t MockGame::OnUnimplemented(int index) {
 }
 
 bool MockGame::Create(const std::wstring& sandbox, const std::wstring& installDir, std::string& error) {
+    std::error_code ec;
+    fs::create_directories(sandbox, ec);
+    if (ec) {
+        error = "could not create sandbox folder: " + ec.message();
+        return false;
+    }
     if (!BuildModules(sandbox, installDir, error)) return false;
     if (!BuildProjectDiablo(sandbox, error)) return false;
     InstallPatchScaffolding();

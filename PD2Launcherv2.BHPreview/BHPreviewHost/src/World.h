@@ -90,11 +90,13 @@ public:
     QuestInfo* Quests() { return &quests_; }
     const ItemExtras* Extras(UnitAny* item);
     Room1* PlayerRoom() { return &room1_; }
+    BnetData* BnData() { return &bnData_; }
 
 private:
     struct OwnedUnit {
         UnitAny unit = {};
         ItemData itemData = {};
+        Inventory inventory = {}; // an item's socketed contents (always empty here)
         StatList stats = {};
         std::vector<Stat> statArray;
         std::vector<Stat> setStatArray;
@@ -118,6 +120,7 @@ private:
     std::vector<uint8_t> act_;    // Act + ActMisc
     QuestInfo quests_ = {};
     std::vector<uint8_t> questBuffer_;
+    BnetData bnData_ = {}; // D2LAUNCH_BnData: BH's threads read the game and account names
     DWORD nextUnitId_ = 1; // never reused: BH caches item names by unit id
     size_t firstItemIndex_ = 0;
 };

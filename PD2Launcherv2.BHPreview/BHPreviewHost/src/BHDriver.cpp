@@ -68,17 +68,21 @@ __declspec(noinline) void CallGameLoopSite(void* site) {
 #define SEH_TRY __try
 #define SEH_EXCEPT(filter) __except (filter)
 #endif
+int LogAndHandle(EXCEPTION_POINTERS* info, const char* what) {
+    LogException(info, what);
+    return EXCEPTION_EXECUTE_HANDLER;
+}
 bool SafeItemName(void* site, wchar_t* name, UnitAny* item, int nameSize) {
     SEH_TRY { CallItemNameSite(site, name, item, nameSize); return true; }
-    SEH_EXCEPT(EXCEPTION_EXECUTE_HANDLER) { return false; }
+    SEH_EXCEPT(LogAndHandle(GetExceptionInformation(), "item name")) { return false; }
 }
 bool SafeGameLoop(void* site) {
     SEH_TRY { CallGameLoopSite(site); return true; }
-    SEH_EXCEPT(EXCEPTION_EXECUTE_HANDLER) { return false; }
+    SEH_EXCEPT(LogAndHandle(GetExceptionInformation(), "game loop")) { return false; }
 }
 bool SafeOnProperties(void(__stdcall* fn)(wchar_t*), wchar_t* text) {
     SEH_TRY { fn(text); return true; }
-    SEH_EXCEPT(EXCEPTION_EXECUTE_HANDLER) { return false; }
+    SEH_EXCEPT(LogAndHandle(GetExceptionInformation(), "properties")) { return false; }
 }
 HMODULE SafeLoadLibrary(const wchar_t* path, DWORD* code) {
     SEH_TRY { return LoadLibraryW(path); }
@@ -227,7 +231,7 @@ void BHDriver::TickGameLoop() {
 bool BHDriver::Start(const DriverOptions& options, std::string& error) {
     options_ = options;
     if (!PrepareSandbox(options, error)) return false;
-    if (!files_.Open(options.installDir, options.dataDir, error)) return false;
+    if (!files_.Open(options.installDir, options.dataDir, options.sandboxDir, error)) return false;
     if (!data_.Load(files_, error)) return false;
 
     GameState state;

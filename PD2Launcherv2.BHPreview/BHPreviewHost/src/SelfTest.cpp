@@ -70,8 +70,10 @@ int RunSelfTest(const std::wstring& sandbox) {
     Ctx().world = &world;
 
     std::string error;
-    Check(Game().Create(sandbox, L"", error), "fake modules build and load");
+    bool created = Game().Create(sandbox, L"", error);
+    Check(created, "fake modules build and load");
     if (!error.empty()) std::printf("      %s\n", error.c_str());
+    if (!created) return 1; // every later check would call through null symbols
     Game().InitializeVariables(state);
 
     for (int d = 0; d < (int)Dll::Count; d++) {

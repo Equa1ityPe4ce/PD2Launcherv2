@@ -19,7 +19,9 @@ public:
 
     // installDir: folder holding Game.exe/Storm.dll/pd2data.mpq (the PD2 install).
     // dataDir: optional folder of extracted files; may be empty.
-    bool Open(const std::wstring& installDir, const std::wstring& dataDir, std::string& error);
+    // sandboxDir: writable folder that receives the copy of Storm.dll that is loaded.
+    bool Open(const std::wstring& installDir, const std::wstring& dataDir, const std::wstring& sandboxDir,
+              std::string& error);
 
     // path uses MPQ style, e.g. "data\\global\\excel\\weapons.bin".
     bool Read(const std::string& path, std::vector<uint8_t>& out) const;

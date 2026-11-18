@@ -30,7 +30,10 @@ writing `call`/`jmp` instructions at fixed offsets. The host provides all of tha
    convention and argument size when installed, and refused if they disagree.
 4. **Data** (`GameData.cpp`, `GameFiles.cpp`): item, item-type, stat, skill, unique, set,
    runeword, gem, affix and level tables are read from the install's own `.bin` files and
-   string tables from its `.tbl` files, through the game's `Storm.dll`. That data is laid
+   string tables from its `.tbl` files (decoded as UTF-8, as the game does). The archives are
+   read with the `StormLib.dll` PD2 ships in the install folder. PD2's own `Storm.dll` is the
+   fallback: its `PD2_EXT.dll` import refuses to initialise outside the game, so a sandbox copy
+   that imports `version.dll` instead is loaded, but its file lookups have not been seen to work. That data is laid
    out the way D2COMMON keeps it in memory (`sgptDataTable` and friends), including the name
    indices the game fills in at load time. Every table's record size is checked against BH's
    struct size.
@@ -120,23 +123,22 @@ bucket.
 
 ## Status
 
-Verified so far:
-- Every source file compiles (clang, `i686-w64-windows-gnu`, MS inline assembly) against
-  BH's current headers and against the May 2025 headers that match the public `BH.dll`. A
-  clang/mingw build links.
-- Every table the host loads exists as `.bin` in the public `pd2data.mpq`, and each record
-  size matches BH's struct. The one exception is `ItemStatCost` (324 bytes in the file, 348
-  in BH because BH adds trailing fields it never reads); the loader re-strides it.
-- The `.tbl` parser reads PD2's `patchstring.tbl` correctly.
+Verified on Windows 11 (MSVC v143 build, PD2 install with the November 2026 `BH.dll`):
+- `--selftest` passes.
+- Against a real install and filter, BH loads, joins the mock game and answers `evaluate` and
+  `catalog`: filter names and colours, hidden items, unidentified/ethereal/socketed items,
+  runewords and BH's tooltip text all come from BH's own code.
+- Every `.bin` table loads with a record size matching BH's struct, except `ItemStatCost`
+  (324 bytes in the file, 348 in BH because BH adds trailing fields it never reads); the
+  loader re-strides it.
 - The launcher builds with the new preview UI.
 
-**Not yet verified: the host has never run on Windows.** It could not be run in the
-environment it was written in. First things to do on Windows:
-1. `BHPreviewHost.exe --selftest %TEMP%\bhtest` checks the fake modules, ordinal lookups,
-   stub stack handling and the PD2 exports without BH or game files.
-2. Run it against a real install with `--log`. Every `default stub: <name>` line is a game
-   function BH called that the mock does not implement yet; add the ones that matter to
-   `D2Impl.cpp`.
+Still unverified: how closely each result matches what the same filter shows in game.
+
+With `--log`, every `default stub: <name>` line is a game function BH called that the mock does
+not implement. The one seen so far is `D2COMMON_10592_GetWeaponAttackSpeed` (weapon tooltips),
+whose return value BH maps through the game's weapon-speed tables. Crashes inside BH are logged
+with the faulting `module+offset`, registers and likely return addresses.
 
 Known gaps:
 - Map icons, drop notifications and sounds (`ProcessItemPacketFilterRules`) are not driven

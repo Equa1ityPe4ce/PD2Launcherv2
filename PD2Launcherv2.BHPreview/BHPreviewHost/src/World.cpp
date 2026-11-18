@@ -223,6 +223,12 @@ void World::Update(const GameState& state) {
     level->dwLevelNo = (DWORD)state.areaId;
     act->dwAct = (DWORD)state.act;
     strncpy_s(playerData_.szName, state.charName.c_str(), _TRUNCATE);
+    strncpy_s(bnData_.szGameName, "preview", _TRUNCATE);
+    strncpy_s(bnData_.szAccountName, "preview", _TRUNCATE);
+    strncpy_s(bnData_.szPlayerName, state.charName.c_str(), _TRUNCATE);
+    strncpy_s(bnData_.szRealmName, "preview", _TRUNCATE);
+    bnData_.nCharClass = (BYTE)state.charClass;
+    bnData_.nDifficulty = (BYTE)state.difficulty;
     OwnedUnit& p = units_.front();
     p.unit.dwTxtFileNo = (DWORD)state.charClass;
     p.unit.dwAct = (DWORD)state.act;
@@ -246,6 +252,12 @@ UnitAny* World::CreateItem(const ItemSpec& spec) {
     o.unit.pAct = player_ ? player_->pAct : nullptr;
     o.unit.wX = 5001;
     o.unit.wY = 5001;
+    // Items carry their own (here empty) inventory for socketed contents; BH walks it without
+    // a null check when an item has sockets.
+    o.inventory.dwSignature = 0x01020304;
+    o.inventory.pOwner = &o.unit;
+    o.inventory.dwOwnerId = o.unit.dwUnitId;
+    o.unit.pInventory = &o.inventory;
     ItemData& d = o.itemData;
     d.dwQuality = spec.quality;
     d.dwItemFlags = 0xFFFFFFFF; // not owned by anyone: lying on the ground
