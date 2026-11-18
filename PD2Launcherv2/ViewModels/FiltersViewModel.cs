@@ -1,10 +1,10 @@
 ﻿using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
-using Microsoft.Web.WebView2.Wpf;
 using PD2Launcherv2.Enums;
 using PD2Launcherv2.Helpers;
 using PD2Launcherv2.Interfaces;
 using PD2Launcherv2.Models;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
@@ -21,21 +21,68 @@ namespace PD2Launcherv2.ViewModels
         public RelayCommand OpenAuthorsPageCommand { get; private set; }
         public RelayCommand OpenHelpPageCommand { get; private set; }
         public RelayCommand CopyToLocalCommand { get; private set; }
-        public RelayCommand FilterPreviewICommand { get; private set; }
-        public ICommand OpenFilterBirdCommand { get; }
+        public ICommand OpenFilterPreviewCommand { get; }
+        public ICommand RefreshFilterPreviewCommand { get; }
         public ICommand CloseFilterPreviewCommand { get; }
-        
-        private WebView2 _filterWebView2;
 
-        private bool _isWebViewVisible;
-        public bool IsWebViewVisible
+        // Filter preview: the installed BH.dll evaluates every item inside a simulated game
+        // (see PD2Launcherv2.BHPreview), so the preview cannot drift from what BH does in game.
+        private readonly BhPreviewService _bhPreview = new();
+        private BhCatalog? _bhCatalog;
+        private string? _previewFilterKey;
+
+        private bool _isPreviewVisible;
+        public bool IsPreviewVisible
         {
-            get => _isWebViewVisible;
-            set
-            {
-                _isWebViewVisible = value;
-                OnPropertyChanged();
-            }
+            get => _isPreviewVisible;
+            set { _isPreviewVisible = value; OnPropertyChanged(); }
+        }
+
+        public ObservableCollection<BhPreviewRow> PreviewRows { get; } = new();
+
+        private string _previewStatus = "";
+        public string PreviewStatus
+        {
+            get => _previewStatus;
+            set { _previewStatus = value; OnPropertyChanged(); }
+        }
+
+        private bool _isPreviewBusy;
+        public bool IsPreviewBusy
+        {
+            get => _isPreviewBusy;
+            set { _isPreviewBusy = value; OnPropertyChanged(); }
+        }
+
+        private bool _showHiddenItems = true;
+        public bool ShowHiddenItems
+        {
+            get => _showHiddenItems;
+            set { _showHiddenItems = value; OnPropertyChanged(); RefreshFilterPreview(); }
+        }
+
+        public List<string> PreviewDifficulties { get; } = new() { "Normal", "Nightmare", "Hell" };
+
+        private int _previewDifficulty = 2;
+        public int PreviewDifficulty
+        {
+            get => _previewDifficulty;
+            set { _previewDifficulty = value; OnPropertyChanged(); }
+        }
+
+        private string _previewCharacterLevel = "90";
+        public string PreviewCharacterLevel
+        {
+            get => _previewCharacterLevel;
+            set { _previewCharacterLevel = value; OnPropertyChanged(); }
+        }
+
+        /// <summary>Empty = the filter level saved in the user's BH.json.</summary>
+        private string _previewFilterLevel = "";
+        public string PreviewFilterLevel
+        {
+            get => _previewFilterLevel;
+            set { _previewFilterLevel = value; OnPropertyChanged(); }
         }
 
         private List<FilterAuthor> _authorsList;
@@ -118,11 +165,11 @@ namespace PD2Launcherv2.ViewModels
             SaveFilterCommand = new RelayCommand(SaveFilterExecute);
             OpenAuthorsPageCommand = new RelayCommand(OpenAuthorsPageExecute);
             OpenHelpPageCommand = new RelayCommand(OpenHelpPageExecute);
-            FilterPreviewICommand = new RelayCommand(OpenFilterPreviewIExecute);
-            OpenFilterBirdCommand = new RelayCommand(OpenFilterBird);
+            OpenFilterPreviewCommand = new RelayCommand(OpenFilterPreview);
+            RefreshFilterPreviewCommand = new RelayCommand(RefreshFilterPreview);
             CloseFilterPreviewCommand = new RelayCommand(CloseFilterPreview);
             CopyToLocalCommand = new RelayCommand(CopyFilterToLocalExecute);
-            IsWebViewVisible = false;
+            IsPreviewVisible = false;
         }
 
         public async Task InitializeAsync()
@@ -142,85 +189,106 @@ namespace PD2Launcherv2.ViewModels
             }
         }
 
-        public void SetWebView2(WebView2 webView2)
+        private BhPreviewWorld PreviewWorld()
         {
-            _filterWebView2 = webView2;
+            int level = int.TryParse(PreviewCharacterLevel, out var l) ? Math.Clamp(l, 1, 99) : 90;
+            return new BhPreviewWorld { CharacterLevel = level, Difficulty = PreviewDifficulty };
         }
 
-        private async void OpenFilterBird()
+        private int? PreviewFilterLevelValue() =>
+            int.TryParse(PreviewFilterLevel, out var l) && l >= 0 ? l : null;
+
+        /// <summary>Writes the selected filter to a file the preview host can read.</summary>
+        private async Task<string?> PreviewFilterFileAsync()
         {
-            if (SelectedFilter == null)
-            {
-                Debug.WriteLine("No filter selected.");
-                return;
-            }
+            if (SelectedFilter == null) return null;
+            if (SelectedAuthor?.Name == "Local Filter") return File.Exists(SelectedFilter.Path) ? SelectedFilter.Path : null;
+            var content = await _filterHelpers.FetchFilterContentAsync(SelectedFilter.DownloadUrl);
+            if (string.IsNullOrEmpty(content)) return null;
+            var dir = Path.Combine(Path.GetTempPath(), "PD2BHPreview", "filters");
+            Directory.CreateDirectory(dir);
+            var path = Path.Combine(dir, SelectedFilter.Name);
+            await File.WriteAllTextAsync(path, content);
+            return path;
+        }
 
-            string remoteUrl = "https://equa1itype4ce.github.io/filterbird/";
+        private void OpenFilterPreview()
+        {
+            if (SelectedFilter == null) return;
+            IsPreviewVisible = true;
+            RefreshFilterPreview();
+        }
 
+        private async void RefreshFilterPreview()
+        {
+            if (!IsPreviewVisible || SelectedFilter == null || IsPreviewBusy) return;
+            IsPreviewBusy = true;
             try
             {
-                if (_filterWebView2 == null)
+                var world = PreviewWorld();
+                var filterLevel = PreviewFilterLevelValue();
+                var filterKey = $"{SelectedAuthor?.Name}/{SelectedFilter.Name}";
+                if (!_bhPreview.IsRunning || _previewFilterKey != filterKey || _bhPreview.FilterLevel != filterLevel)
                 {
-                    Debug.WriteLine("WebView2 control is not set.");
+                    PreviewStatus = "Starting BH...";
+                    var filterPath = await PreviewFilterFileAsync();
+                    if (filterPath == null)
+                    {
+                        PreviewStatus = "Could not read the selected filter.";
+                        return;
+                    }
+                    var error = await _bhPreview.StartAsync(Directory.GetCurrentDirectory(), filterPath, filterLevel, world);
+                    if (error != null)
+                    {
+                        PreviewStatus = error;
+                        return;
+                    }
+                    _previewFilterKey = filterKey;
+                    _bhCatalog ??= await _bhPreview.CatalogAsync();
+                }
+
+                PreviewStatus = "Evaluating items...";
+                var specs = BhPreviewSamples.Build(_bhCatalog ?? new BhCatalog());
+                var response = await _bhPreview.EvaluateAsync(specs, world);
+                if (response.Error != null)
+                {
+                    PreviewStatus = response.Error;
                     return;
                 }
-
-                // Init WebView2 if its null
-                if (_filterWebView2.CoreWebView2 == null)
+                PreviewRows.Clear();
+                int hidden = 0;
+                for (int i = 0; i < specs.Count && i < response.Items.Count; i++)
                 {
-                    await _filterWebView2.EnsureCoreWebView2Async(null);
+                    var row = new BhPreviewRow(specs[i], response.Items[i]);
+                    if (row.Hidden) hidden++;
+                    if (row.Hidden && !ShowHiddenItems) continue;
+                    PreviewRows.Add(row);
                 }
-
-                // GET the filter content
-                var filterContent = await _filterHelpers.FetchFilterContentAsyncForFilterBird(SelectedFilter.DownloadUrl);
-
-                //attempt to escape and nefarious attempts from filter creators
-                string sanitizedFilterContent = filterContent
-                    .Replace("\\", "\\\\")
-                    .Replace("'", "\\'")
-                    .Replace("\"", "\\\"")
-                    .Replace("\n", "\\n")
-                    .Replace("\r", "\\r");
-
-                //WebView2 visible
-                IsWebViewVisible = true;
-
-                // Open filterbird
-                _filterWebView2.Source = new Uri(remoteUrl);
-
-                // inject filter onto filterbird
-                _filterWebView2.CoreWebView2.NavigationCompleted += async (sender, args) =>
-                {
-                    //add param to prevent injection
-                    string script = $"document.getElementById('filter_text_1').innerHTML = '{sanitizedFilterContent}';";
-                    await _filterWebView2.CoreWebView2.ExecuteScriptAsync(script);
-                    await _filterWebView2.CoreWebView2.ExecuteScriptAsync($"loadedFromApp();");
-
-                };
+                PreviewStatus = $"{specs.Count} items, {hidden} hidden by this filter. Rendered by your installed BH.dll.";
             }
             catch (Exception ex)
             {
-                Debug.WriteLine("Error loading or interacting with the HTML file: " + ex.Message);
+                PreviewStatus = $"Preview failed: {ex.Message}";
+                Debug.WriteLine($"BH preview: {ex}");
+            }
+            finally
+            {
+                IsPreviewBusy = false;
             }
         }
 
         private void CloseFilterPreview()
         {
-            IsWebViewVisible = false;
-            _filterWebView2.CoreWebView2.NavigateToString("");
+            IsPreviewVisible = false;
+            PreviewRows.Clear();
+            _bhPreview.Stop();
+            _previewFilterKey = null;
         }
 
         private void OpenHelpPageExecute()
         {
             OpenUrlInBrowser("https://github.com/Project-Diablo-2/LootFilters");
         }
-
-        private void OpenFilterPreviewIExecute()
-        {
-            OpenUrlInBrowser("https://github.com/Equa1ityPe4ce/filterbird");
-        }
-
-
 
         private void SelectStoredAuthorAndFilter()
         {
@@ -333,7 +401,7 @@ namespace PD2Launcherv2.ViewModels
                     Directory.CreateDirectory(Path.GetDirectoryName(localPath) ?? string.Empty);
 
                     // turn filter into a string
-                    var filterContent = await _filterHelpers.FetchFilterContentAsyncForFilterBird(SelectedFilter.DownloadUrl);
+                    var filterContent = await _filterHelpers.FetchFilterContentAsync(SelectedFilter.DownloadUrl);
 
                     // Save the filter string to local path
                     await File.WriteAllTextAsync(localPath, filterContent);

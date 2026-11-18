@@ -20,7 +20,7 @@ namespace PD2Launcherv2.Helpers
             _httpClient = httpClient;
             _localStorage = localStorage;
         }
-        public async Task<string> FetchFilterContentAsyncForFilterBird(string downloadUrl)
+        public async Task<string> FetchFilterContentAsync(string downloadUrl)
         {
             try
             {

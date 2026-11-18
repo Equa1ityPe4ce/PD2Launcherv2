@@ -9,6 +9,10 @@ Key Components
     Filters List: Shows the available filters from the selected author. Users can select a filter to view more details or apply it.
     Save Filter Button: Saves the currently selected filter, applying it to the user's game.
     Authors Page Button: Navigates to a more detailed page about the filter authors, offering further insights or contact information.
+    Preview Filter Button: Shows how the selected filter displays a set of sample items (runes, gems, potions, uniques, sets, popular bases, ...).
+        The names and descriptions come from the installed BH.dll itself, run inside a simulated game by BHPreviewHost.exe
+        (see PD2Launcherv2.BHPreview/README.md), so the preview cannot drift from what BH does in game.
+        Character level, difficulty and filter level can be changed in the preview.
 ___
 **ViewModel Integration (FiltersViewModel)**
 

@@ -5,7 +5,6 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:PD2Launcherv2.ViewModels"
       xmlns:converters="clr-namespace:PD2Launcherv2.Converters"
-      xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
       Width="750" Height="550"
       mc:Ignorable="d" 
       Title="FiltersView"
@@ -109,7 +108,7 @@
                     />
 
             <Button Content="Preview Filter"
-                    Command="{Binding OpenFilterBirdCommand}"
+                    Command="{Binding OpenFilterPreviewCommand}"
                     FontFamily="{StaticResource BlizzMedium}"
                     FocusVisualStyle="{x:Null}"
                     FontSize="18"
@@ -153,39 +152,88 @@
                     FontFamily="{StaticResource BlizzMedium}"
                     FocusVisualStyle="{x:Null}"
                     FontSize="18"
-                    Visibility="{Binding IsWebViewVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    Visibility="{Binding IsPreviewVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
                     Margin="0,0,0,0"/>
         </StackPanel>
 
-        <Grid Visibility="{Binding IsWebViewVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <Image Source="pack://application:,,,/Resources/Images/bg_plain.jpg" Stretch="Fill" Panel.ZIndex="1"/>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,0" Panel.ZIndex="3">
-                <TextBlock Text="FilterBird" FontSize="24" FontFamily="{StaticResource BlizzHeavy}" 
-                   Foreground="{StaticResource GoldBrush}" HorizontalAlignment="Center" VerticalAlignment="Top"/>
-                <Button Content="info"
-                    Style="{StaticResource CustomColorChangeButton}"
-                    Command="{Binding FilterPreviewICommand}"
-                    FontFamily="{StaticResource BlizzMedium}"
-                    FocusVisualStyle="{x:Null}" Margin="10,5,0,0" FontSize="10" Panel.ZIndex="3"/>
-            </StackPanel>
+        <!-- Filter preview: every name and description here comes from the installed BH.dll,
+             run against a simulated game by BHPreviewHost.exe. -->
+        <Grid Visibility="{Binding IsPreviewVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Image Source="pack://application:,,,/Resources/Images/bg_plain.jpg" Stretch="Fill"/>
+            <DockPanel Margin="20,10,20,15">
+                <TextBlock DockPanel.Dock="Top" Text="Filter Preview" FontSize="24" FontFamily="{StaticResource BlizzHeavy}"
+                           Foreground="{StaticResource GoldBrush}" HorizontalAlignment="Center"/>
 
-            <wv2:WebView2 x:Name="FilterWebView2" 
-                          HorizontalAlignment="Center" 
-                          VerticalAlignment="Center"
-                          DefaultBackgroundColor="Transparent"
-                          Margin="0,40,0,0"
-                          Height="475"
-                          Width="745"
-                          Panel.ZIndex="2" />
- 
-            <TextBlock Text="NOTE:  Filterbird is not the game's lootfilter code. There is a chance it shows/hides something that would be different in game." 
-    VerticalAlignment="Top"
-    HorizontalAlignment="Right"
-    Margin="0,12,40,0"
-    Width="190"
-    Foreground="{StaticResource SoftWhite}" Background="Transparent"
-    FontSize="10" FontFamily="{StaticResource BlizzLight}"
-    TextWrapping="Wrap" Panel.ZIndex="99"></TextBlock>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,8">
+                    <TextBlock Text="Character level" VerticalAlignment="Center" Margin="0,0,6,0"
+                               Foreground="{StaticResource SoftWhite}" FontFamily="{StaticResource BlizzLight}" FontSize="12"/>
+                    <TextBox Text="{Binding PreviewCharacterLevel, UpdateSourceTrigger=PropertyChanged}" Width="36"
+                             Background="Black" Foreground="{StaticResource SoftWhite}" BorderBrush="{StaticResource GoldBrush}"/>
+                    <TextBlock Text="Difficulty" VerticalAlignment="Center" Margin="14,0,6,0"
+                               Foreground="{StaticResource SoftWhite}" FontFamily="{StaticResource BlizzLight}" FontSize="12"/>
+                    <ComboBox ItemsSource="{Binding PreviewDifficulties}" SelectedIndex="{Binding PreviewDifficulty}" Width="90"/>
+                    <TextBlock Text="Filter level" VerticalAlignment="Center" Margin="14,0,6,0"
+                               ToolTip="Leave empty to use the filter level saved in your BH settings."
+                               Foreground="{StaticResource SoftWhite}" FontFamily="{StaticResource BlizzLight}" FontSize="12"/>
+                    <TextBox Text="{Binding PreviewFilterLevel, UpdateSourceTrigger=PropertyChanged}" Width="30"
+                             Background="Black" Foreground="{StaticResource SoftWhite}" BorderBrush="{StaticResource GoldBrush}"/>
+                    <CheckBox Content="Show hidden" IsChecked="{Binding ShowHiddenItems}" VerticalAlignment="Center" Margin="14,0,0,0"
+                              Foreground="{StaticResource SoftWhite}" FontFamily="{StaticResource BlizzLight}" FontSize="12"/>
+                    <Button Content="Refresh" Style="{StaticResource CustomColorChangeButton}" Command="{Binding RefreshFilterPreviewCommand}"
+                            FontFamily="{StaticResource BlizzMedium}" FocusVisualStyle="{x:Null}" FontSize="12" Margin="14,0,0,0"/>
+                </StackPanel>
+
+                <TextBlock DockPanel.Dock="Bottom" Text="{Binding PreviewStatus}" Margin="0,6,0,0" TextWrapping="Wrap"
+                           Foreground="{StaticResource SoftWhite}" FontFamily="{StaticResource BlizzLight}" FontSize="11"/>
+
+                <Border Background="Black" BorderBrush="{StaticResource GoldBrush}" BorderThickness="2">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <ScrollViewer.Resources>
+                            <Style TargetType="{x:Type ScrollBar}" BasedOn="{StaticResource CustomVerticalScrollBar}"/>
+                        </ScrollViewer.Resources>
+                        <ItemsControl ItemsSource="{Binding PreviewRows}" Margin="6">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,2">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="240"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{Binding Label}" Foreground="Gray" FontSize="11"
+                                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                        <StackPanel Grid.Column="1" ToolTip="{Binding Description}" ToolTipService.IsEnabled="{Binding HasDescription}">
+                                            <ItemsControl ItemsSource="{Binding NameLines}"
+                                                          Visibility="{Binding Shown, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <ItemsControl ItemsSource="{Binding}">
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <WrapPanel Orientation="Horizontal"/>
+                                                                </ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <TextBlock Text="{Binding Text}" Foreground="{Binding Brush}"
+                                                                               FontFamily="{StaticResource BlizzLight}" FontSize="13"/>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            <TextBlock Text="hidden by filter" FontStyle="Italic" Foreground="#555555" FontSize="11"
+                                                       Visibility="{Binding Hidden, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                            <TextBlock Text="{Binding Error}" Foreground="IndianRed" FontSize="11" TextWrapping="Wrap"
+                                                       Visibility="{Binding HasError, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Border>
+            </DockPanel>
             <Button Content="X" FontSize="30"
                     Style="{StaticResource CloseButtonStyle}" FontFamily="{StaticResource BlizzHeavy}"
                     HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,0,0"
