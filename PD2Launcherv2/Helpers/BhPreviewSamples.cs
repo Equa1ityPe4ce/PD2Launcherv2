@@ -66,7 +66,8 @@ namespace PD2Launcherv2.Helpers
             foreach (var name in Sets)
             {
                 var si = catalog.Sets.FirstOrDefault(x => x.Name == name);
-                if (si != null) Add(si.Code, $"{si.Name} (set)", s => { s.Quality = "set"; s.FileIndex = si.Index; });
+                // Unidentified, as a set item drops.
+                if (si != null) Add(si.Code, $"{si.Name} (set, unidentified)", s => { s.Quality = "set"; s.FileIndex = si.Index; s.Flags = new() { }; });
             }
 
             // Jewellery and charms in each quality a filter tends to treat differently.
