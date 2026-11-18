@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{6B7E1D5A-3C2F-4E8B-9A41-2F6D8C0B7E15}</ProjectGuid>
+    <RootNamespace>BHPreviewHost</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <!--
+    BHSourceDir: a checkout of https://github.com/Project-Diablo-2/BH at the commit the shipped
+    BH.dll was built from. The host compiles against that checkout's game-structure headers and
+    regenerates its symbol table from it, so the mock always matches the BH under test.
+    Override with: msbuild /p:BHSourceDir=C:\path\to\BH
+  -->
+  <PropertyGroup>
+    <BHSourceDir Condition="'$(BHSourceDir)' == ''">$(MSBuildThisFileDirectory)..\..\..\BH</BHSourceDir>
+    <BHHeaderDir>$(BHSourceDir)\BH</BHHeaderDir>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>false</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <PropertyGroup>
+    <OutDir>$(MSBuildThisFileDirectory)bin\$(Configuration)\</OutDir>
+    <IntDir>$(MSBuildThisFileDirectory)obj\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>$(BHHeaderDir);$(MSBuildThisFileDirectory)src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_CONSOLE;_CRT_SECURE_NO_WARNINGS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>Level3</WarningLevel>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <RuntimeLibrary Condition="'$(Configuration)'=='Release'">MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary Condition="'$(Configuration)'=='Debug'">MultiThreadedDebug</RuntimeLibrary>
+      <Optimization Condition="'$(Configuration)'=='Release'">MaxSpeed</Optimization>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <!-- Generated stubs and the fake modules hold code at fixed addresses; keep the host simple. -->
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <AdditionalDependencies>user32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PreBuildEvent>
+      <Command>where python &gt;nul 2&gt;nul &amp;&amp; python "$(MSBuildThisFileDirectory)..\tools\gen_d2exports.py" "$(BHHeaderDir)" "$(MSBuildThisFileDirectory)generated\D2Exports.g.h" || echo warning: python not found, using the committed generated\D2Exports.g.h</Command>
+      <Message>Regenerating the D2 symbol table from BH's D2Ptrs.h</Message>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <Target Name="CheckBHSource" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(BHHeaderDir)\D2Structs.h')" Text="BH source not found at $(BHSourceDir). Clone https://github.com/Project-Diablo-2/BH there (at the commit of the BH.dll you ship) or pass /p:BHSourceDir=..." />
+  </Target>
+  <ItemGroup>
+    <ClCompile Include="src\BHDriver.cpp" />
+    <ClCompile Include="src\D2Impl.cpp" />
+    <ClCompile Include="src\GameData.cpp" />
+    <ClCompile Include="src\GameFiles.cpp" />
+    <ClCompile Include="src\Log.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\MockGame.cpp" />
+    <ClCompile Include="src\ModCatalog.cpp" />
+    <ClCompile Include="src\PeShell.cpp" />
+    <ClCompile Include="src\SelfTest.cpp" />
+    <ClCompile Include="src\World.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="generated\D2Exports.g.h" />
+    <ClInclude Include="src\BHDriver.h" />
+    <ClInclude Include="src\BHHeaders.h" />
+    <ClInclude Include="src\GameData.h" />
+    <ClInclude Include="src\GameFiles.h" />
+    <ClInclude Include="src\Log.h" />
+    <ClInclude Include="src\MockGame.h" />
+    <ClInclude Include="src\MockTypes.h" />
+    <ClInclude Include="src\ModCatalog.h" />
+    <ClInclude Include="src\PeShell.h" />
+    <ClInclude Include="src\SelfTest.h" />
+    <ClInclude Include="src\World.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

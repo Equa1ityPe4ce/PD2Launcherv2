@@ -12,11 +12,6 @@ namespace PD2Launcherv2.Views
         public FiltersView()
         {
             InitializeComponent();
-            var viewModel = DataContext as FiltersViewModel;
-            if (viewModel != null)
-            {
-                viewModel.SetWebView2(FilterWebView2);
-            }
         }
 
         private async void FiltersView_Loaded(object sender, RoutedEventArgs e)
