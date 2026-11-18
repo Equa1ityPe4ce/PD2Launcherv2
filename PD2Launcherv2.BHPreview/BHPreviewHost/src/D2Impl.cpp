@@ -203,7 +203,8 @@ BYTE __stdcall Common_GetMaxSockets(UnitAny* item) {
     D2ItemTypesTxt* type = Data().ItemType(t->nType);
     if (!type) return t->bgemsockets;
     DWORD ilvl = item->pItemData->dwItemLevel;
-    BYTE byLevel = ilvl < 25 ? type->nMaxSock1 : ilvl < 40 ? type->nMaxSock25 : type->nMaxSock40;
+    // ItemTypes: MaxSock1 for ilvl 1-25, MaxSock25 for 26-40, MaxSock40 above.
+    BYTE byLevel = ilvl <= 25 ? type->nMaxSock1 : ilvl <= 40 ? type->nMaxSock25 : type->nMaxSock40;
     return std::min<BYTE>(t->bgemsockets, byLevel);
 }
 UnitAny* __stdcall Common_GetItemFromInventory(Inventory*) { return nullptr; }

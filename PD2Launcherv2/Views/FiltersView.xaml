@@ -82,8 +82,48 @@
                 </Setter.Value>
             </Setter>
         </Style>
-        <Style x:Key="BuilderCheck" TargetType="CheckBox">
+        <!-- Small square -/+ buttons for number inputs. -->
+        <Style x:Key="StepperButton" TargetType="Button">
+            <Setter Property="Width" Value="22"/>
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Foreground" Value="{StaticResource GoldBrush}"/>
+            <Setter Property="FontFamily" Value="{StaticResource BlizzHeavy}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Box" Background="Black" BorderBrush="{StaticResource GoldBrush}" BorderThickness="1">
+                            <TextBlock Text="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,-2,0,0"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Box" Property="Background" Value="#33A78E65"/>
+                                <Setter Property="Foreground" Value="{StaticResource GoldLighterBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="PreviewNumberBox" TargetType="TextBox">
+            <Setter Property="Height" Value="22"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="Black"/>
             <Setter Property="Foreground" Value="{StaticResource SoftWhite}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource GoldBrush}"/>
+            <Setter Property="CaretBrush" Value="{StaticResource GoldBrush}"/>
+            <Setter Property="FontFamily" Value="{StaticResource BlizzLight}"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+        <Style x:Key="BuilderCheck" TargetType="CheckBox" BasedOn="{StaticResource CustomCheckBoxStyle}">
+            <Setter Property="Foreground" Value="{StaticResource SoftWhite}"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FontFamily" Value="{StaticResource BlizzLight}"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
@@ -243,19 +283,20 @@
                     <TextBlock Text="Character level" VerticalAlignment="Center" Margin="0,0,6,0"
                                Foreground="{StaticResource SoftWhite}" FontFamily="{StaticResource BlizzLight}" FontSize="12"/>
                     <TextBox Text="{Binding PreviewCharacterLevel, UpdateSourceTrigger=PropertyChanged}" Width="36"
-                             Background="Black" Foreground="{StaticResource SoftWhite}" BorderBrush="{StaticResource GoldBrush}"/>
+                             Style="{StaticResource PreviewNumberBox}"/>
                     <TextBlock Text="Difficulty" VerticalAlignment="Center" Margin="14,0,6,0"
                                Foreground="{StaticResource SoftWhite}" FontFamily="{StaticResource BlizzLight}" FontSize="12"/>
                     <ComboBox ItemsSource="{Binding PreviewDifficulties}" SelectedIndex="{Binding PreviewDifficulty}"
                               Style="{StaticResource CustomComboBoxStyle}" Width="100" Margin="0" Padding="6,0,0,0"
                               FontSize="12" Background="Black" VerticalAlignment="Center"/>
                     <TextBlock Text="Filter level" VerticalAlignment="Center" Margin="14,0,6,0"
-                               ToolTip="Leave empty to use the filter level saved in your BH settings."
+                               ToolTip="The BH filter level to preview, 0-15."
                                Foreground="{StaticResource SoftWhite}" FontFamily="{StaticResource BlizzLight}" FontSize="12"/>
-                    <TextBox Text="{Binding PreviewFilterLevel, UpdateSourceTrigger=PropertyChanged}" Width="30"
-                             Background="Black" Foreground="{StaticResource SoftWhite}" BorderBrush="{StaticResource GoldBrush}"/>
-                    <CheckBox Content="Show hidden" IsChecked="{Binding ShowHiddenItems}" VerticalAlignment="Center" Margin="14,0,0,0"
-                              Foreground="{StaticResource SoftWhite}" FontFamily="{StaticResource BlizzLight}" FontSize="12"/>
+                    <Button Content="-" Style="{StaticResource StepperButton}" Command="{Binding DecreaseFilterLevelCommand}"/>
+                    <TextBox Text="{Binding PreviewFilterLevel, UpdateSourceTrigger=PropertyChanged}" Width="28" Margin="3,0"
+                             Style="{StaticResource PreviewNumberBox}"/>
+                    <Button Content="+" Style="{StaticResource StepperButton}" Command="{Binding IncreaseFilterLevelCommand}"/>
+                    <CheckBox Content="Show hidden" IsChecked="{Binding ShowHiddenItems}" Style="{StaticResource BuilderCheck}" Margin="14,0,0,0"/>
                 </StackPanel>
 
                 <!-- Build any item to check against the filter. The builder takes room from the
@@ -298,8 +339,8 @@
                         </StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,4,0,2">
                             <TextBlock Text="Item level" Style="{StaticResource BuilderLabel}" Margin="0,0,5,0"/>
-                            <TextBox Text="{Binding ItemLevel, UpdateSourceTrigger=PropertyChanged}" Width="34" VerticalAlignment="Center"
-                                     Background="Black" Foreground="{StaticResource SoftWhite}" BorderBrush="{StaticResource GoldBrush}"/>
+                            <TextBox Text="{Binding ItemLevel, UpdateSourceTrigger=PropertyChanged}" Width="34"
+                                     Style="{StaticResource PreviewNumberBox}"/>
                             <TextBlock Text="Sockets" Style="{StaticResource BuilderLabel}"/>
                             <ComboBox Style="{StaticResource BuilderCombo}" Width="46"
                                       ItemsSource="{Binding SocketChoices}" SelectedItem="{Binding Sockets}"/>

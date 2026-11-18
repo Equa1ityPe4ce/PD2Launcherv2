@@ -24,6 +24,8 @@ namespace PD2Launcherv2.ViewModels
         public ICommand OpenFilterPreviewCommand { get; }
         public ICommand CloseFilterPreviewCommand { get; }
         public ICommand ToggleItemBuilderCommand { get; }
+        public ICommand IncreaseFilterLevelCommand { get; }
+        public ICommand DecreaseFilterLevelCommand { get; }
         public ICommand AddBuiltItemCommand { get; }
         public ICommand RemovePreviewItemCommand { get; }
 
@@ -95,12 +97,28 @@ namespace PD2Launcherv2.ViewModels
             set { _previewCharacterLevel = value; OnPropertyChanged(); SchedulePreviewRefresh(); }
         }
 
-        /// <summary>Empty = the filter level saved in the user's BH.json.</summary>
+        private const int MinFilterLevel = 0, MaxFilterLevel = 15;
+
+        /// <summary>The BH filter level to preview, kept within 0-15.</summary>
         private string _previewFilterLevel = "1";
         public string PreviewFilterLevel
         {
             get => _previewFilterLevel;
-            set { _previewFilterLevel = value; OnPropertyChanged(); SchedulePreviewRefresh(); }
+            set
+            {
+                // Typed numbers are clamped; anything else is ignored. Empty is allowed while typing.
+                if (int.TryParse(value, out var level)) value = Math.Clamp(level, MinFilterLevel, MaxFilterLevel).ToString();
+                else if (!string.IsNullOrEmpty(value)) value = _previewFilterLevel;
+                _previewFilterLevel = value;
+                OnPropertyChanged();
+                SchedulePreviewRefresh();
+            }
+        }
+
+        private void StepFilterLevel(int delta)
+        {
+            int level = int.TryParse(PreviewFilterLevel, out var l) ? l : 1;
+            PreviewFilterLevel = Math.Clamp(level + delta, MinFilterLevel, MaxFilterLevel).ToString();
         }
 
         private List<FilterAuthor> _authorsList;
@@ -186,6 +204,8 @@ namespace PD2Launcherv2.ViewModels
             OpenFilterPreviewCommand = new RelayCommand(OpenFilterPreview);
             CloseFilterPreviewCommand = new RelayCommand(CloseFilterPreview);
             ToggleItemBuilderCommand = new RelayCommand(() => IsItemBuilderOpen = !IsItemBuilderOpen);
+            IncreaseFilterLevelCommand = new RelayCommand(() => StepFilterLevel(1));
+            DecreaseFilterLevelCommand = new RelayCommand(() => StepFilterLevel(-1));
             AddBuiltItemCommand = new RelayCommand(AddBuiltItem);
             RemovePreviewItemCommand = new RelayCommand<BhPreviewRow>(RemovePreviewItem);
             _previewRefreshTimer.Tick += (_, _) => { _previewRefreshTimer.Stop(); RefreshFilterPreview(); };
